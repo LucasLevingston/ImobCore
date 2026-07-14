@@ -111,6 +111,79 @@ graph TB
 3. **Testável por construção.** Toda regra de negócio é isolável de I/O (banco, HTTP, filesystem) via injeção de dependência — permite testar sem mocks frágeis de framework.
 4. **Cada camada só resolve um tipo de problema.** Zod valida forma; use case decide regra de negócio; repository decide acesso a dado. Nunca misturar.
 
+### Fluxo de autenticação (login → refresh → logout)
+
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant AF as auth-frontend
+    participant AS as auth-service
+    participant DB as postgres-auth
+
+    U->>AF: preenche login (email, senha)
+    AF->>AS: POST /login
+    AS->>DB: findByEmail + compara hash bcrypt
+    DB-->>AS: User
+    AS->>DB: cria RefreshToken (hash)
+    AS-->>AF: 200 { accessToken } + Set-Cookie refreshToken (httpOnly)
+    AF->>AF: guarda accessToken em memória (nunca localStorage)
+
+    Note over AF,AS: 15 min depois — access token expira
+    AF->>AS: POST /refresh (cookie refreshToken)
+    AS->>DB: valida hash + revokedAt IS NULL
+    AS->>DB: revoga token antigo, cria novo (rotation)
+    AS-->>AF: 200 { accessToken } + Set-Cookie novo refreshToken
+
+    U->>AF: clica logout
+    AF->>AS: POST /logout (accessToken + cookie)
+    AS->>DB: revoga RefreshToken atual
+    AS-->>AF: 204
+    AF->>AF: limpa accessToken da memória
+```
+
+### Fluxo Micro Frontends (Module Federation em runtime)
+
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant PF as products-frontend (host)
+    participant AF as auth-frontend (remote)
+    participant PS as products-service
+
+    U->>PF: acessa /products
+    PF->>PF: SSR da página (Server Components)
+    PF->>AF: dynamic import remoteEntry.js (client-side, ssr:false)
+    AF-->>PF: chunk de Header/AuthStatus/UserMenu
+    PF->>PF: renderiza host + componentes federados na mesma árvore React
+    PF->>PS: GET /products (com accessToken)
+    PS-->>PF: lista paginada
+
+    alt auth-frontend fora do ar
+        PF->>AF: falha ao carregar remoteEntry.js
+        PF->>PF: ErrorBoundary → fallback local mínimo (sem quebrar a página)
+    end
+```
+
+### Fluxo Microservices (isolamento de validação JWT)
+
+```mermaid
+sequenceDiagram
+    participant PF as products-frontend
+    participant PS as products-service
+    participant AS as auth-service
+
+    PF->>PS: POST /products (Authorization: Bearer accessToken)
+    PS->>PS: middleware onRequest decodifica JWT com JWT_SECRET local
+    Note over PS,AS: sem chamada de rede a auth-service — validação 100% local
+    alt assinatura válida e não expirado
+        PS->>PS: request.user = { id, email }
+        PS->>PS: use case cria produto
+        PS-->>PF: 201 Product
+    else assinatura inválida/expirado
+        PS-->>PF: 401 Unauthorized
+    end
+```
+
 ---
 
 ## 05. Micro Frontends
@@ -584,7 +657,7 @@ Uma fase do roadmap (seção 31) só é considerada **concluída** quando:
 
 ```
 Fase 0 → Scaffold monorepo + tooling + docker-compose skeleton                    [CONCLUÍDA]
-Fase 1 → packages/ui (design system compartilhado)                                [EM ANDAMENTO]
+Fase 1 → packages/ui (design system compartilhado)                                [CONCLUÍDA]
 Fase 2 → auth-service (backend completo, TDD)
 Fase 3 → auth-frontend (MFE completo, TDD)
 Fase 4 → products-service (backend completo, TDD)

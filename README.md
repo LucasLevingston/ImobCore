@@ -74,7 +74,7 @@ packages/
 ## Roadmap de fases
 
 - [x] **Fase 0** — Scaffold do monorepo, tooling (ESLint/Prettier/Husky/commitlint), docker-compose skeleton
-- [ ] **Fase 1** — `packages/ui` (design system)
+- [x] **Fase 1** — `packages/ui` (design system) — 10 componentes, 68 testes, 100% cobertura (stmts/funcs/lines)
 - [ ] **Fase 2** — `auth-service` (backend completo, TDD)
 - [ ] **Fase 3** — `auth-frontend` (MFE completo, TDD)
 - [ ] **Fase 4** — `products-service` (backend completo, TDD)
