@@ -1,0 +1,45 @@
+services:
+  postgres-auth:
+    image: postgres:16-alpine
+    container_name: postgres-auth
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d auth_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-products:
+    image: postgres:16-alpine
+    container_name: postgres-products
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: products_db
+    ports:
+      - '5434:5432'
+    volumes:
+      - postgres_products_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d products_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # auth-service        → adicionado na Fase 2
+  # products-service     → adicionado na Fase 4
+  # auth-frontend         → adicionado na Fase 3
+  # products-frontend     → adicionado na Fase 5
+
+volumes:
+  postgres_auth_data:
+  postgres_products_data:

@@ -1,0 +1,9 @@
+{
+  "name": "auth-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Micro Frontend de autenticação (login, cadastro, logout, refresh token, perfil) — Next.js App Router",
+  "scripts": {
+    "dev": "echo \"auth-frontend: implementação pendente — Fase 3\" && exit 0"
+  }
+}

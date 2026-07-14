@@ -1,0 +1,9 @@
+{
+  "name": "auth-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Microservice de autenticação (cadastro, login, refresh token, logout, perfil) — Fastify + Prisma + PostgreSQL",
+  "scripts": {
+    "dev": "echo \"auth-service: implementação pendente — Fase 2\" && exit 0"
+  }
+}
