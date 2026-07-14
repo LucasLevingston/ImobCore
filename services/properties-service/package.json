@@ -1,0 +1,9 @@
+{
+  "name": "properties-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Microservice de imóveis (CRUD, busca, filtros, paginação, regras de negócio) — Fastify + Prisma + PostgreSQL",
+  "scripts": {
+    "dev": "echo \"properties-service: implementação pendente — Fase 4\" && exit 0"
+  }
+}

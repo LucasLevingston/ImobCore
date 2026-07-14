@@ -1,0 +1,9 @@
+{
+  "name": "properties-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Micro Frontend de imóveis (dashboard, listagem, cadastro, edição, exclusão, busca, filtros, paginação, detalhes) — Next.js App Router",
+  "scripts": {
+    "dev": "echo \"properties-frontend: implementação pendente — Fase 5\" && exit 0"
+  }
+}
