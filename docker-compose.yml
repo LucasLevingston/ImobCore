@@ -17,29 +17,53 @@ services:
       timeout: 5s
       retries: 5
 
-  postgres-products:
+  postgres-properties:
     image: postgres:16-alpine
-    container_name: postgres-products
+    container_name: postgres-properties
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: products_db
+      POSTGRES_DB: properties_db
     ports:
       - '5434:5432'
     volumes:
-      - postgres_products_data:/var/lib/postgresql/data
+      - postgres_properties_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d products_db']
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d properties_db']
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # auth-service        → adicionado na Fase 2
-  # products-service     → adicionado na Fase 4
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    container_name: auth-service
+    restart: unless-stopped
+    environment:
+      AUTH_SERVICE_PORT: 3001
+      AUTH_DATABASE_URL: postgresql://postgres:postgres@postgres-auth:5432/auth_db?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-min-32-chars}
+      JWT_ACCESS_TOKEN_EXPIRES_IN: ${JWT_ACCESS_TOKEN_EXPIRES_IN:-15m}
+      JWT_REFRESH_TOKEN_EXPIRES_IN: ${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
+      BCRYPT_SALT_ROUNDS: ${BCRYPT_SALT_ROUNDS:-10}
+      CORS_ORIGIN: ${NEXT_PUBLIC_AUTH_FRONTEND_URL:-http://localhost:3000}
+    ports:
+      - '3001:3001'
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3001/health || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # properties-service   → adicionado na Fase 4
   # auth-frontend         → adicionado na Fase 3
-  # products-frontend     → adicionado na Fase 5
+  # properties-frontend   → adicionado na Fase 5
 
 volumes:
   postgres_auth_data:
-  postgres_products_data:
+  postgres_properties_data:
