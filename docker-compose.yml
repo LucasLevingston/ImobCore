@@ -59,7 +59,32 @@ services:
       timeout: 3s
       retries: 5
 
-  # properties-service   → adicionado na Fase 4
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    container_name: api-gateway
+    restart: unless-stopped
+    environment:
+      API_GATEWAY_PORT: 3004
+      AUTH_SERVICE_URL: http://auth-service:3001
+      PROPERTIES_SERVICE_URL: http://properties-service:3002
+      CORS_ORIGIN: ${NEXT_PUBLIC_AUTH_FRONTEND_URL:-http://localhost:3000},${NEXT_PUBLIC_PROPERTIES_FRONTEND_URL:-http://localhost:3003}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-100}
+      RATE_LIMIT_TIME_WINDOW: ${RATE_LIMIT_TIME_WINDOW:-1 minute}
+    ports:
+      - '3004:3004'
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3004/health || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # properties-service   → adicionado na Fase 4 (api-gateway já aponta pra ele via env,
+  #                         health/ready reporta "properties: false" até lá existir)
   # auth-frontend         → adicionado na Fase 3
   # properties-frontend   → adicionado na Fase 5
 

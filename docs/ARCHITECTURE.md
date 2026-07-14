@@ -788,7 +788,7 @@ Uma fase do roadmap (seção 31) só é considerada **concluída** quando:
 Fase 0 → Scaffold monorepo + tooling + docker-compose skeleton                    [CONCLUÍDA]
 Fase 1 → packages/ui (design system compartilhado)                                [CONCLUÍDA]
 Fase 2  → auth-service (backend completo, TDD)                                     [CONCLUÍDA]
-Fase 2a → api-gateway (Fastify, proxy + CORS + rate-limit, TDD — seção 04a)
+Fase 2a → api-gateway (Fastify, proxy + CORS + rate-limit, TDD — seção 04a)          [CONCLUÍDA]
 Fase 3  → auth-frontend (MFE completo, TDD — já consome só o api-gateway)
 Fase 4  → properties-service (backend completo, TDD — entidade Property, dashboard, contratos de IA)
 Fase 5  → properties-frontend (MFE completo, TDD — dashboard, listagem, CRUD, busca, filtros)

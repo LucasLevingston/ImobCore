@@ -86,7 +86,7 @@ packages/
 - [x] **Fase 0** — Scaffold do monorepo, tooling (ESLint/Prettier/Husky/commitlint), docker-compose skeleton
 - [x] **Fase 1** — `packages/ui` (design system) — 10 componentes, 68 testes, 100% cobertura (stmts/funcs/lines)
 - [x] **Fase 2** — `auth-service` (backend completo, TDD) — 101 testes, 100% cobertura (exceto repositórios Prisma — testes de integração escritos, pendente Docker pra rodar)
-- [ ] **Fase 2a** — `api-gateway` (proxy Fastify + CORS + rate-limit, TDD)
+- [x] **Fase 2a** — `api-gateway` (proxy Fastify + CORS + rate-limit, TDD) — 19 testes, cobertura ≥95%
 - [ ] **Fase 3** — `auth-frontend` (MFE completo, TDD — consome só o api-gateway)
 - [ ] **Fase 4** — `properties-service` (backend completo, TDD — entidade `Property`, CRUD, busca/filtros, contratos de IA)
 - [ ] **Fase 5** — `properties-frontend` (MFE completo, TDD — dashboard, listagem, CRUD, busca, filtros)
@@ -95,7 +95,7 @@ packages/
 
 > **Nota de domínio:** o projeto nasceu como demo genérica de "produtos" e foi redirecionado para o domínio de imobiliárias antes da Fase 4/5 começarem — não há dado ou código de "Product" implementado para migrar, só o rename do planejamento. Ver `docs/ARCHITECTURE.md` para o histórico da decisão.
 
-## Como rodar (estado atual — Fase 1 concluída, Fase 2 em andamento)
+## Como rodar (estado atual — Fases 0–2a concluídas)
 
 ```bash
 npm install                 # instala deps de todos os workspaces
@@ -104,7 +104,13 @@ npx husky install           # ativa git hooks (pre-commit, commit-msg)
 docker compose config       # valida docker-compose.yml
 docker compose up postgres-auth postgres-properties -d
 docker compose ps           # confirma os 2 bancos healthy
+
+# stack de backend completa (bancos + auth-service + api-gateway):
+docker compose up postgres-auth auth-service api-gateway -d
+curl http://localhost:3004/health/ready   # { status, services: { auth: true, properties: false } }
 ```
+
+`services: { properties: false }` é esperado até a Fase 4 existir — o gateway já aponta pra lá, só não há nada respondendo ainda.
 
 Os comandos `dev`/`build`/`test` de cada app/service só ficam funcionais a partir da fase em que forem implementados (ver roadmap acima).
 
