@@ -83,9 +83,29 @@ services:
       timeout: 3s
       retries: 5
 
+  auth-frontend:
+    build:
+      context: .
+      dockerfile: apps/auth-frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_GATEWAY_URL: ${NEXT_PUBLIC_API_GATEWAY_URL:-http://localhost:3004}
+    container_name: auth-frontend
+    restart: unless-stopped
+    # NEXT_PUBLIC_* é baked em build-time (args acima) — declarar aqui em
+    # `environment:` não teria efeito no bundle já compilado, por isso não repetimos
+    ports:
+      - '3000:3000'
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/login || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
   # properties-service   → adicionado na Fase 4 (api-gateway já aponta pra ele via env,
   #                         health/ready reporta "properties: false" até lá existir)
-  # auth-frontend         → adicionado na Fase 3
   # properties-frontend   → adicionado na Fase 5
 
 volumes:
