@@ -8,7 +8,6 @@ const envSchema = z.object({
   JWT_ACCESS_TOKEN_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
   BCRYPT_SALT_ROUNDS: z.coerce.number().default(10),
-  CORS_ORIGIN: z.string().default('http://localhost:3000'),
 })
 
 export const env = envSchema.parse(process.env)

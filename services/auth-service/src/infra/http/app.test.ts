@@ -18,7 +18,7 @@ async function makeApp() {
     tokenProvider: new JwtTokenProvider(),
     tokenHasher: new Sha256TokenHasher(),
     refreshTokenTtlMs: REFRESH_TOKEN_TTL_MS,
-    corsOrigin: 'http://localhost:3000',
+
     logger: false,
   })
   await app.ready()
@@ -75,7 +75,7 @@ describe('auth-service HTTP routes', () => {
         tokenProvider: new JwtTokenProvider(),
         tokenHasher: new Sha256TokenHasher(),
         refreshTokenTtlMs: REFRESH_TOKEN_TTL_MS,
-        corsOrigin: 'http://localhost:3000',
+
         logger: false,
         checkReadiness: async () => true,
       })
@@ -96,7 +96,7 @@ describe('auth-service HTTP routes', () => {
         tokenProvider: new JwtTokenProvider(),
         tokenHasher: new Sha256TokenHasher(),
         refreshTokenTtlMs: REFRESH_TOKEN_TTL_MS,
-        corsOrigin: 'http://localhost:3000',
+
         logger: false,
         checkReadiness: async () => false,
       })
@@ -119,7 +119,6 @@ describe('auth-service HTTP routes', () => {
         tokenProvider: new JwtTokenProvider(),
         tokenHasher: new Sha256TokenHasher(),
         refreshTokenTtlMs: REFRESH_TOKEN_TTL_MS,
-        corsOrigin: 'http://localhost:3000',
       })
 
       expect(appWithDefaultLogger.log).toBeDefined()

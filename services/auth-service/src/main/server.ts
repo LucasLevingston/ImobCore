@@ -16,7 +16,6 @@ async function main() {
     tokenProvider: new JwtTokenProvider(env.JWT_SECRET, env.JWT_ACCESS_TOKEN_EXPIRES_IN),
     tokenHasher: new Sha256TokenHasher(),
     refreshTokenTtlMs: parseDurationToMs(env.JWT_REFRESH_TOKEN_EXPIRES_IN),
-    corsOrigin: env.CORS_ORIGIN.split(','),
     checkReadiness: async () => {
       try {
         await prisma.$queryRaw`SELECT 1`
