@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+**/dist
+**/build
+**/.next
+**/coverage
+.git
+**/*.test.ts
+**/*.test.tsx
+**/*.integration.test.ts
+.env
+.env.*
+!.env.example
