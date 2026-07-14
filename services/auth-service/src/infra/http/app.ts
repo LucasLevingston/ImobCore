@@ -1,7 +1,5 @@
 import cookie from '@fastify/cookie'
-import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
-import rateLimit from '@fastify/rate-limit'
 import Fastify, { type FastifyInstance } from 'fastify'
 import { GetProfileUseCase } from '../../application/usecases/get-profile/get-profile.usecase'
 import { LoginUseCase } from '../../application/usecases/login/login.usecase'
@@ -24,7 +22,6 @@ export interface AppDependencies {
   tokenProvider: TokenProvider
   tokenHasher: TokenHasher
   refreshTokenTtlMs: number
-  corsOrigin: string | string[]
   checkReadiness?: () => Promise<boolean>
   logger?: boolean
 }
@@ -34,9 +31,9 @@ export interface AppDependencies {
 export async function buildApp(deps: AppDependencies): Promise<FastifyInstance> {
   const app = Fastify({ logger: deps.logger ?? true })
 
+  // CORS e rate-limit ficam só no api-gateway (seção 04a) — este service não
+  // recebe mais tráfego direto de browser, só helmet fica (defesa em profundidade)
   await app.register(helmet)
-  await app.register(cors, { origin: deps.corsOrigin, credentials: true })
-  await app.register(rateLimit, { max: 100, timeWindow: '1 minute' })
   await app.register(cookie)
 
   app.setErrorHandler(errorHandler)
