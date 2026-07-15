@@ -1,4 +1,4 @@
-import { render, type RenderOptions, type RenderResult } from '@testing-library/react'
+import { type RenderOptions, type RenderResult, render } from '@testing-library/react'
 import userEvent, { type UserEvent } from '@testing-library/user-event'
 import type { ReactElement } from 'react'
 

@@ -4,6 +4,11 @@ generator client {
   // raiz do workspace — compartilhado com auth-service, que sobrescreve o
   // outro a cada `prisma generate` (bug real, achado via teste de integração)
   output = "../src/generated/prisma"
+  // "native" cobre dev local (Windows/Mac). node:20-alpine (runtime Docker)
+  // usa OpenSSL 3.x — sem o target musl-openssl-3.0.x, o engine binário
+  // (compilado por padrão pra OpenSSL 1.1) falha ao carregar em produção
+  // ("Error loading shared library libssl.so.1.1: No such file or directory")
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {

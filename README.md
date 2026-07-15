@@ -115,11 +115,14 @@ curl http://localhost:3004/health/ready   # { status, services: { auth: true, pr
 
 Os comandos `dev`/`build`/`test` de cada app/service só ficam funcionais a partir da fase em que forem implementados (ver roadmap acima). `properties-frontend` não tem login próprio — se não autenticado, o `middleware.ts` redireciona pro `auth-frontend`; depois do login, o cookie de refresh (compartilhado entre portas do mesmo host) autentica as chamadas via `api-gateway`.
 
+Um `Makefile` na raiz atalhia os comandos mais comuns (`make test`, `make docker-up`, `make lint`, etc. — ver `make help` ou o arquivo pra lista completa). Requer `make` instalado (não vem por padrão no Git Bash do Windows — instale via `choco install make`, WSL, ou use os comandos `npm run`/`docker compose` diretos acima).
+
 ## Como testar
 
 ```bash
 npm run test                # roda testes de todos os workspaces (--if-present)
 npm run test:coverage       # cobertura agregada
+# ou: make test / make test-coverage
 ```
 
 TDD obrigatório a partir da Fase 1 — nenhuma funcionalidade é implementada sem teste escrito antes. Cobertura mínima: 95%.

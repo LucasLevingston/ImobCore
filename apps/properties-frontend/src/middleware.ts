@@ -13,7 +13,13 @@ export function middleware(request: NextRequest): NextResponse {
 
   if (!hasRefreshToken) {
     const loginUrl = new URL('/login', env.NEXT_PUBLIC_AUTH_FRONTEND_URL)
-    loginUrl.searchParams.set('redirectTo', request.url)
+    // Não usa request.url direto: no server.js standalone (Docker), a origem
+    // dele reflete o HOSTNAME/PORT de bind do processo (setado como 0.0.0.0
+    // pra escutar em todas as interfaces), não o Host header real da
+    // requisição — vazaria "http://0.0.0.0:3003/..." num redirect real
+    const host = request.headers.get('host') ?? request.nextUrl.host
+    const redirectTarget = `${request.nextUrl.protocol}//${host}${request.nextUrl.pathname}${request.nextUrl.search}`
+    loginUrl.searchParams.set('redirectTo', redirectTarget)
     return NextResponse.redirect(loginUrl)
   }
 
