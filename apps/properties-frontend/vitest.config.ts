@@ -25,6 +25,12 @@ export default defineConfig({
         'src/mocks/**',
         'src/test-utils/**',
         'src/types/**',
+        // importa um módulo virtual do webpack Module Federation (authFrontend/Header)
+        // — não resolvível pelo Vite/Vitest, só testável via dev server real
+        'src/components/federation/RemoteHeader.tsx',
+        // stub usado só via webpack alias na compilação SERVER (next.config.js) —
+        // nunca importado em código normal, não há o que testar
+        'src/components/federation/remote-header-server-stub.tsx',
       ],
       thresholds: {
         lines: 95,

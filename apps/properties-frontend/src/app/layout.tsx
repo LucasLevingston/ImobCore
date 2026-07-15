@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { RemoteHeader } from '@/components/federation/RemoteHeader'
 import { Providers } from './providers'
 import './globals.css'
 
@@ -12,7 +13,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <RemoteHeader />
+          {children}
+        </Providers>
       </body>
     </html>
   )

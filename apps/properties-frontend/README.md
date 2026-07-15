@@ -2,7 +2,7 @@
 
 Micro Frontend de imóveis — Next.js (App Router). Consome exclusivamente o `api-gateway` (nunca `properties-service` direto).
 
-**Status:** Fase 5 concluída. 78 testes, 100% cobertura (exceto `app/`, `mocks/`, `test-utils/`, `types/`).
+**Status:** Fase 5 concluída, Module Federation (Fase 6) consumida. 80 testes, 100% cobertura (exceto `app/`, `mocks/`, `test-utils/`, `types/`, e os dois arquivos de wiring de federação — ver seção abaixo).
 
 ## Funcionalidades
 
@@ -21,9 +21,11 @@ Este app não tem login/cadastro — a responsabilidade é 100% do `auth-fronten
 
 **Limitação conhecida:** igual documentado em `auth-frontend/README.md` — cookies não são escopados por porta, então isso funciona em dev local (`localhost`, portas diferentes). Em produção com domínios diferentes por app, a estratégia de sessão cross-app precisa ser revista.
 
-## Module Federation (adiado — Fase 6)
+## Module Federation
 
-Não consome `Header`/`AuthStatus`/`UserMenu` de `auth-frontend` ainda — `@module-federation/nextjs-mf` é incompatível com App Router (ver `docs/ARCHITECTURE.md` seção 06). Sem UI de sessão própria neste app por ora (só o redirect do middleware).
+Consome `Header` de `auth-frontend` como remote (`src/components/federation/RemoteHeader.tsx`), via `ModuleFederationPlugin` cru (`@module-federation/enhanced/webpack` — `nextjs-mf` é incompatível com App Router, ver `docs/ARCHITECTURE.md` seção 06). Renderizado no `app/layout.tsx`, com `FederationErrorBoundary` em volta: se `auth-frontend` estiver fora do ar, cai num header estático mínimo em vez de quebrar a página.
+
+`RemoteHeader.tsx` e `remote-header-server-stub.tsx` (usado só via `resolve.alias` na compilação server, pra evitar 500 no SSR) importam um módulo virtual do webpack que Vite/Vitest não resolve — excluídos da cobertura, validados via `next build` real + smoke test com dev server. A lógica do `FederationErrorBoundary` em si é testada normalmente.
 
 ## Variáveis de ambiente
 

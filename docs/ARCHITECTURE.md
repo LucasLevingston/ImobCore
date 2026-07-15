@@ -263,43 +263,73 @@ Cada MFE segue a estrutura feature-based descrita em `references/architecture.md
 
 ## 06. Module Federation (Webpack 5)
 
-> **⚠️ Atualização (Fase 3):** `@module-federation/nextjs-mf` recusa **categoricamente** qualquer projeto com App Router — checagem hardcoded na própria lib (`"App Directory is not supported by nextjs-mf... do not open git issues about this"`), sem flag de bypass, sem depender de versão. Isso trava o `next dev`/`next build` inteiro, não só a federação. A exposição via webpack foi **adiada pra Fase 6** (decisão do usuário) — os componentes `Header`/`AuthStatus`/`UserMenu` já existem e são testados em `src/components/federation/` de `auth-frontend`, só a config do `next.config.js` foi removida por ora. O conteúdo abaixo descreve a **intenção original**; o mecanismo real será decidido na Fase 6 entre: (a) `ModuleFederationPlugin` cru via `@module-federation/enhanced/webpack` (bypassa o wrapper que tem o bloqueio, mais baixo nível, sem as conveniências de SSR/path-rewrite automáticas do `nextjs-mf`), ou (b) outra estratégia de composição runtime. Decisão fica pra quando `properties-frontend` (o host) existir de verdade pra testar contra.
+> **✅ Resolvido (Fase 6).** `@module-federation/nextjs-mf` foi definitivamente descartado: além de nunca ter suportado App Router (checagem hardcoded — `"App Directory is not supported by nextjs-mf"`), o próprio ecossistema anunciou a descontinuação do plugin (suporte só até meados/fim de 2026, sem desenvolvimento ativo). A alternativa "oficial" que surgiu no lugar (`@vercel/microfrontends`) é acoplada à infraestrutura de roteamento da Vercel — não serve pro Docker Compose self-hosted deste projeto. A solução adotada foi a opção (a) cogitada na Fase 3: **`ModuleFederationPlugin` cru**, via `@module-federation/enhanced/webpack`, registrado direto no `webpack()` de cada `next.config.js` — sem o wrapper Next-aware (sem SSR do remote, sem rewrite automático de rota). Validado com os dois apps reais (`auth-frontend` remote, `properties-frontend` host): `next dev`, `next build` e o bundle client final funcionam.
 
-**Biblioteca (intenção original, pendente confirmação na Fase 6):** `@module-federation/nextjs-mf` (Webpack 5 `ModuleFederationPlugin` sob o capô, adaptado pro build do Next.js).
+**Biblioteca:** `@module-federation/enhanced/webpack` (exporta `ModuleFederationPlugin`) + `webpack` como devDependency local (a lib precisa da instância real do pacote, não só do webpack embutido no Next).
 
-**Topologia decidida (Fase 0):** federação direta, sem app "shell". `properties-frontend` é **host**; `auth-frontend` é **remote**.
+**Topologia (decidida na Fase 0, confirmada aqui):** federação direta, sem app "shell". `properties-frontend` é **host**; `auth-frontend` é **remote**.
 
 ```js
-// apps/auth-frontend/next.config.js — expõe
-new NextFederationPlugin({
-  name: 'authFrontend',
-  filename: 'static/chunks/remoteEntry.js',
-  exposes: {
-    './Header': './src/components/Header',
-    './AuthStatus': './src/components/AuthStatus',
-    './UserMenu': './src/components/UserMenu',
-  },
-  shared: { react: { singleton: true }, 'react-dom': { singleton: true } },
-})
+// apps/auth-frontend/next.config.js — expõe (remote)
+const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack')
+
+webpack(config, { isServer }) {
+  if (!isServer) {
+    config.plugins.push(
+      new ModuleFederationPlugin({
+        name: 'authFrontend',
+        filename: 'static/chunks/remoteEntry.js',
+        exposes: {
+          './Header': './src/components/federation/Header',
+          './AuthStatus': './src/components/federation/AuthStatus',
+          './UserMenu': './src/components/federation/UserMenu',
+        },
+        shared: { react: { singleton: true }, 'react-dom': { singleton: true } },
+        dts: false, // geração automática de .d.ts falhou (module-federation.io/guide/troubleshooting/type#type-001) — tipos declarados manualmente no host
+      }),
+    )
+  }
+  return config
+}
 ```
 
 ```js
-// apps/properties-frontend/next.config.js — consome
-new NextFederationPlugin({
-  name: 'propertiesFrontend',
-  remotes: {
-    authFrontend: `authFrontend@${process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL}/_next/static/chunks/remoteEntry.js`,
-  },
-  shared: { react: { singleton: true }, 'react-dom': { singleton: true } },
-})
+// apps/properties-frontend/next.config.js — consome (host)
+webpack(config, { isServer }) {
+  if (!isServer) {
+    config.plugins.push(
+      new ModuleFederationPlugin({
+        name: 'propertiesFrontend',
+        remotes: {
+          authFrontend: `authFrontend@${process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL}/_next/static/chunks/remoteEntry.js`,
+        },
+        shared: { react: { singleton: true }, 'react-dom': { singleton: true } },
+        dts: false,
+      }),
+    )
+  } else {
+    // App Router ainda resolve "authFrontend/Header" na compilação SERVER (pro
+    // client reference manifest), mesmo com dynamic(..., { ssr: false }) — sem o
+    // plugin nessa passada o import federado cru quebra o SSR com 500. Aponta
+    // pra um stub (retorna null) só nessa passada; o real só carrega no browser.
+    config.resolve.alias['authFrontend/Header'] = path.resolve(
+      __dirname, 'src/components/federation/remote-header-server-stub.tsx',
+    )
+  }
+  return config
+}
 ```
+
+**Achado importante (a diferença que a Fase 3 não tinha como prever):** mesmo com `dynamic(..., { ssr: false })`, o App Router do host ainda precisa **resolver estaticamente** o specifier do módulo remoto durante a compilação **server** — não pra executar, só pra gerar o client reference manifest (a tabela que o RSC usa pra saber "essa fronteira de client component existe, o browser que carregue"). Sem o `ModuleFederationPlugin` registrado nessa passada (só registramos no client, de propósito — federação real de componente não faz sentido do lado server), o import cru `authFrontend/Header` derruba a página inteira com 500. Resolvido com um alias de `resolve.alias` apontando só a passada server pra um stub trivial (`return null`); a passada client mantém o plugin de verdade e carrega o componente real em runtime no browser.
 
 **Regras obrigatórias:**
 
-- Só componentes `"use client"` são expostos. **Rotas de página nunca são federadas** — RSC (React Server Components) não federa de forma estável entre apps Next.js independentes; federar página quebraria streaming/SSR do host.
+- Só componentes `"use client"` são expostos. **Rotas de página nunca são federadas** — RSC não federa de forma estável entre apps Next.js independentes; federar página quebraria streaming/SSR do host.
 - Componentes remotos são importados via `dynamic(() => import('authFrontend/Header'), { ssr: false })` — nunca `ssr: true` num remote (o remote não está disponível durante o build do host).
-- `auth-frontend` precisa estar rodando (dev) ou deployado (prod) para `properties-frontend` funcionar plenamente — em caso de falha ao carregar o remote, `properties-frontend` cai num fallback local mínimo (ver `ErrorBoundary` em torno do `dynamic import`).
+- `auth-frontend` precisa estar rodando (dev) ou deployado (prod) para `properties-frontend` funcionar plenamente — em caso de falha ao carregar o remote, `properties-frontend` cai num fallback local mínimo (`FederationErrorBoundary` em torno do `dynamic import`, ver `src/components/federation/RemoteHeader.tsx`).
 - `react`/`react-dom` são `singleton: true` — nunca duas cópias de React na mesma página (quebraria hooks).
+- Módulos remotos (`authFrontend/Header`) não são pacotes npm reais — não têm `.d.ts`. Tipos declarados manualmente em `src/types/federation.d.ts` do host (a geração automática via `@module-federation/dts-plugin` não funcionou neste setup).
+- `RemoteHeader.tsx` e `remote-header-server-stub.tsx` ficam fora da cobertura de testes (excluídos no `vitest.config.ts`) — importam um módulo virtual do webpack que Vite/Vitest não resolve. Validados via `next build` real + smoke test com dev server, não por teste unitário. `FederationErrorBoundary` (a lógica de fallback em si) é testado normalmente.
 
 ---
 

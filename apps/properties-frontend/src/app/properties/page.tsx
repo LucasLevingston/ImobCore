@@ -1,5 +1,8 @@
 'use client'
 
+import { ErrorState, Loading } from '@microfrontends/ui'
+import Link from 'next/link'
+import { useState } from 'react'
 import {
   Pagination,
   PropertyFilters,
@@ -7,14 +10,14 @@ import {
   PropertyList,
   useProperties,
 } from '@/features/properties/list'
-import { ErrorState, Loading } from '@microfrontends/ui'
-import Link from 'next/link'
-import { useState } from 'react'
 
 export default function PropertiesPage() {
   const [filters, setFilters] = useState<PropertyFilterValues>({})
   const [page, setPage] = useState(1)
-  const { data, isLoading, isError, refetch } = useProperties({ ...filters, page })
+  const { data, isLoading, isError, refetch } = useProperties({
+    ...filters,
+    page,
+  })
 
   function handleApply(newFilters: PropertyFilterValues) {
     setFilters(newFilters)
