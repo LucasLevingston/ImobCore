@@ -1,13 +1,42 @@
+const path = require('node:path')
+const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
   transpilePackages: ['@microfrontends/ui'],
-  // Module Federation (docs/ARCHITECTURE.md seção 06) foi ADIADO pra Fase 6:
-  // @module-federation/nextjs-mf recusa categoricamente projetos com App
-  // Router. Até lá, este app (host) não consome Header/AuthStatus/UserMenu
-  // de auth-frontend — não tem UI de sessão própria (só redirect se
-  // deslogado, via middleware.ts).
+  // Module Federation (docs/ARCHITECTURE.md seção 06): host consumindo authFrontend
+  // como remote via ModuleFederationPlugin cru (mesmo racional do next.config.js
+  // de auth-frontend — nextjs-mf não suporta App Router). A URL do remote é baked
+  // em build-time (convenção NEXT_PUBLIC_* já usada em todo o monorepo).
+  webpack(config, { isServer }) {
+    if (!isServer) {
+      config.plugins.push(
+        new ModuleFederationPlugin({
+          name: 'propertiesFrontend',
+          remotes: {
+            authFrontend: `authFrontend@${process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL}/_next/static/chunks/remoteEntry.js`,
+          },
+          shared: {
+            react: { singleton: true },
+            'react-dom': { singleton: true },
+          },
+          dts: false,
+        }),
+      )
+    } else {
+      // App Router ainda precisa resolver "authFrontend/Header" na compilação
+      // SERVER pra gerar o client reference manifest (mesmo com dynamic ssr:false)
+      // — sem o plugin nessa passada, o import federado cru quebra o SSR.
+      // Aponta pra um stub aqui; o componente real só carrega no browser.
+      config.resolve.alias['authFrontend/Header'] = path.resolve(
+        __dirname,
+        'src/components/federation/remote-header-server-stub.tsx',
+      )
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig

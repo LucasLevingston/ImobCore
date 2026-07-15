@@ -2,21 +2,21 @@
 
 Micro Frontend de autenticação — Next.js (App Router).
 
-**Status:** Fase 3 concluída. Ver `/docs/ARCHITECTURE.md` seções 05, 06 e 09.
+**Status:** Fase 3 concluída, Module Federation (Fase 6) exposta. Ver `/docs/ARCHITECTURE.md` seções 05, 06 e 09.
 
 ## Responsabilidades
 
 - Login, cadastro, logout, refresh token automático, perfil do usuário
 - Consome **exclusivamente** `api-gateway` (`NEXT_PUBLIC_API_GATEWAY_URL`) — nunca `auth-service` direto (docs seção 04a)
 - Sem lógica de imóveis
-- `Header`, `AuthStatus`, `UserMenu` prontos e testados em `src/components/federation/`, prontos pra expor via Module Federation — a config do webpack em si foi **adiada pra Fase 6** (`@module-federation/nextjs-mf` não suporta App Router, ver `docs/ARCHITECTURE.md` seção 06)
+- `Header`, `AuthStatus`, `UserMenu` (`src/components/federation/`) expostos via Module Federation (`ModuleFederationPlugin` cru, `@module-federation/enhanced/webpack` — `nextjs-mf` não suporta App Router, ver `docs/ARCHITECTURE.md` seção 06). `properties-frontend` consome como remote.
 
 ## Arquitetura
 
 ```
 src/
 ├── app/                    rotas Next.js (login, register, profile) + layout + providers
-├── components/federation/  Header, AuthStatus, UserMenu — prontos, exposição via Module Federation na Fase 6
+├── components/federation/  Header, AuthStatus, UserMenu — expostos via Module Federation (remoteEntry.js)
 ├── features/auth/
 │   ├── register/           schema Zod + service + hook (useRegister) + RegisterForm
 │   ├── login/              schema Zod + service + hook (useLogin) + LoginForm

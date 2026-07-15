@@ -1,7 +1,7 @@
 'use client'
 
-import { PropertyForm, useCreateProperty } from '@/features/properties/create'
 import { useRouter } from 'next/navigation'
+import { PropertyForm, useCreateProperty } from '@/features/properties/create'
 
 export default function NewPropertyPage() {
   const router = useRouter()
@@ -14,7 +14,9 @@ export default function NewPropertyPage() {
         submitLabel="Cadastrar"
         isSubmitting={isPending}
         onSubmit={(values) =>
-          mutate(values, { onSuccess: (property) => router.push(`/properties/${property.id}`) })
+          mutate(values, {
+            onSuccess: (property) => router.push(`/properties/${property.id}`),
+          })
         }
       />
       {error && (

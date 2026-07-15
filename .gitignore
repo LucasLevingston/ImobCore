@@ -36,3 +36,6 @@ services/**/prisma/dev.db
 # misc
 .turbo/
 *.tsbuildinfo
+
+# module federation (@module-federation/enhanced diagnostics/cache)
+.mf/
