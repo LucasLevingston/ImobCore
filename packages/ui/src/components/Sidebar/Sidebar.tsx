@@ -15,9 +15,13 @@ export interface SidebarProps {
   header?: React.ReactNode
   footer?: React.ReactNode
   className?: string
+  // Largura em si não é responsabilidade do Sidebar (o app já pode sobrescrever
+  // via className, que passa por cn) — collapsed só esconde o texto do label,
+  // mantendo o ícone e a navegabilidade por leitor de tela (sr-only, não display:none)
+  collapsed?: boolean
 }
 
-export function Sidebar({ items, header, footer, className }: SidebarProps) {
+export function Sidebar({ items, header, footer, className, collapsed = false }: SidebarProps) {
   return (
     <nav
       aria-label="Navegação lateral"
@@ -43,7 +47,7 @@ export function Sidebar({ items, header, footer, className }: SidebarProps) {
                   )}
                 >
                   {item.icon}
-                  {item.label}
+                  <span className={cn(collapsed && 'sr-only')}>{item.label}</span>
                 </a>
               </li>
             ))}

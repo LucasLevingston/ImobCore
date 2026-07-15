@@ -81,6 +81,8 @@ graph TB
         U["Usuário"]
     end
 
+    PT["portal :3005<br/>Next.js App Router (App Shell)"]
+
     subgraph Frontends["Micro Frontends"]
         AF["auth-frontend :3000<br/>Next.js App Router"]
         PF["properties-frontend :3003<br/>Next.js App Router (host)"]
@@ -90,7 +92,7 @@ graph TB
         UI["packages/ui<br/>design system"]
     end
 
-    GW["api-gateway :3004<br/>Fastify — proxy, CORS, rate-limit"]
+    GW["api-gateway :3004<br/>Fastify — proxy, CORS, rate-limit, guard CSRF"]
 
     subgraph Services["Microservices (rede interna — sem porta pública em produção)"]
         AS["auth-service :3001<br/>Fastify"]
@@ -102,11 +104,14 @@ graph TB
         DBP[("postgres-properties :5434")]
     end
 
-    U --> AF
-    U --> PF
+    U --> PT
+    PT -. "link simples (sem MF ainda)" .-> AF
+    PT -. "link simples (sem MF ainda)" .-> PF
     PF -. "Module Federation (runtime)<br/>Header/AuthStatus/UserMenu" .-> AF
+    PT -- workspace --> UI
     AF -- workspace --> UI
     PF -- workspace --> UI
+    PT -- "HTTP + JWT (sessão)" --> GW
     AF -- "HTTP + JWT" --> GW
     PF -- "HTTP + JWT" --> GW
     GW -- "proxy /api/auth/*" --> AS
@@ -261,7 +266,92 @@ Cada MFE segue a estrutura feature-based descrita em `references/architecture.md
 
 ---
 
+## 05a. Portal (App Shell)
+
+Novo app `apps/portal` (porta 3005, Fase 8) — **App Shell corporativo**: layout global (Header/Sidebar/Breadcrumb/Footer), providers globais, roteamento principal e autorização de acesso. Segue o mesmo racional de fronteira do `api-gateway` (seção 04a): centraliza cross-cutting, nunca regra de negócio.
+
+**Nunca contém:** regra de negócio, acesso a banco/Prisma, CRUD. Toda regra de negócio continua nos MFEs/microservices existentes — o Portal só decide _layout_ e _pra onde navegar_.
+
+### Responsabilidade
+
+| Camada              | Componentes                                                                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layouts/`          | `AppShell` (composição raiz), `PortalHeader`, `PortalSidebar`, `PortalFooter`, `PortalBreadcrumb` — todos compõem primitivos de `packages/ui`, nunca duplicam |
+| `providers/`        | `AppProviders` (`QueryClientProvider` → `ThemeProvider` → `SessionProvider` → `Toaster`), `SessionProvider`                                                   |
+| `contexts/`         | `SessionContext` — abstração que `UserMenu`/`PortalHeader` consomem (DIP: nunca leem `useSession`/TanStack Query direto)                                      |
+| `hooks/`            | `useSession` — `useQuery` sobre `GET /api/auth/me`                                                                                                            |
+| `services/`         | `session.service.ts`, `logout.service.ts` — mesma camada `apiClient` das outras apps                                                                          |
+| `routes/`           | `modules.ts` — single source of truth de navegação (Sidebar e home institucional leem daqui)                                                                  |
+| `types/federation/` | Contratos de Module Federation (abaixo)                                                                                                                       |
+| `middleware.ts`     | Protege toda rota (mesmo padrão do `properties-frontend`) — sem cookie de refresh, redireciona pro `auth-frontend`                                            |
+
+### Novos primitivos em `packages/ui`
+
+Pra montar o Portal sem duplicar Design System: `Footer`, `Breadcrumb`, `Avatar` (`@radix-ui/react-avatar`), `DropdownMenu` (`@radix-ui/react-dropdown-menu`), `ThemeProvider`/`useTheme`/`ThemeToggle` (mecanismo de tema — o app só monta, mesmo padrão do `Toaster`). `Sidebar` ganhou um prop `collapsed?: boolean` (esconde o label via `sr-only`, mantém acessível).
+
+### Navegação — mapeamento de módulos
+
+`routes/modules.ts` é a única fonte de verdade (lida por `PortalSidebar` e pela home institucional):
+
+| Módulo (Sidebar)                                               | Rota                                                                | Tipo          | Destino                                                                                        |
+| -------------------------------------------------------------- | ------------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------- |
+| Dashboard                                                      | `/`                                                                 | `internal`    | Home institucional do próprio Portal (grid de cards)                                           |
+| Imóveis                                                        | `/`                                                                 | `external`    | `NEXT_PUBLIC_PROPERTIES_FRONTEND_URL` — MFE real já existente                                  |
+| Clientes, Visitas, IA, Analytics, Administração, Configurações | `/clients`, `/visits`, `/chat`, `/analytics`, `/admin`, `/settings` | `placeholder` | Rota própria do Portal, renderiza `PlaceholderModule` ("Em construção") — MFE ainda não existe |
+
+"Imóveis" navega por **link simples**, não Module Federation — é o que existe de verdade hoje (sem app "shell" cadastrando remotes ainda). Quando um módulo `placeholder` ganhar um MFE real, a rota interna correspondente é substituída por um link externo (ou, quando a integração de Module Federation acontecer — seção abaixo —, por carregamento via `RemoteLoader`), sem mudar `PortalSidebar`/home.
+
+### Contratos de Module Federation — preparados, não implementados
+
+Cinco interfaces em `src/types/federation/`, seguindo SOLID (cada uma uma responsabilidade, nenhuma acoplada à mecânica real de Module Federation):
+
+```
+RemoteManifest / RemoteModuleManifest  — dado: descreve um remote e seus módulos expostos
+RemoteRegistry                          — bookkeeping: register/get/list de manifests
+RemoteResolver                          — lookup: chave → RemoteModuleManifest
+ModuleLoader                            — mecânica de carregamento (futuro: dynamic import + stub SSR)
+RemoteLoader                            — facade: combina Resolver + ModuleLoader, é o que um componente chamaria
+```
+
+Só `RemoteRegistry` ganha implementação concreta nesta fase (`InMemoryRemoteRegistry`, testada) — é puro bookkeeping de dados, sem acoplamento ao mecanismo real de federação. `RemoteResolver`/`ModuleLoader`/`RemoteLoader` ficam só como interface: quando a integração acontecer de verdade, a lógica que já existe em `RemoteHeader.tsx`/`remote-header-server-stub.tsx` do `properties-frontend` (seção 06) vira a implementação concreta desses contratos — só a camada de infra muda, nada que dependa das interfaces precisa ser tocado.
+
+### Autenticação e sessão
+
+O Portal **nunca implementa login** — só verifica se existe uma sessão válida (mesmo padrão do `properties-frontend`, seção 05/09): `middleware.ts` checa a presença do cookie `refreshToken` (sem chamada de rede no edge) e redireciona pro `auth-frontend` se ausente, reconstruindo o `Location` a partir do header `Host` (nunca `request.url` direto — mesmo motivo do `properties-frontend`: o `server.js` standalone bindaria em `0.0.0.0`). A checagem pura fica isolada em `lib/session-guard.ts` (`hasSessionCookie`/`buildLoginRedirectUrl`) — testável sem `next/server`, é o "Guard reutilizável" pedido.
+
+Depois de autenticado, `useSession`/`SessionContext` buscam `GET /api/auth/me` (mesmo endpoint do `auth-service` já usado por `profileService` do `auth-frontend`) pra alimentar `UserMenu` (avatar, nome, email, logout).
+
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant PT as Portal (middleware)
+    participant AF as auth-frontend
+    participant GW as api-gateway
+
+    U->>PT: acessa qualquer rota
+    PT->>PT: cookie refreshToken presente?
+    alt sem sessão
+        PT-->>U: redirect → auth-frontend/login?redirectTo=...
+        U->>AF: login
+        AF-->>U: cookie refreshToken (httpOnly)
+        U->>PT: volta pro Portal
+    end
+    PT->>U: libera AppShell (Header/Sidebar/Breadcrumb/Footer)
+    U->>PT: SessionProvider chama GET /api/auth/me
+    PT->>GW: GET /api/auth/me (Authorization via apiClient)
+    GW-->>PT: { id, name, email, createdAt }
+    PT->>U: UserMenu mostra usuário logado
+```
+
+**Importante — CORS/CSRF:** `services/api-gateway`'s `CORS_ORIGIN` (seção 04a e 18) precisa incluir a origem do Portal (`http://localhost:3005` em dev) — sem isso, tanto o CORS quanto o guard de CSRF da Fase 7 (`origin-guard.ts`) rejeitam `GET /api/auth/me`/`POST /api/auth/logout` vindos do Portal.
+
+**Fora de escopo desta fase:** Dockerfile/entrada no `docker-compose.yml` pro Portal, e a implementação real de Module Federation (só os contratos, como descrito acima).
+
+---
+
 ## 06. Module Federation (Webpack 5)
+
+> **Nota de revisão (Fase 8):** a topologia abaixo ("sem app shell", decidida na Fase 0) foi **superada** pela introdução do `apps/portal` (seção 05a) como App Shell corporativo. `properties-frontend` continua federando `auth-frontend` exatamente como descrito nesta seção — nada aqui mudou de fato —, mas a frase "sem app shell" não reflete mais a arquitetura atual. O Portal ainda não participa da federação (não expõe nem consome remotes via `ModuleFederationPlugin`); ele navega pros MFEs existentes por link simples. Ver seção 05a pros contratos que preparam essa integração futura.
 
 > **✅ Resolvido (Fase 6).** `@module-federation/nextjs-mf` foi definitivamente descartado: além de nunca ter suportado App Router (checagem hardcoded — `"App Directory is not supported by nextjs-mf"`), o próprio ecossistema anunciou a descontinuação do plugin (suporte só até meados/fim de 2026, sem desenvolvimento ativo). A alternativa "oficial" que surgiu no lugar (`@vercel/microfrontends`) é acoplada à infraestrutura de roteamento da Vercel — não serve pro Docker Compose self-hosted deste projeto. A solução adotada foi a opção (a) cogitada na Fase 3: **`ModuleFederationPlugin` cru**, via `@module-federation/enhanced/webpack`, registrado direto no `webpack()` de cada `next.config.js` — sem o wrapper Next-aware (sem SSR do remote, sem rewrite automático de rota). Validado com os dois apps reais (`auth-frontend` remote, `properties-frontend` host): `next dev`, `next build` e o bundle client final funcionam.
 
@@ -860,6 +950,7 @@ Fase 4  → properties-service (backend completo, TDD — entidade Property, das
 Fase 5  → properties-frontend (MFE completo, TDD — dashboard, listagem, CRUD, busca, filtros) [CONCLUÍDA]
 Fase 6  → Module Federation wiring + docker-compose completo + smoke e2e + CI/CD [CONCLUÍDA]
 Fase 7  → Documentação final consolidada + observabilidade + revisão de segurança      [CONCLUÍDA]
+Fase 8  → apps/portal (App Shell — layout, navegação, providers, guard de sessão, contratos de Module Federation) [CONCLUÍDA]
 ```
 
 Cada fase segue o ciclo descrito na seção 15 (TDD) e só avança pra próxima após validação com o responsável pelo projeto (checkpoint manual, não automático).

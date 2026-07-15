@@ -8,6 +8,8 @@ Monorepo (npm workspaces) com 2 Micro Frontends e 2 Microservices independentes,
 
 ```mermaid
 graph TB
+    PT["portal<br/>:3005<br/>Next.js App Router (App Shell)"]
+
     subgraph Frontends
         AF["auth-frontend<br/>:3000<br/>Next.js App Router"]
         PF["properties-frontend<br/>:3003<br/>Next.js App Router"]
@@ -17,7 +19,7 @@ graph TB
         UI["packages/ui<br/>design system (build-time)"]
     end
 
-    GW["api-gateway<br/>:3004<br/>Fastify (proxy/CORS/rate-limit)"]
+    GW["api-gateway<br/>:3004<br/>Fastify (proxy/CORS/rate-limit/CSRF)"]
 
     subgraph Services["sem porta pública em produção"]
         AS["auth-service<br/>:3001<br/>Fastify"]
@@ -29,10 +31,14 @@ graph TB
         DBP[("postgres-properties<br/>:5434")]
     end
 
+    PT -. "link simples (sem MF ainda)" .-> AF
+    PT -. "link simples (sem MF ainda)" .-> PF
     PF -- "Module Federation (runtime)<br/>Header / AuthStatus / UserMenu" --> AF
+    PT -- npm workspace --> UI
     AF -- npm workspace --> UI
     PF -- npm workspace --> UI
 
+    PT -- "HTTP/JWT (sessão)" --> GW
     AF -- "HTTP/JWT" --> GW
     PF -- "HTTP/JWT" --> GW
     GW -- "/api/auth/*" --> AS
@@ -44,9 +50,11 @@ graph TB
     AS -. "JWT_SECRET compartilhado<br/>(só verificação de assinatura, sem chamada de rede)" .-> PS
 ```
 
-**Regra de ouro:** nenhum banco é compartilhado entre serviços. Nenhuma feature de auth existe no `properties-frontend`, nenhuma feature de imóveis existe no `auth-frontend`.
+**Regra de ouro:** nenhum banco é compartilhado entre serviços. Nenhuma feature de auth existe no `properties-frontend`, nenhuma feature de imóveis existe no `auth-frontend`. O `portal` nunca tem regra de negócio — só layout, navegação, providers e verificação de sessão (`docs/ARCHITECTURE.md` seção 05a).
 
 > **Estado atual (Fase 6):** a seta de Module Federation no diagrama acima está implementada — `properties-frontend` (host) consome `Header` de `auth-frontend` (remote) via `ModuleFederationPlugin` cru (`@module-federation/enhanced/webpack`; `@module-federation/nextjs-mf` nunca suportou App Router e foi descontinuado pelo ecossistema — ver `docs/ARCHITECTURE.md` seção 06). Ainda assim, `properties-frontend` não tem UI de sessão própria além do `Header` federado: um `middleware.ts` local checa a presença do cookie de refresh e redireciona pro `auth-frontend` (cross-origin) quando ausente; a sessão obtida (refresh silencioso via `api-gateway`) autentica normalmente as chamadas a `properties-service`.
+>
+> **Estado atual (Fase 8):** `portal` existe como App Shell, mas ainda não participa de Module Federation — os links pra `auth-frontend`/`properties-frontend` no diagrama acima são navegação simples (`<a href>`), não remotes federados. Os contratos que preparam essa integração (`RemoteManifest`/`RemoteRegistry`/`RemoteResolver`/`ModuleLoader`/`RemoteLoader`) já existem em `apps/portal/src/types/federation/`, sem implementação concreta ainda (exceto `RemoteRegistry`, puro bookkeeping de dados).
 
 ### Por que Module Federation _e_ packages/ui ao mesmo tempo?
 
@@ -59,20 +67,22 @@ graph TB
 
 ## Portas
 
-| Projeto             | Porta | Tipo       | Exposta em produção                 |
-| ------------------- | ----- | ---------- | ----------------------------------- |
-| auth-frontend       | 3000  | Next.js    | Sim                                 |
-| auth-service        | 3001  | Fastify    | Não — só rede interna (via gateway) |
-| properties-service  | 3002  | Fastify    | Não — só rede interna (via gateway) |
-| properties-frontend | 3003  | Next.js    | Sim                                 |
-| api-gateway         | 3004  | Fastify    | Sim — único backend público         |
-| postgres-auth       | 5433  | PostgreSQL | Não                                 |
-| postgres-properties | 5434  | PostgreSQL | Não                                 |
+| Projeto             | Porta | Tipo       | Exposta em produção                         |
+| ------------------- | ----- | ---------- | ------------------------------------------- |
+| auth-frontend       | 3000  | Next.js    | Sim                                         |
+| auth-service        | 3001  | Fastify    | Não — só rede interna (via gateway)         |
+| properties-service  | 3002  | Fastify    | Não — só rede interna (via gateway)         |
+| properties-frontend | 3003  | Next.js    | Sim                                         |
+| api-gateway         | 3004  | Fastify    | Sim — único backend público                 |
+| portal              | 3005  | Next.js    | Sim — sem Dockerfile/compose ainda (Fase 8) |
+| postgres-auth       | 5433  | PostgreSQL | Não                                         |
+| postgres-properties | 5434  | PostgreSQL | Não                                         |
 
 ## Estrutura
 
 ```
 apps/
+  portal/                App Shell — layout global, navegação, providers, guard de sessão (sem regra de negócio)
   auth-frontend/         Micro Frontend de autenticação
   properties-frontend/   Micro Frontend de imóveis (dashboard, listagem, CRUD, busca, filtros)
 services/
@@ -94,6 +104,7 @@ packages/
 - [x] **Fase 5** — `properties-frontend` (MFE completo, TDD — dashboard, listagem, cadastro, edição, exclusão, busca, filtros, paginação) — 78 testes, 100% cobertura (exceto `app/`, `mocks/`, `test-utils/`, `types/`)
 - [x] **Fase 6** — Module Federation wiring (`ModuleFederationPlugin` cru) + docker-compose completo (7 serviços healthy) + smoke e2e via curl (registro → login → CRUD de imóveis → métricas, tudo via api-gateway) + CI/CD (GitHub Actions)
 - [x] **Fase 7** — Observabilidade real (OpenTelemetry tracing HTTP+Prisma, correlação `x-request-id` ponta-a-ponta), segurança (CSRF Origin/Referer guard no `api-gateway`, Pino `redact`, `connection_limit` no Prisma), `error.tsx`/`React.memo` nos frontends, e documentação final consolidada (diagrama do pipeline de requisição no `api-gateway`) — `api-gateway` com 33 testes, cobertura ≥95%
+- [x] **Fase 8** — `apps/portal` (App Shell, TDD — layout global, navegação, providers, `SessionContext`/guard de sessão, contratos de Module Federation) + 6 novos primitivos em `packages/ui` (`Footer`, `Breadcrumb`, `Avatar`, `DropdownMenu`, `ThemeProvider`/`ThemeToggle`, `Sidebar` recolhível) — `portal` com 92 testes, `packages/ui` com 97 testes, cobertura ≥95% em ambos
 
 > **Nota de domínio:** o projeto nasceu como demo genérica de "produtos" e foi redirecionado para o domínio de imobiliárias antes da Fase 4/5 começarem — não há dado ou código de "Product" implementado para migrar, só o rename do planejamento. Ver `docs/ARCHITECTURE.md` para o histórico da decisão.
 

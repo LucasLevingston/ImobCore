@@ -39,3 +39,23 @@ export {
 export { Layout, type LayoutProps } from './components/Layout'
 export { Header, type HeaderProps } from './components/Header'
 export { Sidebar, type SidebarItem, type SidebarProps } from './components/Sidebar'
+export { Footer, type FooterProps } from './components/Footer'
+export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from './components/Breadcrumb'
+export { Avatar, AvatarFallback, AvatarImage } from './components/Avatar'
+export {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './components/DropdownMenu'
+export {
+  ThemeProvider,
+  useTheme,
+  ThemeToggle,
+  type Theme,
+  type ThemeContextValue,
+  type ThemeProviderProps,
+  type ThemeToggleProps,
+} from './components/Theme'
