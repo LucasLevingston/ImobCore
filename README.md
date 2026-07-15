@@ -46,6 +46,8 @@ graph TB
 
 **Regra de ouro:** nenhum banco é compartilhado entre serviços. Nenhuma feature de auth existe no `properties-frontend`, nenhuma feature de imóveis existe no `auth-frontend`.
 
+> **Estado atual (Fase 5):** a seta de Module Federation no diagrama acima é a **intenção arquitetural**, ainda não implementada — adiada pra Fase 6 (`@module-federation/nextjs-mf` incompatível com App Router, ver `docs/ARCHITECTURE.md` seção 06). Hoje `properties-frontend` não tem UI de sessão própria: um `middleware.ts` local checa a presença do cookie de refresh e redireciona pro `auth-frontend` (cross-origin) quando ausente; a sessão obtida (refresh silencioso via `api-gateway`) já autentica normalmente as chamadas a `properties-service`.
+
 ### Por que Module Federation _e_ packages/ui ao mesmo tempo?
 
 - `packages/ui`: primitivas estáticas (Button, Input, Card, Modal, Toast, Loading, Error, Layout, Sidebar) — compartilhadas em **build-time** via npm workspace. Não mudam por deploy independente.
@@ -89,13 +91,13 @@ packages/
 - [x] **Fase 2a** — `api-gateway` (proxy Fastify + CORS + rate-limit, TDD) — 19 testes, cobertura ≥95%
 - [x] **Fase 3** — `auth-frontend` (MFE completo, TDD — consome só o api-gateway) — 70 testes, 100% cobertura (exceto `app/` e `mocks/`)
 - [x] **Fase 4** — `properties-service` (backend completo, TDD — entidade `Property`, CRUD, busca/filtros, métricas de dashboard, contratos de IA) — 87 testes, 100% cobertura (exceto repositório Prisma — testes de integração escritos, pendente Docker pra rodar)
-- [ ] **Fase 5** — `properties-frontend` (MFE completo, TDD — dashboard, listagem, CRUD, busca, filtros)
+- [x] **Fase 5** — `properties-frontend` (MFE completo, TDD — dashboard, listagem, cadastro, edição, exclusão, busca, filtros, paginação) — 78 testes, 100% cobertura (exceto `app/`, `mocks/`, `test-utils/`, `types/`)
 - [ ] **Fase 6** — Module Federation wiring + docker-compose completo + smoke e2e
 - [ ] **Fase 7** — Documentação final (diagramas, fluxos de auth/MFE/microservices)
 
 > **Nota de domínio:** o projeto nasceu como demo genérica de "produtos" e foi redirecionado para o domínio de imobiliárias antes da Fase 4/5 começarem — não há dado ou código de "Product" implementado para migrar, só o rename do planejamento. Ver `docs/ARCHITECTURE.md` para o histórico da decisão.
 
-## Como rodar (estado atual — Fases 0–4 concluídas)
+## Como rodar (estado atual — Fases 0–5 concluídas)
 
 ```bash
 npm install                 # instala deps de todos os workspaces
@@ -105,13 +107,13 @@ docker compose config       # valida docker-compose.yml
 docker compose up postgres-auth postgres-properties -d
 docker compose ps           # confirma os 2 bancos healthy
 
-# stack completa até agora (bancos + auth-service + properties-service + api-gateway + auth-frontend):
-docker compose up postgres-auth postgres-properties auth-service properties-service api-gateway auth-frontend -d
+# stack completa (bancos + auth-service + properties-service + api-gateway + os 2 frontends):
+docker compose up -d
 curl http://localhost:3004/health/ready   # { status, services: { auth: true, properties: true } }
-# abrir http://localhost:3000/login no browser
+# abrir http://localhost:3003 no browser (redireciona pro login em localhost:3000 se não autenticado)
 ```
 
-Os comandos `dev`/`build`/`test` de cada app/service só ficam funcionais a partir da fase em que forem implementados (ver roadmap acima). `properties-frontend` (Fase 5) ainda não existe — `properties-service` só é acessível via `api-gateway`/curl até lá.
+Os comandos `dev`/`build`/`test` de cada app/service só ficam funcionais a partir da fase em que forem implementados (ver roadmap acima). `properties-frontend` não tem login próprio — se não autenticado, o `middleware.ts` redireciona pro `auth-frontend`; depois do login, o cookie de refresh (compartilhado entre portas do mesmo host) autentica as chamadas via `api-gateway`.
 
 ## Como testar
 
