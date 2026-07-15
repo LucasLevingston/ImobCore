@@ -18,9 +18,12 @@ const nextConfig = {
           remotes: {
             authFrontend: `authFrontend@${process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL}/_next/static/chunks/remoteEntry.js`,
           },
+          // eager: true + requiredVersion fixo — mesmo motivo do next.config.js
+          // de auth-frontend (RUNTIME-006 + auto-scanner da MF pegando o
+          // peerDependency canary interno do Next em vez da versão real instalada)
           shared: {
-            react: { singleton: true },
-            'react-dom': { singleton: true },
+            react: { singleton: true, eager: true, requiredVersion: '^18.3.1' },
+            'react-dom': { singleton: true, eager: true, requiredVersion: '^18.3.1' },
           },
           dts: false,
         }),

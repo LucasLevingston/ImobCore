@@ -22,9 +22,19 @@ const nextConfig = {
             './AuthStatus': './src/components/federation/AuthStatus',
             './UserMenu': './src/components/federation/UserMenu',
           },
+          // eager: true — sem isso, o runtime da MF exige um "async boundary"
+          // (bootstrap via import() dinâmico) antes de qualquer código tocar
+          // react/react-dom; o App Router do Next não expõe esse boundary no
+          // entry chunk, então loadShareSync corre na frente da negociação
+          // assíncrona e quebra a hidratação inteira com RUNTIME-006
+          // (module-federation.io/guide/troubleshooting/runtime#runtime-006)
+          // requiredVersion fixo — o auto-scanner da MF lê o peerDependency
+          // interno do Next (uma canary do React 19 usada por features de RSC),
+          // não a versão de react-dom de fato resolvida (18.3.1, única cópia
+          // instalada) — sem isso, ele recusa a própria versão que ele mesmo fornece
           shared: {
-            react: { singleton: true },
-            'react-dom': { singleton: true },
+            react: { singleton: true, eager: true, requiredVersion: '^18.3.1' },
+            'react-dom': { singleton: true, eager: true, requiredVersion: '^18.3.1' },
           },
           // Geração automática de .d.ts pro host requer rodar tsc num tsconfig
           // sintético à parte — não funcionou aqui (module-federation.io/guide/
