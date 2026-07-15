@@ -1,33 +1,51 @@
 # properties-service
 
-Microservice de imóveis — Fastify + Prisma + PostgreSQL.
+Microservice de imóveis — Fastify + Prisma + PostgreSQL. Dono exclusivo do catálogo de imóveis. Acessado só via `api-gateway` (nunca direto por frontend) — ver `docs/ARCHITECTURE.md` seção 04a.
 
-**Status:** aguardando implementação (Fase 4 do roadmap). Ver `/README.md` na raiz do monorepo e `/docs/ARCHITECTURE.md`.
+**Status:** Fase 4 concluída. 87 testes, 100% cobertura (exceto o repositório Prisma — testes de integração escritos, pendente Docker pra rodar neste ambiente).
 
-## Responsabilidades (quando implementado)
+## Arquitetura
 
-- CRUD de imóveis (`Property`), busca, filtros, paginação, ordenação
-- Regras de negócio do domínio imobiliário
-- Contratos (interfaces, sem implementação) para IA: `AIProvider`, `EmbeddingProvider`, `ChatProvider`, `PropertyRecommendationProvider`, `DescriptionGeneratorProvider`
-- Valida JWT emitido pelo `auth-service` (segredo compartilhado via env var — sem chamada de rede entre serviços)
-- Banco próprio (`properties_db`) — nunca compartilhado com `auth-service`
+Clean Architecture: `domain` (entidade `Property`, contrato `PropertyRepository`, contratos de IA sem implementação) → `application` (DTOs Zod, use cases, erros) → `infra` (Fastify HTTP, Prisma) → `main` (composition root).
 
-## Entidade Property
+## Autenticação
 
-`id`, `title`, `description`, `type`, `status`, `price`, `condominiumFee`, `iptu`, `bedrooms`, `bathrooms`, `garageSpaces`, `area`, `lotArea`, `floor`, `furnished`, `acceptsFinancing`, `acceptsPets`, `address`, `number`, `district`, `city`, `state`, `zipCode`, `latitude`, `longitude`, `brokerId`, `createdAt`, `updatedAt`.
+Não emite nem verifica sessão por rede — decodifica e valida a assinatura JWT localmente com o mesmo `JWT_SECRET` do `auth-service` (`onRequest` hook em todas as rotas de `/properties/*`). Se `auth-service` cair, `properties-service` continua validando tokens já emitidos normalmente.
 
-**Type:** `Apartment | House | Land | Commercial | Farm | Studio | Penthouse`
-**Status:** `Available | Reserved | Sold | Rented | Inactive`
+## Rotas
 
-## Rotas planejadas
+Todas exigem `Authorization: Bearer <accessToken>`.
 
+| Método | Rota                  | Descrição                                          |
+| ------ | --------------------- | -------------------------------------------------- |
+| GET    | `/properties`         | Lista paginada/ordenável com filtros               |
+| GET    | `/properties/search`  | Busca textual (`q`) + os mesmos filtros            |
+| GET    | `/properties/metrics` | Métricas agregadas do dashboard                    |
+| GET    | `/properties/:id`     | Detalhe de um imóvel                               |
+| POST   | `/properties`         | Cria imóvel (`brokerId` vem do token, não do body) |
+| PUT    | `/properties/:id`     | Atualiza campos parciais                           |
+| DELETE | `/properties/:id`     | Remove imóvel                                      |
+
+Filtros (`/properties` e `/properties/search`): `city`, `district`, `type`, `minPrice`/`maxPrice`, `bedrooms`, `bathrooms`, `garageSpaces`, `minArea`/`maxArea`, `status`, `acceptsFinancing`, `acceptsPets`, `page`, `limit`, `sortBy`, `sortOrder`.
+
+## Preparação para IA
+
+`src/domain/ai/` define 5 interfaces (`AIProvider`, `EmbeddingProvider`, `ChatProvider`, `PropertyRecommendationProvider`, `DescriptionGeneratorProvider`) — contrato arquitetural (DIP), sem implementação nem uso nesta fase. Uma fase futura de IA pluga um provider concreto sem tocar em `domain`/`application`.
+
+## Variáveis de ambiente
+
+`PROPERTIES_SERVICE_PORT`, `PROPERTIES_DATABASE_URL`, `JWT_SECRET` (compartilhado com `auth-service` só pra verificação de assinatura).
+
+## Como rodar
+
+```bash
+npm run dev --workspace=properties-service
 ```
-GET    /properties
-GET    /properties/:id
-POST   /properties
-PUT    /properties/:id
-DELETE /properties/:id
-GET    /properties/search
-```
 
-Filtros: cidade, bairro, tipo, preço, quartos, banheiros, vagas de garagem, área, status, aceita financiamento, aceita pets.
+## Como testar
+
+```bash
+npm run test --workspace=properties-service              # unit (rápido, sem Docker)
+npm run test:coverage --workspace=properties-service      # cobertura (mínimo 95%)
+npm run test:integration --workspace=properties-service   # repositório Prisma real (precisa Docker — Testcontainers)
+```
