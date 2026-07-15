@@ -71,6 +71,7 @@ describe('api-gateway', () => {
       await makeApp()
       const response = await request(app.server)
         .post('/api/auth/login')
+        .set('Origin', 'http://localhost:3000')
         .send({ email: 'lucas@email.com', password: 'x' })
 
       expect(response.status).toBe(200)
@@ -91,7 +92,10 @@ describe('api-gateway', () => {
   describe('x-request-id', () => {
     it('should generate a request id and forward it upstream when absent', async () => {
       await makeApp()
-      const response = await request(app.server).post('/api/auth/echo/anything').send({})
+      const response = await request(app.server)
+        .post('/api/auth/echo/anything')
+        .set('Origin', 'http://localhost:3000')
+        .send({})
 
       expect(response.headers['x-request-id']).toBeDefined()
       expect(response.body.headers['x-request-id']).toBe(response.headers['x-request-id'])
@@ -101,11 +105,40 @@ describe('api-gateway', () => {
       await makeApp()
       const response = await request(app.server)
         .post('/api/auth/echo/anything')
+        .set('Origin', 'http://localhost:3000')
         .set('x-request-id', 'my-custom-id')
         .send({})
 
       expect(response.headers['x-request-id']).toBe('my-custom-id')
       expect(response.body.headers['x-request-id']).toBe('my-custom-id')
+    })
+  })
+
+  describe('CSRF Origin guard', () => {
+    it('should reject a mutating request with no Origin/Referer', async () => {
+      await makeApp()
+      const response = await request(app.server)
+        .post('/api/auth/login')
+        .send({ email: 'lucas@email.com', password: 'x' })
+
+      expect(response.status).toBe(403)
+    })
+
+    it('should reject a mutating request from an origin outside the allowlist', async () => {
+      await makeApp()
+      const response = await request(app.server)
+        .post('/api/auth/login')
+        .set('Origin', 'http://evil.example')
+        .send({ email: 'lucas@email.com', password: 'x' })
+
+      expect(response.status).toBe(403)
+    })
+
+    it('should never block a non-mutating request, even without Origin', async () => {
+      await makeApp()
+      const response = await request(app.server).get('/api/properties/123')
+
+      expect(response.status).toBe(200)
     })
   })
 

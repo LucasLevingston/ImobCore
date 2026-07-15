@@ -631,21 +631,21 @@ Camada de acesso HTTP nunca fica dentro do componente nem do hook — fica em `s
 
 ## 18. Segurança
 
-| Ameaça                                          | Mitigação                                                                                                                                                           |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Senha em texto puro                             | bcrypt, salt rounds ≥ 10, nunca logada nem retornada em nenhuma resposta de API                                                                                     |
-| Roubo de access token via XSS                   | Access token de curta duração (15 min), mantido em memória no frontend (não em `localStorage`)                                                                      |
-| Roubo de refresh token                          | Cookie `httpOnly` + `Secure` + `SameSite=Strict`, hash no banco, rotação a cada uso                                                                                 |
-| Replay de refresh token revogado                | Verificação de `revokedAt` no banco antes de emitir novo access token                                                                                               |
-| CSRF                                            | `SameSite=Strict` nos cookies + verificação de origem (`Origin`/`Referer`) em rotas mutáveis                                                                        |
-| Força bruta em `/login`                         | Rate limiting (`@fastify/rate-limit`) centralizado no `api-gateway`, por IP + rota (seção 04a)                                                                      |
-| Enumeração de usuário                           | Mensagens de erro genéricas em login/registro (não revelar se o email existe)                                                                                       |
-| Injeção SQL                                     | Prisma (queries parametrizadas por construção) — nunca query raw concatenando input do usuário                                                                      |
-| Validação de entrada ausente                    | Zod em toda fronteira: body/query/params de rota, variáveis de ambiente, formulários                                                                                |
-| Segredos versionados                            | `.env` no `.gitignore`; `.env.example` documenta chaves sem valores reais                                                                                           |
-| Cabeçalhos HTTP inseguros                       | `@fastify/helmet` no `api-gateway` e em ambos os serviços (defesa em profundidade)                                                                                  |
-| CORS aberto                                     | `@fastify/cors` centralizado no `api-gateway`, com origem explícita (só as URLs dos frontends conhecidas) — services internos não recebem tráfego direto de browser |
-| Service exposto direto, sem passar pelo gateway | Em produção, `auth-service`/`properties-service` não publicam porta pro host — só rede interna Docker (seção 04a/20)                                                |
+| Ameaça                                          | Mitigação                                                                                                                                                                     |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Senha em texto puro                             | bcrypt, salt rounds ≥ 10, nunca logada nem retornada em nenhuma resposta de API                                                                                               |
+| Roubo de access token via XSS                   | Access token de curta duração (15 min), mantido em memória no frontend (não em `localStorage`)                                                                                |
+| Roubo de refresh token                          | Cookie `httpOnly` + `Secure` + `SameSite=Strict`, hash no banco, rotação a cada uso                                                                                           |
+| Replay de refresh token revogado                | Verificação de `revokedAt` no banco antes de emitir novo access token                                                                                                         |
+| CSRF                                            | `SameSite=Strict` nos cookies + verificação de origem (`Origin`/`Referer`) em rotas mutáveis                                                                                  |
+| Força bruta em `/login`                         | Rate limiting (`@fastify/rate-limit`) centralizado no `api-gateway`, por IP — bucket global compartilhado entre todas as rotas do gateway, não um bucket por rota (seção 04a) |
+| Enumeração de usuário                           | Mensagens de erro genéricas em login/registro (não revelar se o email existe)                                                                                                 |
+| Injeção SQL                                     | Prisma (queries parametrizadas por construção) — nunca query raw concatenando input do usuário                                                                                |
+| Validação de entrada ausente                    | Zod em toda fronteira: body/query/params de rota, variáveis de ambiente, formulários                                                                                          |
+| Segredos versionados                            | `.env` no `.gitignore`; `.env.example` documenta chaves sem valores reais                                                                                                     |
+| Cabeçalhos HTTP inseguros                       | `@fastify/helmet` no `api-gateway` e em ambos os serviços (defesa em profundidade)                                                                                            |
+| CORS aberto                                     | `@fastify/cors` centralizado no `api-gateway`, com origem explícita (só as URLs dos frontends conhecidas) — services internos não recebem tráfego direto de browser           |
+| Service exposto direto, sem passar pelo gateway | Em produção, `auth-service`/`properties-service` não publicam porta pro host — só rede interna Docker (seção 04a/20)                                                          |
 
 ---
 
@@ -733,6 +733,35 @@ Tipos usados neste projeto: `feat`, `fix`, `chore`, `refactor`, `test`, `docs`, 
 
 Correlação: `api-gateway` gera `x-request-id` no primeiro ponto de contato (se o cliente não mandou um), propaga em todo o resto da cadeia (`auth-service`/`properties-service`), logado em todo log daquela requisição e incluído no trace — permite seguir uma requisição do frontend até o banco, mesmo passando por dois processos Fastify diferentes.
 
+### Pipeline de uma requisição mutável no gateway (CSRF + correlação + tracing)
+
+```mermaid
+sequenceDiagram
+    participant FE as Frontend (auth/properties)
+    participant GW as api-gateway
+    participant SV as auth-service / properties-service
+    participant OTEL as Console/OTLP exporter
+
+    FE->>GW: POST/PUT/PATCH/DELETE /api/* (Origin, Authorization)
+    GW->>GW: CORS — origem na allowlist?
+    GW->>GW: CSRF Origin guard — Origin (fallback Referer) ∈ CORS_ORIGIN?
+    alt origem não permitida
+        GW-->>FE: 403 ForbiddenError
+    else origem permitida
+        GW->>GW: rate-limit (bucket global por IP)
+        GW->>GW: atribui x-request-id (gera um se o cliente não mandou)
+        GW->>SV: proxy — repassa x-request-id + Authorization
+        SV->>SV: OTel HTTP instrumentation abre span (trace_id/span_id)
+        SV->>SV: Pino loga com reqId=x-request-id, trace_id, span_id (headers sensíveis via redact)
+        SV->>SV: use case + Prisma (span filho do OTel)
+        SV-->>OTEL: exporta spans (console em dev, OTLP em produção)
+        SV-->>GW: resposta
+        GW-->>FE: repassa resposta
+    end
+```
+
+Nota: o guard de CSRF só se aplica a métodos mutáveis (`POST`/`PUT`/`PATCH`/`DELETE`); `GET`/`HEAD` nunca são bloqueados por ele, mesmo sem `Origin` — protege contra mutação cross-site, não contra leitura (que o CORS já cobre).
+
 ---
 
 ## 26. Logging
@@ -767,7 +796,7 @@ Use cases lançam esses erros; nunca lançam `Error` genérico. Controller nunca
 
 ### Frontend
 
-- Erros de query/mutation nunca aparecem como tela branca — `error.tsx` (Next.js) por rota + `ErrorBoundary` em componentes críticos.
+- Erros de query/mutation nunca aparecem como tela branca — `error.tsx` (Next.js) no nível raiz de cada app (`apps/auth-frontend/src/app/error.tsx`, `apps/properties-frontend/src/app/error.tsx`), cobrindo todas as rotas da aplicação (não um `error.tsx` por rota individual — granularidade extra só valeria a pena se rotas distintas precisassem de UI de recuperação diferente).
 - Mensagens de erro de API são mapeadas para texto amigável (nunca exibir mensagem crua do backend) via um dicionário de erros por código.
 - Falha ao carregar remote do Module Federation (`auth-frontend` fora do ar) tem fallback visual próprio, não quebra a página inteira do `properties-frontend`.
 
@@ -775,15 +804,17 @@ Use cases lançam esses erros; nunca lançam `Error` genérico. Controller nunca
 
 ## 28. Performance
 
-| Técnica                               | Onde                                                                                                                                        |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Server Components por padrão          | Toda página Next.js que não precisa de interatividade                                                                                       |
-| `prefetchQuery` + `HydrationBoundary` | Dados críticos da rota inicial (lista de imóveis, métricas do dashboard, perfil do usuário)                                                 |
-| Paginação/Infinite Query              | Nunca carregar lista completa de imóveis de uma vez                                                                                         |
-| Índices no banco                      | `Property.city`/`district`/`type`/`status` (filtros), `User.email` (unique + lookup de login), `RefreshToken.tokenHash` (lookup de refresh) |
-| `React.memo`/`useMemo`/`useCallback`  | Componentes de lista com muitos itens, callbacks passados como prop pra listas                                                              |
-| Connection pooling Prisma             | `connection_limit` configurado por serviço, evita esgotar conexões do Postgres sob carga                                                    |
-| Cache HTTP                            | Rotas de leitura pública (nenhuma, neste projeto, já que tudo exige auth) — N/A por ora                                                     |
+| Técnica                               | Onde                |
+| ------------------------------------- | ------------------- |
+| Técnica                               | Status              | Onde                                                                                                                                                                                                                                                                                                          |
+| ------------------------------------- | ------              | -------------------------------------------------------------------------------------------------------------------------------------------                                                                                                                                                                   |
+| Server Components por padrão          | ✅                  | Toda página Next.js que não precisa de interatividade                                                                                                                                                                                                                                                         |
+| `prefetchQuery` + `HydrationBoundary` | ❌ não implementado | Avaliado na Fase 7 e deliberadamente adiado — cada rota hoje busca dados client-side via TanStack Query normalmente (sem prefetch no servidor/hydration). Retrofit fica pra uma fase futura se performance de first-load virar problema real; não implementar código especulativo sem medição que justifique. |
+| Paginação/Infinite Query              | ✅                  | Nunca carregar lista completa de imóveis de uma vez                                                                                                                                                                                                                                                           |
+| Índices no banco                      | ✅                  | `Property.city`/`district`/`type`/`status` (filtros), `User.email` (unique + lookup de login), `RefreshToken.tokenHash` (lookup de refresh)                                                                                                                                                                   |
+| `React.memo`                          | ✅                  | `PropertyCard` (item de lista renderizado em massa na busca de imóveis)                                                                                                                                                                                                                                       |
+| Connection pooling Prisma             | ✅                  | `connection_limit=5` configurado por serviço via `DATABASE_URL` (auth-service e properties-service), evita esgotar conexões do Postgres sob carga                                                                                                                                                             |
+| Cache HTTP                            | N/A                 | Rotas de leitura pública (nenhuma, neste projeto, já que tudo exige auth)                                                                                                                                                                                                                                     |
 
 ---
 
@@ -828,7 +859,7 @@ Fase 3  → auth-frontend (MFE completo, TDD — já consome só o api-gateway) 
 Fase 4  → properties-service (backend completo, TDD — entidade Property, dashboard, contratos de IA) [CONCLUÍDA]
 Fase 5  → properties-frontend (MFE completo, TDD — dashboard, listagem, CRUD, busca, filtros) [CONCLUÍDA]
 Fase 6  → Module Federation wiring + docker-compose completo + smoke e2e + CI/CD [CONCLUÍDA]
-Fase 7  → Documentação final consolidada + observabilidade + revisão de segurança
+Fase 7  → Documentação final consolidada + observabilidade + revisão de segurança      [CONCLUÍDA]
 ```
 
 Cada fase segue o ciclo descrito na seção 15 (TDD) e só avança pra próxima após validação com o responsável pelo projeto (checkpoint manual, não automático).

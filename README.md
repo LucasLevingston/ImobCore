@@ -93,7 +93,7 @@ packages/
 - [x] **Fase 4** — `properties-service` (backend completo, TDD — entidade `Property`, CRUD, busca/filtros, métricas de dashboard, contratos de IA) — 87 testes, 100% cobertura (exceto repositório Prisma — testes de integração escritos, pendente Docker pra rodar)
 - [x] **Fase 5** — `properties-frontend` (MFE completo, TDD — dashboard, listagem, cadastro, edição, exclusão, busca, filtros, paginação) — 78 testes, 100% cobertura (exceto `app/`, `mocks/`, `test-utils/`, `types/`)
 - [x] **Fase 6** — Module Federation wiring (`ModuleFederationPlugin` cru) + docker-compose completo (7 serviços healthy) + smoke e2e via curl (registro → login → CRUD de imóveis → métricas, tudo via api-gateway) + CI/CD (GitHub Actions)
-- [ ] **Fase 7** — Documentação final (diagramas, fluxos de auth/MFE/microservices)
+- [x] **Fase 7** — Observabilidade real (OpenTelemetry tracing HTTP+Prisma, correlação `x-request-id` ponta-a-ponta), segurança (CSRF Origin/Referer guard no `api-gateway`, Pino `redact`, `connection_limit` no Prisma), `error.tsx`/`React.memo` nos frontends, e documentação final consolidada (diagrama do pipeline de requisição no `api-gateway`) — `api-gateway` com 33 testes, cobertura ≥95%
 
 > **Nota de domínio:** o projeto nasceu como demo genérica de "produtos" e foi redirecionado para o domínio de imobiliárias antes da Fase 4/5 começarem — não há dado ou código de "Product" implementado para migrar, só o rename do planejamento. Ver `docs/ARCHITECTURE.md` para o histórico da decisão.
 
