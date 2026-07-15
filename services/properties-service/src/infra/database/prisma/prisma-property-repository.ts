@@ -1,4 +1,3 @@
-import type { Prisma, PrismaClient, Property as PrismaProperty } from '@prisma/client'
 import type { Property } from '../../../domain/entities/property.entity'
 import type {
   CreatePropertyData,
@@ -9,6 +8,7 @@ import type {
   PropertyRepository,
   UpdatePropertyData,
 } from '../../../domain/repositories/property-repository'
+import type { Prisma, PrismaClient, Property as PrismaProperty } from '../../../generated/prisma'
 
 function toDomain(record: PrismaProperty): Property {
   return {

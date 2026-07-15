@@ -7,5 +7,5 @@
   "env": {
     "node": true
   },
-  "ignorePatterns": ["prisma/migrations"]
+  "ignorePatterns": ["prisma/migrations", "src/generated"]
 }

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '../src/generated/prisma'
 import { BcryptHasher } from '../src/infra/cryptography/bcrypt-hasher'
 
 const prisma = new PrismaClient()

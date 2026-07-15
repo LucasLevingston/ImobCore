@@ -16,6 +16,7 @@ export default defineConfig({
         'src/main/**',
         'src/test-utils/**',
         'src/infra/database/prisma/**',
+        'src/generated/**',
       ],
       thresholds: {
         lines: 95,
