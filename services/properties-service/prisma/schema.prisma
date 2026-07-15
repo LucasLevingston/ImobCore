@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PROPERTIES_DATABASE_URL")
+}
+
+enum PropertyType {
+  Apartment
+  House
+  Land
+  Commercial
+  Farm
+  Studio
+  Penthouse
+}
+
+enum PropertyStatus {
+  Available
+  Reserved
+  Sold
+  Rented
+  Inactive
+}
+
+model Property {
+  id               String         @id @default(uuid())
+  title            String
+  description      String
+  type             PropertyType
+  status           PropertyStatus @default(Available)
+  price            Decimal        @db.Decimal(12, 2)
+  condominiumFee   Decimal?       @map("condominium_fee") @db.Decimal(12, 2)
+  iptu             Decimal?       @db.Decimal(12, 2)
+  bedrooms         Int
+  bathrooms        Int
+  garageSpaces     Int            @map("garage_spaces")
+  area             Decimal        @db.Decimal(10, 2)
+  lotArea          Decimal?       @map("lot_area") @db.Decimal(10, 2)
+  floor            Int?
+  furnished        Boolean        @default(false)
+  acceptsFinancing Boolean        @default(false) @map("accepts_financing")
+  acceptsPets      Boolean        @default(false) @map("accepts_pets")
+  address          String
+  number           String
+  district         String
+  city             String
+  state            String
+  zipCode          String         @map("zip_code")
+  latitude         Decimal?       @db.Decimal(10, 7)
+  longitude        Decimal?       @db.Decimal(10, 7)
+  brokerId         String         @map("broker_id")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  @@index([city])
+  @@index([district])
+  @@index([type])
+  @@index([status])
+  @@index([brokerId])
+  @@map("properties")
+}

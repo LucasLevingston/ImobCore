@@ -59,6 +59,27 @@ services:
       timeout: 3s
       retries: 5
 
+  properties-service:
+    build:
+      context: .
+      dockerfile: services/properties-service/Dockerfile
+    container_name: properties-service
+    restart: unless-stopped
+    environment:
+      PROPERTIES_SERVICE_PORT: 3002
+      PROPERTIES_DATABASE_URL: postgresql://postgres:postgres@postgres-properties:5432/properties_db?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-min-32-chars}
+    ports:
+      - '3002:3002'
+    depends_on:
+      postgres-properties:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3002/health || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
   api-gateway:
     build:
       context: .
@@ -76,6 +97,8 @@ services:
       - '3004:3004'
     depends_on:
       auth-service:
+        condition: service_healthy
+      properties-service:
         condition: service_healthy
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://localhost:3004/health || exit 1']
@@ -104,8 +127,6 @@ services:
       timeout: 3s
       retries: 5
 
-  # properties-service   → adicionado na Fase 4 (api-gateway já aponta pra ele via env,
-  #                         health/ready reporta "properties: false" até lá existir)
   # properties-frontend   → adicionado na Fase 5
 
 volumes:
