@@ -263,7 +263,9 @@ Cada MFE segue a estrutura feature-based descrita em `references/architecture.md
 
 ## 06. Module Federation (Webpack 5)
 
-**Biblioteca:** `@module-federation/nextjs-mf` (Webpack 5 `ModuleFederationPlugin` sob o capô, adaptado pro build do Next.js).
+> **⚠️ Atualização (Fase 3):** `@module-federation/nextjs-mf` recusa **categoricamente** qualquer projeto com App Router — checagem hardcoded na própria lib (`"App Directory is not supported by nextjs-mf... do not open git issues about this"`), sem flag de bypass, sem depender de versão. Isso trava o `next dev`/`next build` inteiro, não só a federação. A exposição via webpack foi **adiada pra Fase 6** (decisão do usuário) — os componentes `Header`/`AuthStatus`/`UserMenu` já existem e são testados em `src/components/federation/` de `auth-frontend`, só a config do `next.config.js` foi removida por ora. O conteúdo abaixo descreve a **intenção original**; o mecanismo real será decidido na Fase 6 entre: (a) `ModuleFederationPlugin` cru via `@module-federation/enhanced/webpack` (bypassa o wrapper que tem o bloqueio, mais baixo nível, sem as conveniências de SSR/path-rewrite automáticas do `nextjs-mf`), ou (b) outra estratégia de composição runtime. Decisão fica pra quando `properties-frontend` (o host) existir de verdade pra testar contra.
+
+**Biblioteca (intenção original, pendente confirmação na Fase 6):** `@module-federation/nextjs-mf` (Webpack 5 `ModuleFederationPlugin` sob o capô, adaptado pro build do Next.js).
 
 **Topologia decidida (Fase 0):** federação direta, sem app "shell". `properties-frontend` é **host**; `auth-frontend` é **remote**.
 
@@ -789,7 +791,7 @@ Fase 0 → Scaffold monorepo + tooling + docker-compose skeleton                
 Fase 1 → packages/ui (design system compartilhado)                                [CONCLUÍDA]
 Fase 2  → auth-service (backend completo, TDD)                                     [CONCLUÍDA]
 Fase 2a → api-gateway (Fastify, proxy + CORS + rate-limit, TDD — seção 04a)          [CONCLUÍDA]
-Fase 3  → auth-frontend (MFE completo, TDD — já consome só o api-gateway)
+Fase 3  → auth-frontend (MFE completo, TDD — já consome só o api-gateway)          [CONCLUÍDA]
 Fase 4  → properties-service (backend completo, TDD — entidade Property, dashboard, contratos de IA)
 Fase 5  → properties-frontend (MFE completo, TDD — dashboard, listagem, CRUD, busca, filtros)
 Fase 6  → Module Federation wiring + docker-compose completo + smoke e2e + CI/CD

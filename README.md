@@ -87,7 +87,7 @@ packages/
 - [x] **Fase 1** — `packages/ui` (design system) — 10 componentes, 68 testes, 100% cobertura (stmts/funcs/lines)
 - [x] **Fase 2** — `auth-service` (backend completo, TDD) — 101 testes, 100% cobertura (exceto repositórios Prisma — testes de integração escritos, pendente Docker pra rodar)
 - [x] **Fase 2a** — `api-gateway` (proxy Fastify + CORS + rate-limit, TDD) — 19 testes, cobertura ≥95%
-- [ ] **Fase 3** — `auth-frontend` (MFE completo, TDD — consome só o api-gateway)
+- [x] **Fase 3** — `auth-frontend` (MFE completo, TDD — consome só o api-gateway) — 70 testes, 100% cobertura (exceto `app/` e `mocks/`)
 - [ ] **Fase 4** — `properties-service` (backend completo, TDD — entidade `Property`, CRUD, busca/filtros, contratos de IA)
 - [ ] **Fase 5** — `properties-frontend` (MFE completo, TDD — dashboard, listagem, CRUD, busca, filtros)
 - [ ] **Fase 6** — Module Federation wiring + docker-compose completo + smoke e2e
@@ -95,7 +95,7 @@ packages/
 
 > **Nota de domínio:** o projeto nasceu como demo genérica de "produtos" e foi redirecionado para o domínio de imobiliárias antes da Fase 4/5 começarem — não há dado ou código de "Product" implementado para migrar, só o rename do planejamento. Ver `docs/ARCHITECTURE.md` para o histórico da decisão.
 
-## Como rodar (estado atual — Fases 0–2a concluídas)
+## Como rodar (estado atual — Fases 0–3 concluídas)
 
 ```bash
 npm install                 # instala deps de todos os workspaces
@@ -105,9 +105,10 @@ docker compose config       # valida docker-compose.yml
 docker compose up postgres-auth postgres-properties -d
 docker compose ps           # confirma os 2 bancos healthy
 
-# stack de backend completa (bancos + auth-service + api-gateway):
-docker compose up postgres-auth auth-service api-gateway -d
+# stack completa até agora (bancos + auth-service + api-gateway + auth-frontend):
+docker compose up postgres-auth auth-service api-gateway auth-frontend -d
 curl http://localhost:3004/health/ready   # { status, services: { auth: true, properties: false } }
+# abrir http://localhost:3000/login no browser
 ```
 
 `services: { properties: false }` é esperado até a Fase 4 existir — o gateway já aponta pra lá, só não há nada respondendo ainda.
