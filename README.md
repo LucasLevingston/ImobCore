@@ -46,7 +46,7 @@ graph TB
 
 **Regra de ouro:** nenhum banco é compartilhado entre serviços. Nenhuma feature de auth existe no `properties-frontend`, nenhuma feature de imóveis existe no `auth-frontend`.
 
-> **Estado atual (Fase 5):** a seta de Module Federation no diagrama acima é a **intenção arquitetural**, ainda não implementada — adiada pra Fase 6 (`@module-federation/nextjs-mf` incompatível com App Router, ver `docs/ARCHITECTURE.md` seção 06). Hoje `properties-frontend` não tem UI de sessão própria: um `middleware.ts` local checa a presença do cookie de refresh e redireciona pro `auth-frontend` (cross-origin) quando ausente; a sessão obtida (refresh silencioso via `api-gateway`) já autentica normalmente as chamadas a `properties-service`.
+> **Estado atual (Fase 6):** a seta de Module Federation no diagrama acima está implementada — `properties-frontend` (host) consome `Header` de `auth-frontend` (remote) via `ModuleFederationPlugin` cru (`@module-federation/enhanced/webpack`; `@module-federation/nextjs-mf` nunca suportou App Router e foi descontinuado pelo ecossistema — ver `docs/ARCHITECTURE.md` seção 06). Ainda assim, `properties-frontend` não tem UI de sessão própria além do `Header` federado: um `middleware.ts` local checa a presença do cookie de refresh e redireciona pro `auth-frontend` (cross-origin) quando ausente; a sessão obtida (refresh silencioso via `api-gateway`) autentica normalmente as chamadas a `properties-service`.
 
 ### Por que Module Federation _e_ packages/ui ao mesmo tempo?
 
@@ -92,12 +92,12 @@ packages/
 - [x] **Fase 3** — `auth-frontend` (MFE completo, TDD — consome só o api-gateway) — 70 testes, 100% cobertura (exceto `app/` e `mocks/`)
 - [x] **Fase 4** — `properties-service` (backend completo, TDD — entidade `Property`, CRUD, busca/filtros, métricas de dashboard, contratos de IA) — 87 testes, 100% cobertura (exceto repositório Prisma — testes de integração escritos, pendente Docker pra rodar)
 - [x] **Fase 5** — `properties-frontend` (MFE completo, TDD — dashboard, listagem, cadastro, edição, exclusão, busca, filtros, paginação) — 78 testes, 100% cobertura (exceto `app/`, `mocks/`, `test-utils/`, `types/`)
-- [ ] **Fase 6** — Module Federation wiring + docker-compose completo + smoke e2e
+- [x] **Fase 6** — Module Federation wiring (`ModuleFederationPlugin` cru) + docker-compose completo (7 serviços healthy) + smoke e2e via curl (registro → login → CRUD de imóveis → métricas, tudo via api-gateway) + CI/CD (GitHub Actions)
 - [ ] **Fase 7** — Documentação final (diagramas, fluxos de auth/MFE/microservices)
 
 > **Nota de domínio:** o projeto nasceu como demo genérica de "produtos" e foi redirecionado para o domínio de imobiliárias antes da Fase 4/5 começarem — não há dado ou código de "Product" implementado para migrar, só o rename do planejamento. Ver `docs/ARCHITECTURE.md` para o histórico da decisão.
 
-## Como rodar (estado atual — Fases 0–5 concluídas)
+## Como rodar (estado atual — Fases 0–6 concluídas)
 
 ```bash
 npm install                 # instala deps de todos os workspaces
@@ -129,7 +129,11 @@ TDD obrigatório a partir da Fase 1 — nenhuma funcionalidade é implementada s
 
 ## Como fazer deploy
 
-Cada app/service tem seu próprio `Dockerfile` (a partir da fase em que é implementado) e é build/deployado de forma independente. `docker-compose.yml` orquestra o stack completo para ambiente local/staging — detalhado na Fase 6.
+Cada app/service tem seu próprio `Dockerfile` e é build/deployado de forma independente. `docker-compose.yml` orquestra o stack completo (7 serviços: 2 bancos, 3 backends, 2 frontends) para ambiente local/staging — validado end-to-end na Fase 6.
+
+## CI/CD
+
+`.github/workflows/ci.yml` — lint, typecheck, test (com gate de cobertura 95% embutido nos thresholds do Vitest) e build rodam em todo PR/push pra `develop`/`main`; build das 5 imagens Docker roda em push pra `main`. Detalhes: `docs/ARCHITECTURE.md` seção 21.
 
 ## Git — fluxo
 
