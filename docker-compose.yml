@@ -43,7 +43,7 @@ services:
     restart: unless-stopped
     environment:
       AUTH_SERVICE_PORT: 3001
-      AUTH_DATABASE_URL: postgresql://postgres:postgres@postgres-auth:5432/auth_db?schema=public
+      AUTH_DATABASE_URL: postgresql://postgres:postgres@postgres-auth:5432/auth_db?schema=public&connection_limit=5
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production-min-32-chars}
       JWT_ACCESS_TOKEN_EXPIRES_IN: ${JWT_ACCESS_TOKEN_EXPIRES_IN:-15m}
       JWT_REFRESH_TOKEN_EXPIRES_IN: ${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
@@ -67,7 +67,7 @@ services:
     restart: unless-stopped
     environment:
       PROPERTIES_SERVICE_PORT: 3002
-      PROPERTIES_DATABASE_URL: postgresql://postgres:postgres@postgres-properties:5432/properties_db?schema=public
+      PROPERTIES_DATABASE_URL: postgresql://postgres:postgres@postgres-properties:5432/properties_db?schema=public&connection_limit=5
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production-min-32-chars}
     ports:
       - '3002:3002'

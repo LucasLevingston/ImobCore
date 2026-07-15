@@ -34,4 +34,4 @@ EXPOSE 3001
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD wget -qO- http://127.0.0.1:3001/health || exit 1
 # Aplica migrações pendentes antes de subir o server — necessário pra um
 # banco novo (container fresco) já nascer com as tabelas certas
-CMD ["sh", "-c", "npx prisma migrate deploy --schema services/auth-service/prisma/schema.prisma && node --import tsx services/auth-service/src/main/server.ts"]
+CMD ["sh", "-c", "npx prisma migrate deploy --schema services/auth-service/prisma/schema.prisma && node --import tsx --import ./services/auth-service/src/main/tracing.ts services/auth-service/src/main/server.ts"]

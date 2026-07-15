@@ -13,6 +13,14 @@ import { makeAuthenticate } from './middlewares/authenticate'
 import { errorHandler } from './middlewares/error-handler'
 import { registerPropertyRoutes } from './routes/property.routes'
 
+// Nunca logar Authorization ou cookie, mesmo em erro (docs seção 26) — este
+// service não tem body sensível (sem senha/token), só headers de sessão
+const REDACT_PATHS = [
+  'req.headers.authorization',
+  'req.headers.cookie',
+  'res.headers["set-cookie"]',
+]
+
 export interface AppDependencies {
   propertyRepository: PropertyRepository
   tokenProvider: TokenProvider
@@ -23,7 +31,13 @@ export interface AppDependencies {
 // Composition root: monta plugins, use cases e rotas a partir de dependências
 // injetadas — testes passam fakes, main/server.ts passa implementações Prisma reais.
 export async function buildApp(deps: AppDependencies): Promise<FastifyInstance> {
-  const app = Fastify({ logger: deps.logger ?? true })
+  // requestIdHeader: correlaciona os logs deste service com o x-request-id
+  // gerado pelo api-gateway (docs seção 25) — sem isso o Fastify usa seu
+  // próprio contador incremental, sem relação com a requisição de origem
+  const app = Fastify({
+    logger: deps.logger === false ? false : { redact: REDACT_PATHS },
+    requestIdHeader: 'x-request-id',
+  })
 
   // CORS e rate-limit ficam só no api-gateway (seção 04a) — este service não
   // recebe mais tráfego direto de browser, só helmet fica (defesa em profundidade)
