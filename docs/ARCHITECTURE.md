@@ -793,7 +793,7 @@ Fase 2  → auth-service (backend completo, TDD)                                
 Fase 2a → api-gateway (Fastify, proxy + CORS + rate-limit, TDD — seção 04a)          [CONCLUÍDA]
 Fase 3  → auth-frontend (MFE completo, TDD — já consome só o api-gateway)          [CONCLUÍDA]
 Fase 4  → properties-service (backend completo, TDD — entidade Property, dashboard, contratos de IA) [CONCLUÍDA]
-Fase 5  → properties-frontend (MFE completo, TDD — dashboard, listagem, CRUD, busca, filtros)
+Fase 5  → properties-frontend (MFE completo, TDD — dashboard, listagem, CRUD, busca, filtros) [CONCLUÍDA]
 Fase 6  → Module Federation wiring + docker-compose completo + smoke e2e + CI/CD
 Fase 7  → Documentação final consolidada + observabilidade + revisão de segurança
 ```

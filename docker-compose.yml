@@ -127,7 +127,27 @@ services:
       timeout: 3s
       retries: 5
 
-  # properties-frontend   → adicionado na Fase 5
+  properties-frontend:
+    build:
+      context: .
+      dockerfile: apps/properties-frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_GATEWAY_URL: ${NEXT_PUBLIC_API_GATEWAY_URL:-http://localhost:3004}
+        NEXT_PUBLIC_AUTH_FRONTEND_URL: ${NEXT_PUBLIC_AUTH_FRONTEND_URL:-http://localhost:3000}
+    container_name: properties-frontend
+    restart: unless-stopped
+    # NEXT_PUBLIC_* é baked em build-time (args acima) — declarar aqui em
+    # `environment:` não teria efeito no bundle já compilado, por isso não repetimos
+    ports:
+      - '3003:3003'
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3003/api/health || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
 volumes:
   postgres_auth_data:
