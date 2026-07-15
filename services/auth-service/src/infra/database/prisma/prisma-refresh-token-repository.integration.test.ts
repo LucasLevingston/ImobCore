@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process'
-import { PrismaClient } from '@prisma/client'
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { PrismaClient } from '../../../generated/prisma'
 import { PrismaRefreshTokenRepository } from './prisma-refresh-token-repository'
 import { PrismaUserRepository } from './prisma-user-repository'
 

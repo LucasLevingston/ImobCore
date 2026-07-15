@@ -1,5 +1,9 @@
 generator client {
   provider = "prisma-client-js"
+  // Sem isso, o client gerado vai pro node_modules/@prisma/client hoisted da
+  // raiz do workspace — compartilhado com auth-service, que sobrescreve o
+  // outro a cada `prisma generate` (bug real, achado via teste de integração)
+  output = "../src/generated/prisma"
 }
 
 datasource db {

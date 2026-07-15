@@ -16,7 +16,8 @@
     "test:coverage": "npm run test:coverage --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "npm run prisma:generate --workspaces --if-present"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",

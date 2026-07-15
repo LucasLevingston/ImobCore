@@ -32,6 +32,7 @@ Thumbs.db
 
 # prisma
 services/**/prisma/dev.db
+services/**/src/generated/
 
 # misc
 .turbo/
