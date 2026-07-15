@@ -1,0 +1,23 @@
+import { http, HttpResponse } from 'msw'
+import { describe, expect, it } from 'vitest'
+import { server } from '../mocks/server'
+import { env } from '../lib/env'
+import { logoutService } from './logout.service'
+
+const BASE = env.NEXT_PUBLIC_API_GATEWAY_URL
+
+describe('logoutService', () => {
+  it('should call POST /api/auth/logout', async () => {
+    let called = false
+    server.use(
+      http.post(`${BASE}/api/auth/logout`, () => {
+        called = true
+        return new HttpResponse(null, { status: 204 })
+      }),
+    )
+
+    await logoutService.logout()
+
+    expect(called).toBe(true)
+  })
+})

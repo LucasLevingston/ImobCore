@@ -1,0 +1,16 @@
+import Link from 'next/link'
+import { ErrorState } from '@microfrontends/ui'
+
+export default function NotFound() {
+  return (
+    <div className="mx-auto flex min-h-[60vh] max-w-sm flex-col items-center justify-center gap-4 p-6">
+      <ErrorState title="Página não encontrada" message="O endereço acessado não existe." />
+      <Link
+        href="/"
+        className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+      >
+        Voltar ao início
+      </Link>
+    </div>
+  )
+}

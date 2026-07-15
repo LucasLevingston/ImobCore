@@ -52,4 +52,16 @@ describe('Sidebar', () => {
     render(<Sidebar items={[]} />)
     expect(screen.getByText('Nenhum item de navegação.')).toBeInTheDocument()
   })
+
+  it('should keep labels visible by default (not collapsed)', () => {
+    render(<Sidebar items={items} />)
+    expect(screen.getByText('Produtos')).not.toHaveClass('sr-only')
+  })
+
+  it('should visually hide labels when collapsed, while keeping them accessible', () => {
+    render(<Sidebar items={items} collapsed />)
+    expect(screen.getByText('Produtos')).toHaveClass('sr-only')
+    // sr-only não remove do nome acessível — o link continua navegável por leitor de tela
+    expect(screen.getByRole('link', { name: 'Produtos' })).toHaveAttribute('href', '/products')
+  })
 })
