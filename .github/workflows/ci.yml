@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Segredos de CI — nunca os reais, só o suficiente pra passar validação de
+  # env (Zod) e prisma generate. Testes de integração (Postgres real via
+  # Testcontainers) não rodam aqui — só a suíte unitária (mocks/fakes).
+  JWT_SECRET: ci-only-secret-key-with-at-least-32-characters
+  AUTH_DATABASE_URL: postgresql://postgres:postgres@localhost:5433/auth_db?schema=public
+  PROPERTIES_DATABASE_URL: postgresql://postgres:postgres@localhost:5434/properties_db?schema=public
+  NEXT_PUBLIC_API_GATEWAY_URL: http://localhost:3004
+  NEXT_PUBLIC_AUTH_FRONTEND_URL: http://localhost:3000
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint --workspaces --if-present
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck --workspaces --if-present
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      # vitest falha o processo se a cobertura de algum workspace cair abaixo
+      # do threshold (95%) configurado em cada vitest.config.ts — a "porta de
+      # cobertura" já é o próprio job de test, não precisa de um job separado
+      - run: npm run test:coverage --workspaces --if-present
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      # auth-service/properties-service/api-gateway não têm script "build"
+      # (rodam via tsx direto, sem etapa de compilação) — --if-present pula
+      # cada um deles; só os 2 frontends (next build) e packages/ui (sem
+      # build step próprio, também pulado) entram aqui de fato
+      - run: npm run build --workspaces --if-present
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: auth-service
+            dockerfile: services/auth-service/Dockerfile
+          - name: properties-service
+            dockerfile: services/properties-service/Dockerfile
+          - name: api-gateway
+            dockerfile: services/api-gateway/Dockerfile
+          - name: auth-frontend
+            dockerfile: apps/auth-frontend/Dockerfile
+          - name: properties-frontend
+            dockerfile: apps/properties-frontend/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: false
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}

@@ -678,18 +678,21 @@ CMD ["node", "dist/main/server.js"]
 
 ## 21. CI/CD
 
-Pipeline (GitHub Actions, um workflow por tipo de check, disparado em PR para `develop`/`main`):
+> **✅ Implementado (Fase 6).** `.github/workflows/ci.yml` — dispara em PR e push pra `develop`/`main`.
 
-| Job                                    | O que roda                                                       | Bloqueia merge se falhar |
-| -------------------------------------- | ---------------------------------------------------------------- | ------------------------ |
-| `lint`                                 | ESLint + Prettier check em todos os workspaces alterados         | Sim                      |
-| `typecheck`                            | `tsc --noEmit` em todos os workspaces alterados                  | Sim                      |
-| `test`                                 | Vitest (frontend) + Vitest/Supertest (backend), com `--coverage` | Sim                      |
-| `coverage-gate`                        | Falha se cobertura de algum workspace < 95%                      | Sim                      |
-| `build`                                | Build de produção de cada app/serviço alterado                   | Sim                      |
-| `docker-build` (só em push pra `main`) | Build das imagens Docker de cada projeto                         | Sim                      |
+| Job                                    | O que roda                                                            | Bloqueia merge se falhar            |
+| -------------------------------------- | --------------------------------------------------------------------- | ----------------------------------- |
+| `lint`                                 | ESLint em todos os workspaces (`--workspaces --if-present`)           | Sim                                 |
+| `typecheck`                            | `tsc --noEmit` em todos os workspaces                                 | Sim                                 |
+| `test`                                 | Vitest (unit, todos os workspaces) com `--coverage`                   | Sim                                 |
+| `build`                                | `next build` dos 2 frontends (demais workspaces não têm script build) | Sim, depende de lint+typecheck+test |
+| `docker-build` (só em push pra `main`) | Build das 5 imagens Docker (matrix), sem push (sem registry ainda)    | Sim                                 |
 
-Estratégia de monorepo no CI: jobs rodam só nos workspaces afetados pelo diff (evita rebuildar tudo a cada PR pequeno) — detalhado na Fase 6/7 quando o pipeline é escrito.
+Não existe job `coverage-gate` separado — os thresholds (95%) já estão em cada `vitest.config.ts`, o próprio `vitest run --coverage` falha (exit code ≠0) quando algum workspace fica abaixo, então o job `test` já é a porta de cobertura.
+
+**Decisão consciente:** todos os workspaces rodam em todo PR (sem detecção de "só o que mudou" via `dorny/paths-filter` ou similar) — a otimização foi adiada deliberadamente porque não há como testar YAML do GitHub Actions localmente antes de dar push; preferiu-se um pipeline simples e confiável a um pipeline "esperto" que só se prova certo depois de rodar de verdade no GitHub. Com 6 workspaces e suítes rápidas (segundos), o custo de rodar tudo sempre é baixo. Revisitar se o monorepo crescer.
+
+Testes de integração Prisma (Testcontainers, precisam Docker) **não rodam no CI** — só a suíte unitária (fakes/mocks em memória). Mesma lacuna já disclosed nas Fases 2/4/6 pro ambiente de desenvolvimento.
 
 ---
 
@@ -824,7 +827,7 @@ Fase 2a → api-gateway (Fastify, proxy + CORS + rate-limit, TDD — seção 04a
 Fase 3  → auth-frontend (MFE completo, TDD — já consome só o api-gateway)          [CONCLUÍDA]
 Fase 4  → properties-service (backend completo, TDD — entidade Property, dashboard, contratos de IA) [CONCLUÍDA]
 Fase 5  → properties-frontend (MFE completo, TDD — dashboard, listagem, CRUD, busca, filtros) [CONCLUÍDA]
-Fase 6  → Module Federation wiring + docker-compose completo + smoke e2e + CI/CD
+Fase 6  → Module Federation wiring + docker-compose completo + smoke e2e + CI/CD [CONCLUÍDA]
 Fase 7  → Documentação final consolidada + observabilidade + revisão de segurança
 ```
 
