@@ -1,7 +1,8 @@
 import { execSync } from 'node:child_process'
+import { PrismaPg } from '@prisma/adapter-pg'
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { PrismaClient } from '../../../generated/prisma'
+import { PrismaClient } from '../../../generated/prisma/client'
 import { PrismaRefreshTokenRepository } from './prisma-refresh-token-repository'
 import { PrismaUserRepository } from './prisma-user-repository'
 
@@ -14,11 +15,10 @@ describe('PrismaRefreshTokenRepository (integration)', () => {
   beforeAll(async () => {
     container = await new PostgreSqlContainer('postgres:16-alpine').start()
     const url = container.getConnectionUri()
-    execSync('npx prisma db push --skip-generate', {
-      env: { ...process.env, AUTH_DATABASE_URL: url },
+    execSync(`npx prisma db push --url="${url}"`, {
       stdio: 'inherit',
     })
-    prisma = new PrismaClient({ datasources: { db: { url } } })
+    prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) })
     repository = new PrismaRefreshTokenRepository(prisma)
     userRepository = new PrismaUserRepository(prisma)
   }, 60_000)

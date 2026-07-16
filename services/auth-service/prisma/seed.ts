@@ -1,7 +1,9 @@
-import { PrismaClient } from '../src/generated/prisma'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient } from '../src/generated/prisma/client'
 import { BcryptHasher } from '../src/infra/cryptography/bcrypt-hasher'
 
-const prisma = new PrismaClient()
+const adapter = new PrismaPg({ connectionString: process.env.AUTH_DATABASE_URL })
+const prisma = new PrismaClient({ adapter })
 const hasher = new BcryptHasher()
 
 async function main() {

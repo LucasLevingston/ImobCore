@@ -3,17 +3,16 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { resourceFromAttributes } from '@opentelemetry/resources'
 import { NodeSDK, tracing } from '@opentelemetry/sdk-node'
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
-// Import nomeado falha em ESM: o pacote expõe PrismaInstrumentation via getter
-// no CJS, e o detector estático de named exports (cjs-module-lexer) do Node
-// não reconhece esse padrão — "does not provide an export named..."
-import PrismaInstrumentationPkg from '@prisma/instrumentation'
+// Prisma 7: @prisma/instrumentation agora ship um build ESM real (dist/index.mjs
+// + exports condicional) — o import nomeado direto resolve sem o workaround de
+// CJS default-import que a v5 exigia (verificado via tsx neste projeto).
+import { PrismaInstrumentation } from '@prisma/instrumentation'
 
 // PRECISA ser importado antes de qualquer outro módulo (--import, nunca um
 // import normal dentro de server.ts) — a instrumentação de http/Prisma
 // funciona por monkey-patch nos módulos na primeira vez que são carregados;
 // se algo já importou 'http' ou '@prisma/client' antes desse arquivo rodar,
 // aquela referência já capturada fica sem instrumentação (docs seção 25).
-const { PrismaInstrumentation } = PrismaInstrumentationPkg
 const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT
 
 const sdk = new NodeSDK({

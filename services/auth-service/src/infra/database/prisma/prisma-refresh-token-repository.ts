@@ -3,7 +3,7 @@ import type {
   CreateRefreshTokenData,
   RefreshTokenRepository,
 } from '../../../domain/repositories/refresh-token-repository'
-import type { PrismaClient } from '../../../generated/prisma'
+import type { PrismaClient } from '../../../generated/prisma/client'
 
 export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
   constructor(private readonly prisma: PrismaClient) {}
