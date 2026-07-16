@@ -2,22 +2,36 @@
 
 Design system compartilhado — shadcn/ui + Radix UI + Tailwind + class-variance-authority.
 
-**Status:** Fase 1 concluída. Consumido por `auth-frontend` (Fase 3) e `products-frontend` (Fase 5) via npm workspace.
+**Status:** Fase 1 concluída, mais uma leva de componentes reutilizáveis adicionada depois (issues #1–#9 do repositório). Consumido por `auth-frontend` e `properties-frontend` via npm workspace.
 
 ## Componentes
 
-| Componente                                                  | Arquivo              | Baseado em                                                               |
-| ----------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------ |
-| `Button`                                                    | `components/Button`  | CVA + `@radix-ui/react-slot` (suporte a `asChild`)                       |
-| `Input`                                                     | `components/Input`   | HTML nativo + estado de erro                                             |
-| `Card` (+ Header/Title/Description/Content/Footer)          | `components/Card`    | Compound component                                                       |
-| `Loading`                                                   | `components/Loading` | `lucide-react`                                                           |
-| `ErrorState`                                                | `components/Error`   | Slot `onRetry` (OCP)                                                     |
-| `Modal` (+ Trigger/Content/Header/Title/Description/Footer) | `components/Modal`   | `@radix-ui/react-dialog`                                                 |
-| `Toast` + `Toaster` + `useToast`/`toast()`                  | `components/Toast`   | `@radix-ui/react-toast`, store em módulo (chamável fora da árvore React) |
-| `Layout`                                                    | `components/Layout`  | Landmark `<main>`, `fullWidth` opcional                                  |
-| `Header`                                                    | `components/Header`  | Slots `logo`/`nav`/`actions` (sem estado de auth)                        |
-| `Sidebar`                                                   | `components/Sidebar` | Recebe `items` com `active` resolvido pelo app (sem `next/navigation`)   |
+| Componente                                                                 | Arquivo                    | Baseado em                                                                                   |
+| -------------------------------------------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------------- |
+| `Button`                                                                   | `components/Button`        | CVA + `@radix-ui/react-slot` (suporte a `asChild`), `loadingText` customizável               |
+| `SubmitButton`                                                             | `components/SubmitButton`  | `Button` com `type="submit"` fixo — reusa `isLoading`/`loadingText`, sem duplicar lógica     |
+| `Input`                                                                    | `components/Input`         | HTML nativo + estado de erro                                                                 |
+| `CurrencyInput`                                                            | `components/Input`         | `Input` + máscara de moeda pt-BR — estado do form continua `number`                          |
+| `SearchInput`                                                              | `components/Input`         | `Input` + ícone de busca + botão de limpar condicional                                       |
+| `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage` | `components/FormField`     | `react-hook-form` (`Controller`/`FormProvider`) — label/erro/aria associados automaticamente |
+| `Card` (+ Header/Title/Description/Content/Footer)                         | `components/Card`          | Compound component                                                                           |
+| `Loading`                                                                  | `components/Loading`       | `lucide-react` — spinner inline (botões, ações pontuais)                                     |
+| `Skeleton`                                                                 | `components/Skeleton`      | Placeholder em bloco pulsante — listas/cards (usar `Loading` pra inline)                     |
+| `ErrorState`                                                               | `components/Error`         | Slot `onRetry` (OCP)                                                                         |
+| `QueryBoundary`                                                            | `components/QueryBoundary` | `react-error-boundary` + `Suspense`, compõe `Loading`/`ErrorState` — pra `useSuspenseQuery`  |
+| `Modal` (+ Trigger/Content/Header/Title/Description/Footer)                | `components/Modal`         | `@radix-ui/react-dialog`                                                                     |
+| `Toast` + `Toaster` + `useToast`/`toast()`                                 | `components/Toast`         | `@radix-ui/react-toast`, store em módulo (chamável fora da árvore React)                     |
+| `Layout`                                                                   | `components/Layout`        | Landmark `<main>`, `fullWidth` opcional                                                      |
+| `Header`                                                                   | `components/Header`        | Slots `logo`/`nav`/`actions` (sem estado de auth)                                            |
+| `Sidebar`                                                                  | `components/Sidebar`       | Recebe `items` com `active` resolvido pelo app (sem `next/navigation`)                       |
+| `Footer`                                                                   | `components/Footer`        | Landmark `<footer>`                                                                          |
+| `Breadcrumb`                                                               | `components/Breadcrumb`    | Trilha de navegação, `items` resolvido pelo app                                              |
+| `Avatar` (+ Fallback/Image)                                                | `components/Avatar`        | `@radix-ui/react-avatar`                                                                     |
+| `DropdownMenu` (+ Content/Item/Label/Separator/Trigger)                    | `components/DropdownMenu`  | `@radix-ui/react-dropdown-menu`                                                              |
+| `ThemeProvider`, `useTheme`, `ThemeToggle`                                 | `components/Theme`         | Tema light/dark via CSS variables                                                            |
+| `Logo`                                                                     | `components/Logo`          | Framework-agnostic (nunca importa `next/link`); `href` gera `<a>` nativo                     |
+| `Pagination`                                                               | `components/Pagination`    | Controlado; range de páginas calculado em função pura testável (`utils/getPaginationRange`)  |
+| `FilterBar` (+ `.Field`/`.Actions`)                                        | `components/FilterBar`     | Shell de filtros de listagem — domínio-agnóstico, colapsável em mobile                       |
 
 ## Uso
 
