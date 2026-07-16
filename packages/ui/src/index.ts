@@ -23,6 +23,7 @@ export {
   CardTitle,
 } from './components/Card'
 export { Loading, type LoadingProps } from './components/Loading'
+export { Skeleton, type SkeletonProps } from './components/Skeleton'
 export { ErrorState, type ErrorStateProps } from './components/Error'
 export { QueryBoundary, type QueryBoundaryProps } from './components/QueryBoundary'
 export {
