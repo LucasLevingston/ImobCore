@@ -1,13 +1,13 @@
+import { Slot } from '@radix-ui/react-slot'
 import * as React from 'react'
 import {
   Controller,
-  FormProvider,
   type ControllerProps,
   type FieldError,
   type FieldPath,
   type FieldValues,
+  FormProvider,
 } from 'react-hook-form'
-import { Slot } from '@radix-ui/react-slot'
 import { cn } from '../../lib/utils'
 
 // Alias ergonômico — mesmo componente de react-hook-form, só renomeado
@@ -55,7 +55,10 @@ export function FormField<
       {...props}
       render={(controllerRenderProps) => (
         <FormFieldContext.Provider
-          value={{ name: props.name, error: controllerRenderProps.fieldState.error }}
+          value={{
+            name: props.name,
+            error: controllerRenderProps.fieldState.error,
+          }}
         >
           {render(controllerRenderProps)}
         </FormFieldContext.Provider>
