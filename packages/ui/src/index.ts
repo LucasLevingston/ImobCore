@@ -24,6 +24,7 @@ export {
 } from './components/Card'
 export { Loading, type LoadingProps } from './components/Loading'
 export { ErrorState, type ErrorStateProps } from './components/Error'
+export { QueryBoundary, type QueryBoundaryProps } from './components/QueryBoundary'
 export {
   Modal,
   ModalContent,
