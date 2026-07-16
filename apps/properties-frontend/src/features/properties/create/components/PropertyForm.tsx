@@ -3,8 +3,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Input } from '@microfrontends/ui'
 import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
 import { PROPERTY_STATUSES, PROPERTY_TYPES } from '../../../../types/property'
 import { propertyFormSchema, type PropertyFormValues } from '../schemas/property-form.schema'
+
+// propertyFormSchema usa z.preprocess (nullableNumber) pra campos numéricos
+// nullable — o tipo de entrada (antes do parse) diverge do tipo de saída
+// (depois do parse), então precisa dos 3 generics do RHF 7.55+ pra @hookform/
+// resolvers v5 tipar corretamente: TFieldValues (bruto, o que os inputs HTML
+// realmente produzem) e TTransformedValues (o que o resolver devolve)
+type PropertyFormInput = z.input<typeof propertyFormSchema>
 
 export interface PropertyFormProps {
   defaultValues?: Partial<PropertyFormValues>
@@ -50,7 +58,7 @@ export function PropertyForm({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<PropertyFormValues>({
+  } = useForm<PropertyFormInput, unknown, PropertyFormValues>({
     resolver: zodResolver(propertyFormSchema),
     defaultValues: { ...EMPTY_DEFAULTS, ...defaultValues },
   })
