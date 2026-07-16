@@ -34,11 +34,22 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean
   isLoading?: boolean
+  loadingText?: React.ReactNode
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant, size, asChild = false, isLoading = false, disabled, children, ...props },
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      isLoading = false,
+      loadingText = 'Carregando...',
+      disabled,
+      children,
+      ...props
+    },
     ref,
   ) => {
     // React 19 ampliou ReactNode pra incluir bigint; a tipagem do Slot (Radix)
@@ -55,7 +66,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled ?? isLoading}
         {...props}
       >
-        {isLoading ? 'Carregando...' : children}
+        {isLoading ? loadingText : children}
       </Comp>
     )
   },

@@ -442,14 +442,17 @@ webpack(config, { isServer }) {
 
 ## 07. Shared Packages
 
-| Pacote                                      | O que compartilha                                                                                 | Mecanismo                 | Quando muda                                                                     |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------- |
-| `packages/ui`                               | Primitivas visuais estáticas (Button, Input, Card, Modal, Toast, Loading, Error, Layout, Sidebar) | npm workspace, build-time | Só quando o pacote é republicado/reinstalado — não em runtime                   |
-| Module Federation exposes (`auth-frontend`) | `Header`, `AuthStatus`, `UserMenu` — componentes com **estado vivo** de sessão                    | Webpack remote, runtime   | A cada deploy do `auth-frontend`, sem precisar redeployar `properties-frontend` |
+| Pacote                                      | O que compartilha                                                                               | Mecanismo                 | Quando muda                                                                      |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------- | -------------------------------------------------------------------------------- |
+| `packages/ui`                               | Primitivas visuais + componentes compostos (ver lista completa na seção 08)                     | npm workspace, build-time | Só quando o pacote é republicado/reinstalado — não em runtime                    |
+| `packages/module-federation-utils`          | `getSharedDependencies` — deriva `requiredVersion` do `shared` da MF a partir do `package.json` | npm workspace, build-time | Idem — mas **ainda não consumido** por nenhum `next.config.js` (ver nota abaixo) |
+| Module Federation exposes (`auth-frontend`) | `Header`, `AuthStatus`, `UserMenu` — componentes com **estado vivo** de sessão                  | Webpack remote, runtime   | A cada deploy do `auth-frontend`, sem precisar redeployar `properties-frontend`  |
 
 **Por que os dois mecanismos coexistem:** um Design System não muda por usuário logado — é seguro compartilhar em build-time. Já o estado "quem está logado agora" só existe no domínio de auth em runtime — só faz sentido via um remote que o dono do domínio publica e controla.
 
 `packages/ui` não tem build step próprio (Fase 1) — exporta `src/` direto; apps consumidores usam `transpilePackages: ['@microfrontends/ui']` no `next.config.js`.
+
+**`packages/module-federation-utils` ainda não está ligado nos `next.config.js` reais.** `next.config.js` é carregado pelo Node em CommonJS puro (`require`), fora do bundler — diferente de `packages/ui`, que só é consumido via `transpilePackages` dentro de um build Next já rodando. `require()` de um `.ts` com `export` ESM nesse contexto quebra com `SyntaxError`. Ligar de verdade exige decidir um build step próprio (`tsc` emitindo CommonJS) antes — não feito de propósito, pra não arriscar a configuração de Module Federation já validada (seção 06, achados de RUNTIME-006 e do auto-scanner). Detalhes em `packages/module-federation-utils/README.md`.
 
 ---
 
@@ -459,13 +462,25 @@ Base: **shadcn/ui** (componentes copiados/customizáveis, não pacote fechado) +
 
 > **Nota de revisão (Fase 9 — Tailwind v3 → v4):** configuração deixou de ser JS (`tailwind.config.ts`, removido de todos os 4 workspaces) e passou a ser CSS-first — `@import 'tailwindcss'` + blocos `@theme`/`@theme inline` direto no `globals.css` de `packages/ui` (fonte única do tema, propagada pros 3 apps via import). Dark mode deixou de ser automático por classe — v4 assume `prefers-color-scheme` por padrão, então precisa de `@custom-variant dark (&:where(.dark, .dark *));` explícito pra manter o toggle manual (`ThemeProvider`/`ThemeToggle`) funcionando. `@source '../../src'` no CSS compartilhado substitui o antigo array `content: [...]` do config JS, com o mesmo efeito (escaneamento de classes) só que auto-descoberto pelos apps consumidores. `@tailwindcss/postcss` substitui o par `tailwindcss` + `autoprefixer` no `postcss.config.js` (prefixação de vendor já embutida no motor Rust). `tailwindcss-animate` (v3) foi trocado por `tw-animate-css`, a versão nativa v4 recomendada pelo próprio guia de migração do shadcn/ui.
 
-Componentes obrigatórios em `packages/ui` (ver seção 07): `Button`, `Input`, `Card`, `Modal`, `Toast`, `Loading`, `Error`, `Layout`, `Header`, `Sidebar`.
+Componentes base (Fase 1) em `packages/ui`: `Button`, `Input`, `Card`, `Modal`, `Toast`, `Loading`, `Error`, `Layout`, `Header`, `Sidebar`, `Footer`, `Breadcrumb`, `Avatar`, `DropdownMenu`, `Theme`.
+
+Componentes compostos adicionados depois (issues #1–#9, um por commit — ver `packages/ui/README.md` pra tabela completa com arquivo/base de cada um):
+
+- `Form`/`FormField`/`FormItem`/`FormLabel`/`FormControl`/`FormMessage` — integração `react-hook-form` (label/erro/`aria-*` associados automaticamente, sem repetir em cada formulário)
+- `SubmitButton` — `Button` com `type="submit"` fixo, reusa `isLoading`/`loadingText`
+- `CurrencyInput`/`SearchInput` — variantes de `Input` (moeda pt-BR; busca com ícone + limpar)
+- `QueryBoundary` — `Suspense` + `react-error-boundary` pra `useSuspenseQuery`, compõe `Loading`/`ErrorState`
+- `Pagination` — paginação numerada controlada, range calculado em função pura testável
+- `Skeleton` — placeholder em bloco pra listas/cards (complementa `Loading`, que é spinner inline)
+- `Logo` — marca ImobCore, framework-agnostic
+- `FilterBar` (+ `.Field`/`.Actions`) — shell de filtros de listagem, domínio-agnóstico
 
 **Regras:**
 
 - Nunca cor Tailwind hardcoded (`bg-blue-500`) — sempre CSS variable semântica (`bg-primary`).
 - Extensão de comportamento via slots/`children`/compound components — nunca props booleanas (`showX`) que ramificam a lógica interna do componente (viola OCP).
-- `Sidebar`/`Header` não importam `next/navigation` — recebem `active`/estado via props. Quem decide o que está "ativo" é o app consumidor (mantém o design system framework-agnostic e testável sem mocks de Next.js).
+- `Sidebar`/`Header`/`Logo` não importam `next/navigation`/`next/link` — recebem `active`/estado via props, ou (no caso do `Logo`) renderizam `<a>` nativo quando `href` é passado. Quem decide navegação client-side (`next/link`) é o app consumidor, compondo por fora — mantém o design system framework-agnostic e testável sem mocks de Next.js.
+- Campos de domínio (cidade, tipo de imóvel, faixa de preço) nunca entram em `packages/ui` — só o shell genérico (`FilterBar`) entra; os campos ficam no app que conhece o domínio (`properties-frontend`).
 
 ---
 
@@ -735,16 +750,16 @@ Cobertura mínima: **95%** em `domain`, `application` (backend) e `hooks`/`servi
 
 Uso obrigatório para **todo** dado remoto no frontend — nunca `fetch`/`axios` direto em `useEffect`.
 
-| Recurso            | Uso neste projeto                                                                                                        |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| `QueryClient`      | Uma instância por app (singleton em `lib/query-client.ts`), com `HydrationBoundary` pra SSR                              |
-| Custom hooks       | Um hook por operação (`useLogin`, `useProperties`, `useCreateProperty`) — nunca hook genérico                            |
-| Mutations          | `useMutation` com `onSuccess` invalidando a query key relacionada                                                        |
-| Infinite Query     | Listagem de imóveis usa `useInfiniteQuery` (scroll infinito) como alternativa à paginação numerada, conforme UX da tela  |
-| Optimistic Updates | Edição/exclusão de imóvel atualiza o cache local antes da resposta do servidor, com rollback em `onError`                |
-| Invalidation       | Toda mutation de escrita invalida a query key de listagem correspondente                                                 |
-| Retry              | 3 tentativas com backoff exponencial em queries de leitura; mutations nunca fazem retry automático (evita duplicar POST) |
-| Suspense           | Listagens críticas usam `useSuspenseQuery` + `<Suspense>` com skeleton                                                   |
+| Recurso            | Uso neste projeto                                                                                                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `QueryClient`      | Uma instância por app (singleton em `lib/query-client.ts`), com `HydrationBoundary` pra SSR                                                                                             |
+| Custom hooks       | Um hook por operação (`useLogin`, `useProperties`, `useCreateProperty`) — nunca hook genérico                                                                                           |
+| Mutations          | `useMutation` com `onSuccess` invalidando a query key relacionada                                                                                                                       |
+| Infinite Query     | Listagem de imóveis usa `useInfiniteQuery` (scroll infinito) como alternativa à paginação numerada, conforme UX da tela                                                                 |
+| Optimistic Updates | Edição/exclusão de imóvel atualiza o cache local antes da resposta do servidor, com rollback em `onError`                                                                               |
+| Invalidation       | Toda mutation de escrita invalida a query key de listagem correspondente                                                                                                                |
+| Retry              | 3 tentativas com backoff exponencial em queries de leitura; mutations nunca fazem retry automático (evita duplicar POST)                                                                |
+| Suspense           | Listagens críticas usam `useSuspenseQuery` + `<Suspense>` com skeleton, sempre via `QueryBoundary` (`packages/ui`, seção 08) — nunca `<Suspense>`/`ErrorBoundary` cru repetido por tela |
 
 Camada de acesso HTTP nunca fica dentro do componente nem do hook — fica em `services/*.service.ts`, injetada no hook (DIP).
 
