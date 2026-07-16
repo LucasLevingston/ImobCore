@@ -1,0 +1,11 @@
+{
+  "root": false,
+  "extends": ["../../.eslintrc.base.json"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "env": {
+    "node": true
+  },
+  "ignorePatterns": ["prisma/migrations", "src/generated"]
+}

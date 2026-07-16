@@ -1,0 +1,43 @@
+generator client {
+  // Prisma 7: motor Rust removido — "prisma-client" gera um Query Compiler
+  // WASM + execução via driver adapter (@prisma/adapter-pg), sem binário
+  // nativo. binaryTargets/OpenSSL do Alpine deixam de ser um problema.
+  provider = "prisma-client"
+  // Sem isso, o client gerado vai pro node_modules hoisted da raiz do
+  // workspace — compartilhado com properties-service, que sobrescreve
+  // o outro a cada `prisma generate` (bug real, achado via teste de integração).
+  // Na v7 isso é obrigatório (Prisma não gera mais em node_modules por padrão).
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+// Prisma 7: url some daqui — vai pro adapter passado ao PrismaClient em
+// código (client.ts) + pro prisma.config.ts (usado só pelo CLI: migrate/studio)
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  passwordHash  String         @map("password_hash")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique @map("token_hash")
+  userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}

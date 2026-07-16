@@ -1,0 +1,89 @@
+import cors from '@fastify/cors'
+import helmet from '@fastify/helmet'
+import httpProxy from '@fastify/http-proxy'
+import rateLimit from '@fastify/rate-limit'
+import Fastify, { type FastifyInstance } from 'fastify'
+import { pingUpstream } from './ping-upstream'
+import { resolveRequestId } from './plugins/request-id'
+import { isOriginAllowed, isMutatingMethod } from './plugins/origin-guard'
+
+// Nunca logar Authorization ou cookie (refresh token), mesmo em erro (docs
+// seção 26) — o gateway só transporta esses headers, nunca os inspeciona
+const REDACT_PATHS = [
+  'req.headers.authorization',
+  'req.headers.cookie',
+  'res.headers["set-cookie"]',
+]
+
+export interface AppDependencies {
+  authServiceUrl: string
+  propertiesServiceUrl: string
+  corsOrigin: string | string[]
+  logger?: boolean
+  rateLimitMax?: number
+  rateLimitTimeWindow?: string
+}
+
+// Composition root do gateway: só proxy + cross-cutting (CORS, rate-limit,
+// request-id, health agregado) — nunca regra de negócio (docs seção 04a).
+export async function buildApp(deps: AppDependencies): Promise<FastifyInstance> {
+  const app = Fastify({
+    logger: deps.logger === false ? false : { redact: REDACT_PATHS },
+  })
+
+  await app.register(helmet)
+  await app.register(cors, { origin: deps.corsOrigin, credentials: true })
+  await app.register(rateLimit, {
+    max: deps.rateLimitMax ?? 100,
+    timeWindow: deps.rateLimitTimeWindow ?? '1 minute',
+  })
+
+  app.addHook('onRequest', async (request, reply) => {
+    const requestId = resolveRequestId(request.headers['x-request-id'])
+    request.headers['x-request-id'] = requestId
+    reply.header('x-request-id', requestId)
+  })
+
+  // CSRF: CORS sozinho só impede o JS de um site malicioso de LER a resposta
+  // cross-origin — não impede o browser de ENVIAR a requisição mutável em
+  // primeiro lugar (cookie de sessão vai junto automaticamente). Rejeita
+  // aqui, antes de qualquer rota, se Origin/Referer não bate com um frontend
+  // conhecido (docs seção 18).
+  app.addHook('onRequest', async (request, reply) => {
+    if (!isMutatingMethod(request.method)) return
+    if (isOriginAllowed(request.headers.origin, request.headers.referer, deps.corsOrigin)) return
+
+    return reply.status(403).send({
+      statusCode: 403,
+      error: 'ForbiddenError',
+      message: 'Origem da requisição não permitida.',
+    })
+  })
+
+  app.get('/health', () => ({ status: 'ok' }))
+  app.get('/health/ready', async (_request, reply) => {
+    const [auth, properties] = await Promise.all([
+      pingUpstream(deps.authServiceUrl),
+      pingUpstream(deps.propertiesServiceUrl),
+    ])
+    const ready = auth && properties
+    return reply.status(ready ? 200 : 503).send({
+      status: ready ? 'ready' : 'not-ready',
+      services: { auth, properties },
+    })
+  })
+
+  await app.register(httpProxy, {
+    upstream: deps.authServiceUrl,
+    prefix: '/api/auth',
+    rewritePrefix: '',
+  })
+
+  await app.register(httpProxy, {
+    upstream: deps.propertiesServiceUrl,
+    prefix: '/api/properties',
+    rewritePrefix: '/properties',
+  })
+
+  return app
+}

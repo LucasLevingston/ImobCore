@@ -1,0 +1,74 @@
+generator client {
+  // Prisma 7: motor Rust removido — "prisma-client" gera um Query Compiler
+  // WASM + execução via driver adapter (@prisma/adapter-pg), sem binário
+  // nativo. binaryTargets/OpenSSL do Alpine deixam de ser um problema.
+  provider = "prisma-client"
+  // Sem isso, o client gerado vai pro node_modules hoisted da raiz do
+  // workspace — compartilhado com auth-service, que sobrescreve o outro a
+  // cada `prisma generate` (bug real, achado via teste de integração).
+  // Na v7 isso é obrigatório (Prisma não gera mais em node_modules por padrão).
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+// Prisma 7: url some daqui — vai pro adapter passado ao PrismaClient em
+// código (client.ts) + pro prisma.config.ts (usado só pelo CLI: migrate/studio)
+datasource db {
+  provider = "postgresql"
+}
+
+enum PropertyType {
+  Apartment
+  House
+  Land
+  Commercial
+  Farm
+  Studio
+  Penthouse
+}
+
+enum PropertyStatus {
+  Available
+  Reserved
+  Sold
+  Rented
+  Inactive
+}
+
+model Property {
+  id               String         @id @default(uuid())
+  title            String
+  description      String
+  type             PropertyType
+  status           PropertyStatus @default(Available)
+  price            Decimal        @db.Decimal(12, 2)
+  condominiumFee   Decimal?       @map("condominium_fee") @db.Decimal(12, 2)
+  iptu             Decimal?       @db.Decimal(12, 2)
+  bedrooms         Int
+  bathrooms        Int
+  garageSpaces     Int            @map("garage_spaces")
+  area             Decimal        @db.Decimal(10, 2)
+  lotArea          Decimal?       @map("lot_area") @db.Decimal(10, 2)
+  floor            Int?
+  furnished        Boolean        @default(false)
+  acceptsFinancing Boolean        @default(false) @map("accepts_financing")
+  acceptsPets      Boolean        @default(false) @map("accepts_pets")
+  address          String
+  number           String
+  district         String
+  city             String
+  state            String
+  zipCode          String         @map("zip_code")
+  latitude         Decimal?       @db.Decimal(10, 7)
+  longitude        Decimal?       @db.Decimal(10, 7)
+  brokerId         String         @map("broker_id")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  @@index([city])
+  @@index([district])
+  @@index([type])
+  @@index([status])
+  @@index([brokerId])
+  @@map("properties")
+}
