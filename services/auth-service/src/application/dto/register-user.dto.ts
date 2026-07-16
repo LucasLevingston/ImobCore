@@ -1,9 +1,3 @@
-import { z } from 'zod'
-
-export const registerUserSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
-  email: z.string().email('E-mail inválido'),
-  password: z.string().min(8, 'Senha deve ter ao menos 8 caracteres'),
-})
-
-export type RegisterUserInput = z.infer<typeof registerUserSchema>
+// Regra de negócio vive em @microfrontends/validation-schemas — compartilhada
+// com o form schema de auth-frontend, pra não dessincronizar as duas validações.
+export { registerUserSchema, type RegisterUserInput } from '@microfrontends/validation-schemas'

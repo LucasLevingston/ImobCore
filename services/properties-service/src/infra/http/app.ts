@@ -1,5 +1,12 @@
 import helmet from '@fastify/helmet'
+import swagger from '@fastify/swagger'
+import swaggerUi from '@fastify/swagger-ui'
 import Fastify, { type FastifyInstance } from 'fastify'
+import {
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod'
 import { CreatePropertyUseCase } from '../../application/usecases/create-property/create-property.usecase'
 import { DeletePropertyUseCase } from '../../application/usecases/delete-property/delete-property.usecase'
 import { GetDashboardMetricsUseCase } from '../../application/usecases/get-dashboard-metrics/get-dashboard-metrics.usecase'
@@ -42,6 +49,25 @@ export async function buildApp(deps: AppDependencies): Promise<FastifyInstance> 
   // CORS e rate-limit ficam só no api-gateway (seção 04a) — este service não
   // recebe mais tráfego direto de browser, só helmet fica (defesa em profundidade)
   await app.register(helmet)
+
+  // fastify-type-provider-zod: valida request (body/params/querystring) e
+  // serializa response direto a partir dos MESMOS schemas Zod já usados pela
+  // regra de negócio (@microfrontends/validation-schemas) — sem isso, spec
+  // OpenAPI teria que ser mantida à mão, ou duplicada em JSON Schema puro.
+  app.setValidatorCompiler(validatorCompiler)
+  app.setSerializerCompiler(serializerCompiler)
+
+  await app.register(swagger, {
+    openapi: {
+      info: { title: 'properties-service', version: '1.0.0' },
+    },
+    transform: jsonSchemaTransform,
+  })
+  // /docs só em dev — nunca expor spec/UI publicamente em produção sem auth
+  // (não é dado sensível em si, mas é reconhecimento gratuito da API interna)
+  if (process.env.NODE_ENV !== 'production') {
+    await app.register(swaggerUi, { routePrefix: '/docs' })
+  }
 
   app.setErrorHandler(errorHandler)
 

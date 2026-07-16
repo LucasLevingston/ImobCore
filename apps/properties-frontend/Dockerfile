@@ -3,9 +3,11 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/properties-frontend/package.json ./apps/properties-frontend/package.json
 COPY packages/ui/package.json ./packages/ui/package.json
+COPY packages/module-federation-utils/package.json ./packages/module-federation-utils/package.json
+COPY packages/validation-schemas/package.json ./packages/validation-schemas/package.json
 # --ignore-scripts: o postinstall da raiz roda `prisma generate`, que não se
 # aplica a este workspace e falharia sem os services/* copiados neste estágio
-RUN npm ci --workspace=properties-frontend --workspace=@microfrontends/ui --include-workspace-root --ignore-scripts
+RUN npm ci --workspace=properties-frontend --workspace=@microfrontends/ui --workspace=@microfrontends/module-federation-utils --workspace=@microfrontends/validation-schemas --include-workspace-root --ignore-scripts
 # npm's hoisting decides per-install whether this workspace needs any locally
 # nested packages at all — with a clean-enough dependency tree it may hoist
 # everything to root and never create this dir, so the COPY below would fail
@@ -23,6 +25,12 @@ COPY package.json package-lock.json tsconfig.base.json .eslintrc.base.json ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/properties-frontend/node_modules ./apps/properties-frontend/node_modules
 COPY packages/ui ./packages/ui
+COPY packages/module-federation-utils ./packages/module-federation-utils
+COPY packages/validation-schemas ./packages/validation-schemas
+# --ignore-scripts no estágio deps pulou o postinstall do module-federation-utils
+# (que compila TS -> dist/) — next.config.js faz require() dele antes do
+# webpack existir, então precisa do CommonJS já compilado, não da fonte TS
+RUN npm run build --workspace=@microfrontends/module-federation-utils
 COPY apps/properties-frontend ./apps/properties-frontend
 RUN npm run build --workspace=properties-frontend
 

@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "generate:api": "orval --config orval.config.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -28,6 +29,7 @@
     "@microfrontends/module-federation-utils": "*",
     "@module-federation/enhanced": "^2.8.0",
     "@tailwindcss/postcss": "^4.3.2",
+    "orval": "^8.22.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",

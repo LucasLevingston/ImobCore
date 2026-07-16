@@ -51,3 +51,19 @@ export const createPropertySchema = z.object({
 })
 
 export type CreatePropertyInput = z.infer<typeof createPropertySchema>
+
+// Shape de resposta da API — createPropertySchema + campos gerados pelo
+// server (id, brokerId, timestamps). Usado tanto pro response schema do
+// Fastify (gera a spec OpenAPI) quanto, via Orval, pro tipo do client TS
+// gerado no frontend — mesma fonte de verdade dos dois lados.
+// id/brokerId são identificadores opacos do ponto de vista do contrato —
+// hoje o Prisma gera UUID, mas o contrato não deveria travar nesse detalhe
+// de implementação (e os testes do projeto usam IDs fake tipo 'broker-1').
+export const propertyResponseSchema = createPropertySchema.extend({
+  id: z.string().min(1),
+  brokerId: z.string().min(1),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+})
+
+export type PropertyResponse = z.infer<typeof propertyResponseSchema>

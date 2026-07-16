@@ -2,11 +2,12 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY services/auth-service/package.json ./services/auth-service/package.json
+COPY packages/validation-schemas/package.json ./packages/validation-schemas/package.json
 # --ignore-scripts: o postinstall da raiz roda `prisma generate` pra todo
 # workspace, mas nesse estágio só o package.json foi copiado (schema.prisma
 # ainda não existe aqui) — a geração real acontece explicitamente abaixo,
 # no estágio build, depois que o código-fonte completo é copiado
-RUN npm ci --workspace=auth-service --include-workspace-root --ignore-scripts
+RUN npm ci --workspace=auth-service --workspace=@microfrontends/validation-schemas --include-workspace-root --ignore-scripts
 # npm's hoisting decides per-install whether this workspace needs any locally
 # nested packages at all — with a clean-enough dependency tree it may hoist
 # everything to root and never create this dir, so the COPY below would fail
@@ -19,6 +20,7 @@ WORKDIR /app
 COPY tsconfig.base.json ./tsconfig.base.json
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/services/auth-service/node_modules ./services/auth-service/node_modules
+COPY packages/validation-schemas ./packages/validation-schemas
 COPY services/auth-service ./services/auth-service
 RUN npx --prefix services/auth-service prisma generate --schema services/auth-service/prisma/schema.prisma --config services/auth-service/prisma.config.ts
 
@@ -29,6 +31,10 @@ ENV NODE_ENV=production
 # JS/TS agora) — sem binário nativo, então sem dependência de qual OpenSSL
 # o Alpine tem. apk add openssl (necessário até a Fase 9) não é mais preciso.
 COPY --from=build /app/node_modules ./node_modules
+# node_modules acima tem um symlink pra este pacote (npm workspaces) — sem
+# copiar o alvo real, o symlink fica quebrado e tsx (que entende TS nativo,
+# sem build step) falha ao resolver @microfrontends/validation-schemas
+COPY --from=build /app/packages/validation-schemas ./packages/validation-schemas
 COPY --from=build /app/services/auth-service ./services/auth-service
 # `prisma migrate deploy` below also loads prisma.config.ts (TS), same
 # tsconfig.base.json resolution needed here as in the build stage

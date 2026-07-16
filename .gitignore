@@ -34,6 +34,9 @@ Thumbs.db
 services/**/prisma/dev.db
 services/**/src/generated/
 
+# orval — client TS gerado a partir da spec OpenAPI (npm run generate:api)
+apps/**/src/generated/
+
 # misc
 .turbo/
 *.tsbuildinfo

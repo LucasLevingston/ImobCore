@@ -1,6 +1,13 @@
 import cookie from '@fastify/cookie'
 import helmet from '@fastify/helmet'
+import swagger from '@fastify/swagger'
+import swaggerUi from '@fastify/swagger-ui'
 import Fastify, { type FastifyInstance } from 'fastify'
+import {
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod'
 import { GetProfileUseCase } from '../../application/usecases/get-profile/get-profile.usecase'
 import { LoginUseCase } from '../../application/usecases/login/login.usecase'
 import { LogoutUseCase } from '../../application/usecases/logout/logout.usecase'
@@ -50,6 +57,22 @@ export async function buildApp(deps: AppDependencies): Promise<FastifyInstance> 
   // recebe mais tráfego direto de browser, só helmet fica (defesa em profundidade)
   await app.register(helmet)
   await app.register(cookie)
+
+  // fastify-type-provider-zod: valida request e serializa response direto a
+  // partir dos MESMOS schemas Zod já usados pela regra de negócio
+  // (@microfrontends/validation-schemas) — mesma abordagem de properties-service.
+  app.setValidatorCompiler(validatorCompiler)
+  app.setSerializerCompiler(serializerCompiler)
+
+  await app.register(swagger, {
+    openapi: {
+      info: { title: 'auth-service', version: '1.0.0' },
+    },
+    transform: jsonSchemaTransform,
+  })
+  if (process.env.NODE_ENV !== 'production') {
+    await app.register(swaggerUi, { routePrefix: '/docs' })
+  }
 
   app.setErrorHandler(errorHandler)
 

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { createPropertySchema, PROPERTY_STATUSES, PROPERTY_TYPES } from './property.schema'
+import {
+  createPropertySchema,
+  propertyResponseSchema,
+  PROPERTY_STATUSES,
+  PROPERTY_TYPES,
+} from './property.schema'
 
 const validInput = {
   title: 'Apartamento reformado',
@@ -91,5 +96,41 @@ describe('PROPERTY_TYPES', () => {
 describe('PROPERTY_STATUSES', () => {
   it('should list all 5 property statuses', () => {
     expect(PROPERTY_STATUSES).toEqual(['Available', 'Reserved', 'Sold', 'Rented', 'Inactive'])
+  })
+})
+
+describe('propertyResponseSchema', () => {
+  const validResponse = {
+    ...validInput,
+    id: 'a3c1f9e0-0000-4000-8000-000000000000',
+    brokerId: 'b3c1f9e0-0000-4000-8000-000000000000',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
+  }
+
+  it('should accept a fully valid property response', () => {
+    const result = propertyResponseSchema.safeParse(validResponse)
+    expect(result.success).toBe(true)
+  })
+
+  it('should reject a response missing id', () => {
+    const withoutId: Partial<typeof validResponse> = { ...validResponse }
+    delete withoutId.id
+    const result = propertyResponseSchema.safeParse(withoutId)
+    expect(result.success).toBe(false)
+  })
+
+  it('should accept a non-UUID id (opaque identifier, no format required)', () => {
+    const result = propertyResponseSchema.safeParse({
+      ...validResponse,
+      id: 'broker-1',
+      brokerId: 'broker-1',
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('should reject a response with a non-ISO createdAt', () => {
+    const result = propertyResponseSchema.safeParse({ ...validResponse, createdAt: 'yesterday' })
+    expect(result.success).toBe(false)
   })
 })
