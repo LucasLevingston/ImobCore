@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "description": "Helpers de build pra config do Module Federation (ModuleFederationPlugin) — evita duplicar/desatualizar a lista de shared dependencies entre auth-frontend e properties-frontend",
-  "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./dist/index.js"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "postinstall": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
