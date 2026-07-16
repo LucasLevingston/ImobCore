@@ -1,10 +1,5 @@
+import { propertyStatusSchema, propertyTypeSchema } from '@microfrontends/validation-schemas'
 import { z } from 'zod'
-import {
-  PROPERTY_STATUSES,
-  PROPERTY_TYPES,
-  type PropertyStatus,
-  type PropertyType,
-} from '../../../../types/property'
 
 // Inputs HTML de número vazios chegam como string vazia (nunca `undefined`) — sem
 // esse preprocess, z.coerce.number() converteria "" em 0 em vez de null
@@ -21,8 +16,8 @@ function nullableNumber(validate?: (schema: z.ZodNumber) => z.ZodNumber) {
 export const propertyFormSchema = z.object({
   title: z.string().min(3, 'Título deve ter ao menos 3 caracteres'),
   description: z.string().min(10, 'Descrição deve ter ao menos 10 caracteres'),
-  type: z.enum(PROPERTY_TYPES as [PropertyType, ...PropertyType[]]),
-  status: z.enum(PROPERTY_STATUSES as [PropertyStatus, ...PropertyStatus[]]),
+  type: propertyTypeSchema,
+  status: propertyStatusSchema,
   price: z.coerce.number().positive('Preço deve ser positivo'),
   condominiumFee: nullableNumber((schema) => schema.nonnegative()),
   iptu: nullableNumber((schema) => schema.nonnegative()),

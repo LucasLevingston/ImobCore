@@ -16,6 +16,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@microfrontends/ui": "*",
+    "@microfrontends/validation-schemas": "*",
     "@tanstack/react-query": "^5.59.20",
     "next": "^16.2.10",
     "react": "^19.2.7",
