@@ -1,7 +1,12 @@
-export type PropertyType =
-  'Apartment' | 'House' | 'Land' | 'Commercial' | 'Farm' | 'Studio' | 'Penthouse'
-
-export type PropertyStatus = 'Available' | 'Reserved' | 'Sold' | 'Rented' | 'Inactive'
+// Enums vêm de @microfrontends/validation-schemas — mesma fonte de verdade
+// usada pelo schema de validação do backend, evita dessincronia.
+export {
+  PROPERTY_STATUSES,
+  PROPERTY_TYPES,
+  type PropertyStatus,
+  type PropertyType,
+} from '@microfrontends/validation-schemas'
+import type { PropertyStatus, PropertyType } from '@microfrontends/validation-schemas'
 
 export interface Property {
   id: string
@@ -49,21 +54,3 @@ export interface DashboardMetrics {
   byCity: Array<{ city: string; count: number }>
   byDistrict: Array<{ district: string; count: number }>
 }
-
-export const PROPERTY_TYPES: PropertyType[] = [
-  'Apartment',
-  'House',
-  'Land',
-  'Commercial',
-  'Farm',
-  'Studio',
-  'Penthouse',
-]
-
-export const PROPERTY_STATUSES: PropertyStatus[] = [
-  'Available',
-  'Reserved',
-  'Sold',
-  'Rented',
-  'Inactive',
-]

@@ -1,0 +1,29 @@
+{
+  "name": "@microfrontends/validation-schemas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Schemas Zod compartilhados (regras de negócio puras) entre properties-frontend e properties-service — elimina a duplicação de enums/limites/mensagens de validação entre client e server",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.10",
+    "zod": "^3.23.8"
+  }
+}

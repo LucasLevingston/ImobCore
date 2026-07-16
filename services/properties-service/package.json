@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@fastify/helmet": "^13.1.0",
+    "@microfrontends/validation-schemas": "*",
     "@opentelemetry/auto-instrumentations-node": "^0.78.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.220.0",
     "@opentelemetry/resources": "^2.9.0",
