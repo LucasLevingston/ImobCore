@@ -6,6 +6,14 @@ export { cn } from './lib/utils'
 export { Button, type ButtonProps } from './components/Button'
 export { Input, type InputProps } from './components/Input'
 export {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from './components/FormField'
+export {
   Card,
   CardContent,
   CardDescription,
