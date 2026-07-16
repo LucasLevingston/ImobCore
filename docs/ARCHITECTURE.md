@@ -353,6 +353,17 @@ sequenceDiagram
 
 > **Nota de revisão (Fase 8):** a topologia abaixo ("sem app shell", decidida na Fase 0) foi **superada** pela introdução do `apps/portal` (seção 05a) como App Shell corporativo. `properties-frontend` continua federando `auth-frontend` exatamente como descrito nesta seção — nada aqui mudou de fato —, mas a frase "sem app shell" não reflete mais a arquitetura atual. O Portal ainda não participa da federação (não expõe nem consome remotes via `ModuleFederationPlugin`); ele navega pros MFEs existentes por link simples. Ver seção 05a pros contratos que preparam essa integração futura.
 
+> **Nota de revisão (Fase 9 — React 19 + Next 16):** os exemplos de código abaixo mostravam `shared: { react: { singleton: true }, 'react-dom': { singleton: true } }` sem mais nada — isso quebra em produção. Achado real (bug de produção, não teórico): sem `eager: true`, o runtime da MF exige um "async boundary" (`import()` dinâmico) antes de qualquer código tocar `react`/`react-dom`; o App Router do Next não expõe esse boundary no entry chunk, então `loadShareSync` corre na frente da negociação assíncrona e quebra a hidratação inteira com `RUNTIME-006`. E sem `requiredVersion` fixo, o auto-scanner da MF lê o peerDependency _interno_ do Next (uma build canary/RC do React usada só pelas features de RSC), não a versão de `react-dom` de fato resolvida — ele recusa a própria versão que ele mesmo fornece. **Isso não é algo que a migração pra React 19 "de verdade" resolveu** — é um fato arquitetural do Next.js (App Router sempre vendora sua própria cópia interna do React pro RSC, independente da versão declarada no `package.json` do app) que continua exigindo os dois campos fixos:
+>
+> ```js
+> shared: {
+>   react: { singleton: true, eager: true, requiredVersion: '^19.2.7' },
+>   'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.7' },
+> }
+> ```
+>
+> Também: Next 16 trocou o bundler padrão de `next dev`/`next build` pra Turbopack, que não suporta o hook `webpack()` customizado — `auth-frontend` e `properties-frontend` (os dois únicos apps com Module Federation) precisam do flag `--webpack` explícito nos scripts `dev`/`build` do `package.json`. `apps/portal` não federa nada, então usa o Turbopack padrão sem flag.
+
 > **✅ Resolvido (Fase 6).** `@module-federation/nextjs-mf` foi definitivamente descartado: além de nunca ter suportado App Router (checagem hardcoded — `"App Directory is not supported by nextjs-mf"`), o próprio ecossistema anunciou a descontinuação do plugin (suporte só até meados/fim de 2026, sem desenvolvimento ativo). A alternativa "oficial" que surgiu no lugar (`@vercel/microfrontends`) é acoplada à infraestrutura de roteamento da Vercel — não serve pro Docker Compose self-hosted deste projeto. A solução adotada foi a opção (a) cogitada na Fase 3: **`ModuleFederationPlugin` cru**, via `@module-federation/enhanced/webpack`, registrado direto no `webpack()` de cada `next.config.js` — sem o wrapper Next-aware (sem SSR do remote, sem rewrite automático de rota). Validado com os dois apps reais (`auth-frontend` remote, `properties-frontend` host): `next dev`, `next build` e o bundle client final funcionam.
 
 **Biblioteca:** `@module-federation/enhanced/webpack` (exporta `ModuleFederationPlugin`) + `webpack` como devDependency local (a lib precisa da instância real do pacote, não só do webpack embutido no Next).
@@ -374,7 +385,10 @@ webpack(config, { isServer }) {
           './AuthStatus': './src/components/federation/AuthStatus',
           './UserMenu': './src/components/federation/UserMenu',
         },
-        shared: { react: { singleton: true }, 'react-dom': { singleton: true } },
+        shared: {
+          react: { singleton: true, eager: true, requiredVersion: '^19.2.7' },
+          'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.7' },
+        },
         dts: false, // geração automática de .d.ts falhou (module-federation.io/guide/troubleshooting/type#type-001) — tipos declarados manualmente no host
       }),
     )
@@ -393,7 +407,10 @@ webpack(config, { isServer }) {
         remotes: {
           authFrontend: `authFrontend@${process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL}/_next/static/chunks/remoteEntry.js`,
         },
-        shared: { react: { singleton: true }, 'react-dom': { singleton: true } },
+        shared: {
+          react: { singleton: true, eager: true, requiredVersion: '^19.2.7' },
+          'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.7' },
+        },
         dts: false,
       }),
     )
@@ -439,6 +456,8 @@ webpack(config, { isServer }) {
 ## 08. Design System
 
 Base: **shadcn/ui** (componentes copiados/customizáveis, não pacote fechado) + **Radix UI** (acessibilidade) + **class-variance-authority** (variantes tipadas) + Tailwind com CSS variables de tema (light/dark).
+
+> **Nota de revisão (Fase 9 — Tailwind v3 → v4):** configuração deixou de ser JS (`tailwind.config.ts`, removido de todos os 4 workspaces) e passou a ser CSS-first — `@import 'tailwindcss'` + blocos `@theme`/`@theme inline` direto no `globals.css` de `packages/ui` (fonte única do tema, propagada pros 3 apps via import). Dark mode deixou de ser automático por classe — v4 assume `prefers-color-scheme` por padrão, então precisa de `@custom-variant dark (&:where(.dark, .dark *));` explícito pra manter o toggle manual (`ThemeProvider`/`ThemeToggle`) funcionando. `@source '../../src'` no CSS compartilhado substitui o antigo array `content: [...]` do config JS, com o mesmo efeito (escaneamento de classes) só que auto-descoberto pelos apps consumidores. `@tailwindcss/postcss` substitui o par `tailwindcss` + `autoprefixer` no `postcss.config.js` (prefixação de vendor já embutida no motor Rust). `tailwindcss-animate` (v3) foi trocado por `tw-animate-css`, a versão nativa v4 recomendada pelo próprio guia de migração do shadcn/ui.
 
 Componentes obrigatórios em `packages/ui` (ver seção 07): `Button`, `Input`, `Card`, `Modal`, `Toast`, `Loading`, `Error`, `Layout`, `Header`, `Sidebar`.
 
@@ -584,6 +603,18 @@ Cada serviço tem sua própria connection string (`AUTH_DATABASE_URL` / `PROPERT
 ## 12. Prisma
 
 Cada serviço tem seu próprio `prisma/schema.prisma`, `prisma/migrations/`, e `prisma/seed.ts`.
+
+> **Nota de revisão (Fase 9 — Prisma 5 → 7):** mudança de arquitetura, não só de versão. Prisma 7 removeu completamente o motor Rust — `generator client` usa `provider = "prisma-client"` (não mais `"prisma-client-js"`), gera um Query Compiler WASM, e exige um **driver adapter** explícito (`@prisma/adapter-pg` aqui) em vez de conectar direto via `DATABASE_URL`. `datasource.url` some do `schema.prisma`; a URL de conexão agora vive em `prisma.config.ts` (novo arquivo, um por serviço, via `defineConfig` de `'prisma/config'` — usado pelo CLI) **e** é passada de novo, manualmente, ao instanciar o adapter em `infra/database/prisma/client.ts`:
+>
+> ```ts
+> import { PrismaPg } from '@prisma/adapter-pg'
+> import { PrismaClient } from '../../../generated/prisma/client'
+>
+> const adapter = new PrismaPg({ connectionString: process.env.AUTH_DATABASE_URL, max: 5 })
+> export const prisma = new PrismaClient({ adapter })
+> ```
+>
+> Consequências práticas: `binaryTargets`/detecção de OpenSSL do Alpine ficaram obsoletos (sem binário nativo, nada a resolver) — `apk add openssl` no Dockerfile foi removido. Pooling de conexão agora é o `max` do próprio adapter, não mais `?connection_limit=N` na URL. `prisma generate`/`migrate deploy` precisam do flag `--config <caminho/prisma.config.ts>` explícito em todo comando (CLI não acha mais o config sozinho fora do diretório do serviço). O padrão Repository (abaixo) não mudou nada — é exatamente por isso que ele existe: a troca de motor ficou 100% contida em `infra/database/prisma/`.
 
 **Regra inegociável: regra de negócio nunca importa `@prisma/client` diretamente.** Fluxo obrigatório:
 
@@ -757,6 +788,11 @@ USER node
 HEALTHCHECK CMD wget -qO- http://localhost:$PORT/health || exit 1
 CMD ["node", "dist/main/server.js"]
 ```
+
+> **Nota de revisão (Fase 9):** dois bugs reais nos 5 Dockerfiles, achados só quando a build voltou a rodar depois de um bloqueio de rede longo (certificado TLS do ambiente, não relacionado ao código):
+>
+> 1. Todo `Dockerfile` faz `COPY --from=deps /app/<workspace>/node_modules ./<workspace>/node_modules` — mas esse diretório só existe se o hoisting do npm decidir que aquele workspace precisa de algum pacote aninhado localmente (decisão por-instalação, não garantida). Com uma árvore de dependências mais limpa (pós-Fase 9), `api-gateway` parou de precisar de qualquer pacote local e o `npm ci` isolado dele não cria mais essa pasta — a `COPY` falhava com "not found". Corrigido com `RUN mkdir -p <workspace>/node_modules` logo após o `npm ci`, garantindo que o diretório sempre existe (mesmo vazio).
+> 2. `prisma.config.ts` (novo na Fase 9, ver seção 12) é TypeScript — o loader do Prisma CLI resolve o `tsconfig.json` do workspace, que faz `extends: "../../tsconfig.base.json"`. Esse arquivo nunca era copiado pro estágio `build` (nem pro `runtime`, onde `prisma migrate deploy` roda no `CMD`) dos Dockerfiles de `auth-service`/`properties-service` — `prisma generate`/`migrate deploy` falhavam com "File '../../tsconfig.base.json' not found". Corrigido copiando o arquivo pros dois estágios.
 
 ---
 
@@ -951,6 +987,7 @@ Fase 5  → properties-frontend (MFE completo, TDD — dashboard, listagem, CRUD
 Fase 6  → Module Federation wiring + docker-compose completo + smoke e2e + CI/CD [CONCLUÍDA]
 Fase 7  → Documentação final consolidada + observabilidade + revisão de segurança      [CONCLUÍDA]
 Fase 8  → apps/portal (App Shell — layout, navegação, providers, guard de sessão, contratos de Module Federation) [CONCLUÍDA]
+Fase 9  → Atualização de dependências (React 19, Next 16, Prisma 7, Tailwind v4, +10 majors) — seções 06, 08, 12, 19 [CONCLUÍDA]
 ```
 
 Cada fase segue o ciclo descrito na seção 15 (TDD) e só avança pra próxima após validação com o responsável pelo projeto (checkpoint manual, não automático).
