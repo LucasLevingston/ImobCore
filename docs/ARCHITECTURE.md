@@ -1007,6 +1007,8 @@ Fase 9  → Atualização de dependências (React 19, Next 16, Prisma 7, Tailwin
 
 Cada fase segue o ciclo descrito na seção 15 (TDD) e só avança pra próxima após validação com o responsável pelo projeto (checkpoint manual, não automático).
 
+**Fases futuras (não planejadas ainda):** ver [`docs/FEATURE-ROADMAP.md`](FEATURE-ROADMAP.md) — mapeamento de 18 funcionalidades de negócio além do CRUD de imóveis (CRM, visitas, propostas, financeiro, IA, multi-tenancy, etc), com sequenciamento sugerido. Puro planejamento, sem código ainda.
+
 ---
 
 ## 32. Regras para a IA seguir durante o desenvolvimento

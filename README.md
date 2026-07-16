@@ -4,6 +4,8 @@ Monorepo (npm workspaces) com 2 Micro Frontends e 2 Microservices independentes,
 
 📖 **Documentação completa de arquitetura:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — objetivo, requisitos, todas as decisões técnicas (Module Federation, Clean Architecture, segurança, observabilidade, CI/CD, critérios de aceite, regras de desenvolvimento).
 
+🗺️ **Mapeamento de funcionalidades futuras:** [`docs/FEATURE-ROADMAP.md`](docs/FEATURE-ROADMAP.md) — 18 funcionalidades de negócio mapeadas além do CRUD de imóveis atual (CRM, visitas, propostas, financeiro, IA, multi-tenancy, etc), com sequenciamento sugerido. Planejamento, nada implementado ainda.
+
 ## Arquitetura
 
 ```mermaid
