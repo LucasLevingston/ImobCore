@@ -1,4 +1,11 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
+import { propertyResponseSchema } from '@microfrontends/validation-schemas'
+import { createPropertySchema } from '../../../application/dto/create-property.dto'
+import { listPropertiesQuerySchema } from '../../../application/dto/list-properties-query.dto'
+import { searchPropertiesQuerySchema } from '../../../application/dto/search-properties-query.dto'
+import { updatePropertySchema } from '../../../application/dto/update-property.dto'
 import type { CreatePropertyUseCase } from '../../../application/usecases/create-property/create-property.usecase'
 import type { DeletePropertyUseCase } from '../../../application/usecases/delete-property/delete-property.usecase'
 import type { GetDashboardMetricsUseCase } from '../../../application/usecases/get-dashboard-metrics/get-dashboard-metrics.usecase'
@@ -13,6 +20,15 @@ import { makeGetPropertyController } from '../controllers/get-property.controlle
 import { makeListPropertiesController } from '../controllers/list-properties.controller'
 import { makeSearchPropertiesController } from '../controllers/search-properties.controller'
 import { makeUpdatePropertyController } from '../controllers/update-property.controller'
+import { propertyIdParamsSchema } from '../schemas/property-params.schema'
+
+const paginatedPropertiesSchema = z.object({
+  items: z.array(propertyResponseSchema),
+  total: z.number(),
+  page: z.number(),
+  limit: z.number(),
+  totalPages: z.number(),
+})
 
 interface PropertyRoutesDependencies {
   createPropertyUseCase: CreatePropertyUseCase
@@ -33,14 +49,74 @@ export function registerPropertyRoutes(
   app.register(
     async (instance) => {
       instance.addHook('onRequest', deps.authenticate)
+      const typedInstance = instance.withTypeProvider<ZodTypeProvider>()
 
-      instance.get('/search', makeSearchPropertiesController(deps.searchPropertiesUseCase))
-      instance.get('/metrics', makeGetDashboardMetricsController(deps.getDashboardMetricsUseCase))
-      instance.get('/', makeListPropertiesController(deps.listPropertiesUseCase))
-      instance.get('/:id', makeGetPropertyController(deps.getPropertyUseCase))
-      instance.post('/', makeCreatePropertyController(deps.createPropertyUseCase))
-      instance.put('/:id', makeUpdatePropertyController(deps.updatePropertyUseCase))
-      instance.delete('/:id', makeDeletePropertyController(deps.deletePropertyUseCase))
+      typedInstance.get(
+        '/search',
+        {
+          schema: {
+            tags: ['properties'],
+            querystring: searchPropertiesQuerySchema,
+            response: { 200: paginatedPropertiesSchema },
+          },
+        },
+        makeSearchPropertiesController(deps.searchPropertiesUseCase),
+      )
+      typedInstance.get(
+        '/metrics',
+        { schema: { tags: ['properties'] } },
+        makeGetDashboardMetricsController(deps.getDashboardMetricsUseCase),
+      )
+      typedInstance.get(
+        '/',
+        {
+          schema: {
+            tags: ['properties'],
+            querystring: listPropertiesQuerySchema,
+            response: { 200: paginatedPropertiesSchema },
+          },
+        },
+        makeListPropertiesController(deps.listPropertiesUseCase),
+      )
+      typedInstance.get(
+        '/:id',
+        {
+          schema: {
+            tags: ['properties'],
+            params: propertyIdParamsSchema,
+            response: { 200: propertyResponseSchema },
+          },
+        },
+        makeGetPropertyController(deps.getPropertyUseCase),
+      )
+      typedInstance.post(
+        '/',
+        {
+          schema: {
+            tags: ['properties'],
+            body: createPropertySchema,
+            response: { 201: propertyResponseSchema },
+          },
+        },
+        makeCreatePropertyController(deps.createPropertyUseCase),
+      )
+      typedInstance.put(
+        '/:id',
+        {
+          schema: {
+            tags: ['properties'],
+            params: propertyIdParamsSchema,
+            body: updatePropertySchema,
+            response: { 200: propertyResponseSchema },
+          },
+        },
+        makeUpdatePropertyController(deps.updatePropertyUseCase),
+      )
+      typedInstance.delete(
+        '/:id',
+        { schema: { tags: ['properties'], params: propertyIdParamsSchema } },
+        makeDeletePropertyController(deps.deletePropertyUseCase),
+      )
     },
     { prefix: '/properties' },
   )

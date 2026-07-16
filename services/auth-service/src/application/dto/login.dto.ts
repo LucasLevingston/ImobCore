@@ -1,8 +1,3 @@
-import { z } from 'zod'
-
-export const loginSchema = z.object({
-  email: z.string().email('E-mail inválido'),
-  password: z.string().min(1, 'Senha obrigatória'),
-})
-
-export type LoginInput = z.infer<typeof loginSchema>
+// Regra de negócio vive em @microfrontends/validation-schemas — compartilhada
+// com o form schema de auth-frontend, pra não dessincronizar as duas validações.
+export { loginSchema, type LoginInput } from '@microfrontends/validation-schemas'

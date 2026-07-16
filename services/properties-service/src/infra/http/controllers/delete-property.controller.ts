@@ -1,13 +1,14 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { z } from 'zod'
 import type { DeletePropertyUseCase } from '../../../application/usecases/delete-property/delete-property.usecase'
+import type { PropertyIdParams } from '../schemas/property-params.schema'
 
-const paramsSchema = z.object({ id: z.string() })
-
+// Params já validados pelo schema Zod registrado na rota (property.routes.ts)
 export function makeDeletePropertyController(useCase: DeletePropertyUseCase) {
-  return async function deletePropertyController(request: FastifyRequest, reply: FastifyReply) {
-    const { id } = paramsSchema.parse(request.params)
-    await useCase.execute(id)
+  return async function deletePropertyController(
+    request: FastifyRequest<{ Params: PropertyIdParams }>,
+    reply: FastifyReply,
+  ) {
+    await useCase.execute(request.params.id)
     return reply.status(204).send()
   }
 }

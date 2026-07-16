@@ -1,4 +1,11 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import {
+  accessTokenResponseSchema,
+  loginSchema,
+  registerUserSchema,
+  userResponseSchema,
+} from '@microfrontends/validation-schemas'
 import type { GetProfileUseCase } from '../../../application/usecases/get-profile/get-profile.usecase'
 import type { LoginUseCase } from '../../../application/usecases/login/login.usecase'
 import type { LogoutUseCase } from '../../../application/usecases/logout/logout.usecase'
@@ -21,9 +28,30 @@ interface AuthRoutesDependencies {
 }
 
 export function registerAuthRoutes(app: FastifyInstance, deps: AuthRoutesDependencies): void {
-  app.post('/register', makeRegisterController(deps.registerUserUseCase))
-  app.post('/login', makeLoginController(deps.loginUseCase, deps.refreshTokenTtlMs))
-  app.post('/refresh', makeRefreshController(deps.refreshTokenUseCase, deps.refreshTokenTtlMs))
+  const typedApp = app.withTypeProvider<ZodTypeProvider>()
+
+  typedApp.post(
+    '/register',
+    { schema: { tags: ['auth'], body: registerUserSchema, response: { 201: userResponseSchema } } },
+    makeRegisterController(deps.registerUserUseCase),
+  )
+  typedApp.post(
+    '/login',
+    { schema: { tags: ['auth'], body: loginSchema, response: { 200: accessTokenResponseSchema } } },
+    makeLoginController(deps.loginUseCase, deps.refreshTokenTtlMs),
+  )
+  typedApp.post(
+    '/refresh',
+    { schema: { tags: ['auth'], response: { 200: accessTokenResponseSchema } } },
+    makeRefreshController(deps.refreshTokenUseCase, deps.refreshTokenTtlMs),
+  )
   app.post('/logout', makeLogoutController(deps.logoutUseCase))
-  app.get('/me', { onRequest: deps.authenticate }, makeMeController(deps.getProfileUseCase))
+  typedApp.get(
+    '/me',
+    {
+      onRequest: deps.authenticate,
+      schema: { tags: ['auth'], response: { 200: userResponseSchema } },
+    },
+    makeMeController(deps.getProfileUseCase),
+  )
 }
