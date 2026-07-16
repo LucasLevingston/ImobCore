@@ -25,6 +25,7 @@
     "zustand": "^5.0.1"
   },
   "devDependencies": {
+    "@microfrontends/module-federation-utils": "*",
     "@module-federation/enhanced": "^2.8.0",
     "@tailwindcss/postcss": "^4.3.2",
     "@testing-library/jest-dom": "^6.6.3",

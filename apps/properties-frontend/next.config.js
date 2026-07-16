@@ -1,5 +1,7 @@
 const path = require('node:path')
 const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack')
+const { getSharedDependencies } = require('@microfrontends/module-federation-utils')
+const { dependencies } = require('./package.json')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -18,13 +20,14 @@ const nextConfig = {
           remotes: {
             authFrontend: `authFrontend@${process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL}/_next/static/chunks/remoteEntry.js`,
           },
-          // eager: true + requiredVersion fixo — mesmo motivo do next.config.js
-          // de auth-frontend (RUNTIME-006 + auto-scanner da MF pegando o
-          // peerDependency canary interno do Next em vez da versão real instalada)
-          shared: {
-            react: { singleton: true, eager: true, requiredVersion: '^19.2.7' },
-            'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.7' },
-          },
+          // eager: true — mesmo motivo do next.config.js de auth-frontend
+          // (RUNTIME-006). requiredVersion vem de getSharedDependencies, que lê
+          // dependencies do package.json — sem isso, cada bump de react/react-dom
+          // exigia atualizar esse número aqui manualmente também.
+          shared: getSharedDependencies(dependencies, {
+            react: { singleton: true, eager: true },
+            'react-dom': { singleton: true, eager: true },
+          }),
           dts: false,
         }),
       )

@@ -1,4 +1,6 @@
 const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack')
+const { getSharedDependencies } = require('@microfrontends/module-federation-utils')
+const { dependencies } = require('./package.json')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -32,13 +34,15 @@ const nextConfig = {
           // interno do Next (uma build canary/RC do React usada internamente
           // por features de RSC), não a versão de react-dom de fato resolvida
           // — sem isso, ele recusa a própria versão que ele mesmo fornece.
-          // Fase 9: projeto migrou pra React 19 de verdade, mas o Next ainda
-          // vendora sua própria cópia interna independente disso — o pin
-          // continua necessário (não é algo que "React 19 real" resolveu).
-          shared: {
-            react: { singleton: true, eager: true, requiredVersion: '^19.2.7' },
-            'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.7' },
-          },
+          // getSharedDependencies lê o requiredVersion de dependencies do
+          // package.json — sem isso, cada bump de react/react-dom exigia
+          // atualizar esse número aqui manualmente também (esquecível, e foi
+          // esquecido antes). eager/singleton continuam explícitos aqui:
+          // são decisão arquitetural do MF, não algo pra inferir do package.json.
+          shared: getSharedDependencies(dependencies, {
+            react: { singleton: true, eager: true },
+            'react-dom': { singleton: true, eager: true },
+          }),
           // Geração automática de .d.ts pro host requer rodar tsc num tsconfig
           // sintético à parte — não funcionou aqui (module-federation.io/guide/
           // troubleshooting/type#type-001) e não é essencial: o host declara os
