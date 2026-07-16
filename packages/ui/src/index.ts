@@ -47,6 +47,7 @@ export {
   type ToastData,
 } from './components/Toast'
 export { Layout, type LayoutProps } from './components/Layout'
+export { Pagination, type PaginationProps } from './components/Pagination'
 export { Header, type HeaderProps } from './components/Header'
 export { Sidebar, type SidebarItem, type SidebarProps } from './components/Sidebar'
 export { Footer, type FooterProps } from './components/Footer'
