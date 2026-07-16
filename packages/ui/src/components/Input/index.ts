@@ -1,2 +1,6 @@
 export { Input } from './Input'
 export type { InputProps } from './Input'
+export { CurrencyInput } from './CurrencyInput'
+export type { CurrencyInputProps } from './CurrencyInput'
+export { SearchInput } from './SearchInput'
+export type { SearchInputProps } from './SearchInput'

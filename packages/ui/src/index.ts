@@ -5,7 +5,14 @@ export { cn } from './lib/utils'
 
 export { Button, type ButtonProps } from './components/Button'
 export { SubmitButton, type SubmitButtonProps } from './components/SubmitButton'
-export { Input, type InputProps } from './components/Input'
+export {
+  Input,
+  type InputProps,
+  CurrencyInput,
+  type CurrencyInputProps,
+  SearchInput,
+  type SearchInputProps,
+} from './components/Input'
 export {
   Form,
   FormField,
