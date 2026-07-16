@@ -1,19 +1,20 @@
 generator client {
-  provider = "prisma-client-js"
-  // Sem isso, o client gerado vai pro node_modules/@prisma/client hoisted da
-  // raiz do workspace — compartilhado com properties-service, que sobrescreve
-  // o outro a cada `prisma generate` (bug real, achado via teste de integração)
-  output = "../src/generated/prisma"
-  // "native" cobre dev local (Windows/Mac). node:20-alpine (runtime Docker)
-  // usa OpenSSL 3.x — sem o target musl-openssl-3.0.x, o engine binário
-  // (compilado por padrão pra OpenSSL 1.1) falha ao carregar em produção
-  // ("Error loading shared library libssl.so.1.1: No such file or directory")
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  // Prisma 7: motor Rust removido — "prisma-client" gera um Query Compiler
+  // WASM + execução via driver adapter (@prisma/adapter-pg), sem binário
+  // nativo. binaryTargets/OpenSSL do Alpine deixam de ser um problema.
+  provider = "prisma-client"
+  // Sem isso, o client gerado vai pro node_modules hoisted da raiz do
+  // workspace — compartilhado com properties-service, que sobrescreve
+  // o outro a cada `prisma generate` (bug real, achado via teste de integração).
+  // Na v7 isso é obrigatório (Prisma não gera mais em node_modules por padrão).
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
 }
 
+// Prisma 7: url some daqui — vai pro adapter passado ao PrismaClient em
+// código (client.ts) + pro prisma.config.ts (usado só pelo CLI: migrate/studio)
 datasource db {
   provider = "postgresql"
-  url      = env("AUTH_DATABASE_URL")
 }
 
 model User {

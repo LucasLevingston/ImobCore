@@ -8,7 +8,11 @@ import type {
   PropertyRepository,
   UpdatePropertyData,
 } from '../../../domain/repositories/property-repository'
-import type { Prisma, PrismaClient, Property as PrismaProperty } from '../../../generated/prisma'
+import type {
+  Prisma,
+  PrismaClient,
+  Property as PrismaProperty,
+} from '../../../generated/prisma/client'
 
 function toDomain(record: PrismaProperty): Property {
   return {

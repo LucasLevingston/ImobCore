@@ -22,8 +22,8 @@ const nextConfig = {
           // de auth-frontend (RUNTIME-006 + auto-scanner da MF pegando o
           // peerDependency canary interno do Next em vez da versão real instalada)
           shared: {
-            react: { singleton: true, eager: true, requiredVersion: '^18.3.1' },
-            'react-dom': { singleton: true, eager: true, requiredVersion: '^18.3.1' },
+            react: { singleton: true, eager: true, requiredVersion: '^19.2.7' },
+            'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.7' },
           },
           dts: false,
         }),

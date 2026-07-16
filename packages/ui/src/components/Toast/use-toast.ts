@@ -5,10 +5,16 @@ import * as React from 'react'
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1_000_000
 
+// React 19 ampliou ReactNode pra incluir bigint; a tipagem do Radix Toast
+// (ToastTitle/ToastDescription) ainda não acompanhou isso. Nunca renderizamos
+// um bigint bruto num toast de verdade, então exclui explicitamente em vez de
+// esperar o Radix atualizar.
+type RenderableNode = Exclude<React.ReactNode, bigint>
+
 export interface ToastData {
   id: string
-  title?: React.ReactNode
-  description?: React.ReactNode
+  title?: RenderableNode
+  description?: RenderableNode
   variant?: 'default' | 'destructive'
   open: boolean
 }

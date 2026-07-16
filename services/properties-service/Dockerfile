@@ -7,23 +7,32 @@ COPY services/properties-service/package.json ./services/properties-service/pack
 # ainda não existe aqui) — a geração real acontece explicitamente abaixo,
 # no estágio build, depois que o código-fonte completo é copiado
 RUN npm ci --workspace=properties-service --include-workspace-root --ignore-scripts
+# npm's hoisting decides per-install whether this workspace needs any locally
+# nested packages at all — with a clean-enough dependency tree it may hoist
+# everything to root and never create this dir, so the COPY below would fail
+RUN mkdir -p services/properties-service/node_modules
 
 FROM node:20-alpine AS build
 WORKDIR /app
+# prisma.config.ts is TS — Prisma's CLI loader resolves services/properties-service/
+# tsconfig.json, which extends ../../tsconfig.base.json
+COPY tsconfig.base.json ./tsconfig.base.json
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/services/properties-service/node_modules ./services/properties-service/node_modules
 COPY services/properties-service ./services/properties-service
-RUN npx --prefix services/properties-service prisma generate --schema services/properties-service/prisma/schema.prisma
+RUN npx --prefix services/properties-service prisma generate --schema services/properties-service/prisma/schema.prisma --config services/properties-service/prisma.config.ts
 
 FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
-# Prisma detecta a versão do OpenSSL em runtime pra escolher o engine binário
-# certo (binaryTargets no schema.prisma) — sem o pacote instalado, a detecção
-# falha silenciosamente e cai no binário errado (compilado pra OpenSSL 1.1)
-RUN apk add --no-cache openssl
+# Prisma 7 removeu o motor Rust (Query Compiler WASM + driver adapter puro
+# JS/TS agora) — sem binário nativo, então sem dependência de qual OpenSSL
+# o Alpine tem. apk add openssl (necessário até a Fase 9) não é mais preciso.
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/services/properties-service ./services/properties-service
+# `prisma migrate deploy` below also loads prisma.config.ts (TS), same
+# tsconfig.base.json resolution needed here as in the build stage
+COPY tsconfig.base.json ./tsconfig.base.json
 # `prisma migrate deploy` em runtime (abaixo) escreve em node_modules/@prisma/engines
 # — sem isso o usuário node não-root não tem permissão (tudo veio via COPY como root)
 RUN chown -R node:node /app
@@ -34,4 +43,4 @@ EXPOSE 3002
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD wget -qO- http://127.0.0.1:3002/health || exit 1
 # Aplica migrações pendentes antes de subir o server — necessário pra um
 # banco novo (container fresco) já nascer com as tabelas certas
-CMD ["sh", "-c", "npx prisma migrate deploy --schema services/properties-service/prisma/schema.prisma && node --import tsx --import ./services/properties-service/src/main/tracing.ts services/properties-service/src/main/server.ts"]
+CMD ["sh", "-c", "npx prisma migrate deploy --schema services/properties-service/prisma/schema.prisma --config services/properties-service/prisma.config.ts && node --import tsx --import ./services/properties-service/src/main/tracing.ts services/properties-service/src/main/server.ts"]
