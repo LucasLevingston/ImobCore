@@ -7,9 +7,16 @@ COPY services/auth-service/package.json ./services/auth-service/package.json
 # ainda não existe aqui) — a geração real acontece explicitamente abaixo,
 # no estágio build, depois que o código-fonte completo é copiado
 RUN npm ci --workspace=auth-service --include-workspace-root --ignore-scripts
+# npm's hoisting decides per-install whether this workspace needs any locally
+# nested packages at all — with a clean-enough dependency tree it may hoist
+# everything to root and never create this dir, so the COPY below would fail
+RUN mkdir -p services/auth-service/node_modules
 
 FROM node:20-alpine AS build
 WORKDIR /app
+# prisma.config.ts is TS — Prisma's CLI loader resolves services/auth-service/
+# tsconfig.json, which extends ../../tsconfig.base.json
+COPY tsconfig.base.json ./tsconfig.base.json
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/services/auth-service/node_modules ./services/auth-service/node_modules
 COPY services/auth-service ./services/auth-service
@@ -23,6 +30,9 @@ ENV NODE_ENV=production
 # o Alpine tem. apk add openssl (necessário até a Fase 9) não é mais preciso.
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/services/auth-service ./services/auth-service
+# `prisma migrate deploy` below also loads prisma.config.ts (TS), same
+# tsconfig.base.json resolution needed here as in the build stage
+COPY tsconfig.base.json ./tsconfig.base.json
 # `prisma migrate deploy` em runtime (abaixo) escreve em node_modules/@prisma/engines
 # — sem isso o usuário node não-root não tem permissão (tudo veio via COPY como root)
 RUN chown -R node:node /app

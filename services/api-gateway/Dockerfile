@@ -5,6 +5,10 @@ COPY services/api-gateway/package.json ./services/api-gateway/package.json
 # --ignore-scripts: o postinstall da raiz roda `prisma generate`, que não se
 # aplica a este workspace e falharia sem os services/* copiados neste estágio
 RUN npm ci --workspace=api-gateway --include-workspace-root --ignore-scripts
+# npm's hoisting decides per-install whether this workspace needs any locally
+# nested packages at all — with a clean-enough dependency tree it may hoist
+# everything to root and never create this dir, so the COPY below would fail
+RUN mkdir -p services/api-gateway/node_modules
 
 FROM node:20-alpine AS runtime
 WORKDIR /app
