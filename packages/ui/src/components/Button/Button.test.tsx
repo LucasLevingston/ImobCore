@@ -3,6 +3,16 @@ import { render, screen } from '@testing-library/react'
 import { renderWithUser } from '../../test-utils'
 import { Button } from './Button'
 
+// Ícone de exemplo minimalista — evita depender de lucide-react só pra testar
+// o padrão de composição ícone+texto (que não é específico de nenhum ícone).
+function PlusIcon() {
+  return (
+    <svg data-testid="plus-icon" aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}
+
 describe('Button', () => {
   it('should render children content', () => {
     render(<Button>Salvar</Button>)
@@ -64,5 +74,39 @@ describe('Button', () => {
   it('should forward custom className alongside variant classes', () => {
     render(<Button className="my-custom-class">Salvar</Button>)
     expect(screen.getByRole('button', { name: 'Salvar' })).toHaveClass('my-custom-class')
+  })
+
+  it('should render icon and text together with the correct spacing class', () => {
+    render(
+      <Button>
+        <PlusIcon />
+        Novo imóvel
+      </Button>,
+    )
+
+    const button = screen.getByRole('button', { name: 'Novo imóvel' })
+    expect(button).toHaveClass('gap-2')
+    expect(screen.getByTestId('plus-icon')).toBeInTheDocument()
+  })
+
+  it('should require an accessible name via aria-label for icon-only buttons', () => {
+    render(
+      <Button size="icon" aria-label="Excluir imóvel">
+        <PlusIcon />
+      </Button>,
+    )
+
+    expect(screen.getByRole('button', { name: 'Excluir imóvel' })).toBeInTheDocument()
+  })
+
+  it('should have no accessible name when an icon-only button omits aria-label', () => {
+    render(
+      <Button size="icon">
+        <PlusIcon />
+      </Button>,
+    )
+
+    expect(screen.queryByRole('button', { name: 'Excluir imóvel' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button')).not.toHaveAccessibleName()
   })
 })
