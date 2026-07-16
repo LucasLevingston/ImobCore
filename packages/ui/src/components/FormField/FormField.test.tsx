@@ -21,7 +21,7 @@ function TestForm({ onSubmit }: { onSubmit: (data: FormValues) => void }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <form onSubmit={(event) => void form.handleSubmit(onSubmit)(event)} noValidate>
         <FormField
           control={form.control}
           name="email"

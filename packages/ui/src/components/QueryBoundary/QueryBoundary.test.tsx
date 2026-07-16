@@ -42,6 +42,7 @@ describe('QueryBoundary', () => {
   })
 
   it('should fall back to a default message when the thrown value has no message', async () => {
+    // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- rejeição sem .message é o próprio caso testado (getErrorMessage retornando undefined)
     renderBoundary(() => Promise.reject({}))
     expect(await screen.findByText('Não foi possível carregar os dados.')).toBeInTheDocument()
   })
@@ -83,7 +84,7 @@ describe('QueryBoundary', () => {
     })
     // Simula a integração real: onReset também limpa o estado de erro da query
     // no cache (sem isso, useSuspenseQuery re-lançaria o mesmo erro em cache).
-    const onReset = vi.fn(() => queryClient.resetQueries())
+    const onReset = vi.fn(() => void queryClient.resetQueries())
 
     const { user } = renderWithUser(
       <QueryClientProvider client={queryClient}>
