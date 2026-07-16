@@ -10,9 +10,8 @@ interface RenderWithUserResult extends RenderResult {
 // React 19 faz ReactElement's props default pra `unknown`, não `any` — o `any`
 // aqui é o fix oficial do codemod do próprio React pra bater com a assinatura
 // genérica do render() do RTL.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function renderWithUser(
-  ui: ReactElement<any>,
+  ui: ReactElement<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
   options?: RenderOptions,
 ): RenderWithUserResult {
   const user = userEvent.setup()
