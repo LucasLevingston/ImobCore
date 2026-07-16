@@ -41,6 +41,11 @@ describe('QueryBoundary', () => {
     expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeInTheDocument()
   })
 
+  it('should fall back to a default message when the thrown value has no message', async () => {
+    renderBoundary(() => Promise.reject({}))
+    expect(await screen.findByText('Não foi possível carregar os dados.')).toBeInTheDocument()
+  })
+
   it('should render a custom errorFallback when provided instead of the default ErrorState', async () => {
     const queryClient = createQueryClient()
     renderWithUser(

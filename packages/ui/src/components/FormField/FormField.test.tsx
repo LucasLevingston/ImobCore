@@ -92,4 +92,18 @@ describe('FormField', () => {
 
     consoleError.mockRestore()
   })
+
+  it('should throw when FormLabel is used inside a FormItem but outside a FormField', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    expect(() =>
+      renderWithUser(
+        <FormItem>
+          <FormLabel>Email</FormLabel>
+        </FormItem>,
+      ),
+    ).toThrow('FormLabel/FormControl/FormMessage precisam estar dentro de um <FormField>')
+
+    consoleError.mockRestore()
+  })
 })
