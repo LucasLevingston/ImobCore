@@ -51,6 +51,12 @@ export { Layout, type LayoutProps } from './components/Layout'
 export { Pagination, type PaginationProps } from './components/Pagination'
 export { Header, type HeaderProps } from './components/Header'
 export { Logo, type LogoProps } from './components/Logo'
+export {
+  FilterBar,
+  type FilterBarProps,
+  type FilterBarFieldProps,
+  type FilterBarActionsProps,
+} from './components/FilterBar'
 export { Sidebar, type SidebarItem, type SidebarProps } from './components/Sidebar'
 export { Footer, type FooterProps } from './components/Footer'
 export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from './components/Breadcrumb'
