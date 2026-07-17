@@ -18,8 +18,9 @@ WORKDIR /app
 ARG NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:3004
 ENV NEXT_PUBLIC_API_GATEWAY_URL=${NEXT_PUBLIC_API_GATEWAY_URL}
 # npm run --workspace precisa do package.json raiz pra resolver o workspace;
-# tsconfig.json/.eslintrc.json de cada app estendem os arquivos base da raiz
-COPY package.json package-lock.json tsconfig.base.json .eslintrc.base.json ./
+# tsconfig.json de cada app estende tsconfig.base.json; .eslintrc.js é o
+# único config ESLint do monorepo inteiro (sem config por workspace)
+COPY package.json package-lock.json tsconfig.base.json .eslintrc.js ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/auth-frontend/node_modules ./apps/auth-frontend/node_modules
 COPY packages/ui ./packages/ui
