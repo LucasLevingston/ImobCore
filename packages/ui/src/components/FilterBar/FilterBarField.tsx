@@ -6,6 +6,7 @@ import type { FilterBarFieldProps } from './FilterBar.types'
 // que o app consumidor decidir renderizar (Select, range de preço, etc.).
 export function FilterBarField({ label, children, className }: FilterBarFieldProps) {
   return (
+    // biome-ignore lint/a11y/useSemanticElements: fieldset/legend forçaria estilo de borda nativo do browser; role="group" dá a mesma semântica sem isso
     <div role="group" aria-label={label} className={cn('flex flex-col gap-1.5', className)}>
       <span className="text-sm font-medium text-muted-foreground" aria-hidden="true">
         {label}

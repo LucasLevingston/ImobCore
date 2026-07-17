@@ -12,6 +12,7 @@ export const FormLabel = React.forwardRef<
   const { id } = useFormItemContext()
   const { error } = useFormFieldContext()
   return (
+    // biome-ignore lint/a11y/noLabelWithoutControl: htmlFor já associa o control (Biome não enxerga isso por vir de string template); conteúdo chega via children spread em {...props}
     <label
       ref={ref}
       htmlFor={`${id}-control`}

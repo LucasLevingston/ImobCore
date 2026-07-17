@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 const PROTECTED_PATHS = ['/profile']
 const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken'

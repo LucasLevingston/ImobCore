@@ -8,14 +8,14 @@ import type {
   PaginationParams,
   PropertyFilters,
 } from '../../domain/repositories/property-query.types'
-import type {
-  PaginatedResult,
-  DashboardMetrics,
-} from '../../domain/repositories/property-repository-result.types'
 import type { PropertyRepository } from '../../domain/repositories/property-repository'
+import type {
+  DashboardMetrics,
+  PaginatedResult,
+} from '../../domain/repositories/property-repository-result.types'
+import { computeInMemoryDashboardMetrics } from './in-memory-property-dashboard-metrics'
 import { applyPropertyFilters } from './in-memory-property-filters'
 import { paginateProperties } from './in-memory-property-pagination'
-import { computeInMemoryDashboardMetrics } from './in-memory-property-dashboard-metrics'
 
 // Fake em memória — permite testar use cases sem subir Postgres (unit, rápido, determinístico)
 export class InMemoryPropertyRepository implements PropertyRepository {

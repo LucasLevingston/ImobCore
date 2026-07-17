@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { ErrorBoundary, getErrorMessage } from 'react-error-boundary'
-import { Loading } from '../Loading'
 import { ErrorState } from '../Error'
+import { Loading } from '../Loading'
 import type { QueryBoundaryProps } from './QueryBoundary.types'
 
 // SRP: só orquestra loading/erro de uma árvore que usa useSuspenseQuery —

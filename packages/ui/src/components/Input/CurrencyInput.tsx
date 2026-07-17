@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Input } from './Input'
 import type { CurrencyInputProps } from './CurrencyInput.types'
+import { Input } from './Input'
 
 export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
   ({ value, onChange, currency = 'BRL', ...props }, ref) => {

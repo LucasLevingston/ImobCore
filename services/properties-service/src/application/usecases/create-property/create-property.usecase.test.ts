@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
-import { InMemoryPropertyRepository } from '../../../test-utils/fakes/in-memory-property-repository'
 import { makeCreatePropertyInput } from '../../../test-utils/factories/make-create-property-input'
+import { InMemoryPropertyRepository } from '../../../test-utils/fakes/in-memory-property-repository'
 import { CreatePropertyUseCase } from './create-property.usecase'
 
 function makeSut() {

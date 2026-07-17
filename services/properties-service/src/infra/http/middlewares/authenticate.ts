@@ -10,7 +10,7 @@ export function makeAuthenticate(tokenProvider: TokenProvider) {
   return async function authenticate(request: FastifyRequest, _reply: FastifyReply): Promise<void> {
     const header = request.headers.authorization
 
-    if (!header || !header.startsWith(BEARER_PREFIX)) {
+    if (!header?.startsWith(BEARER_PREFIX)) {
       throw new UnauthorizedError('Token de acesso ausente.')
     }
 

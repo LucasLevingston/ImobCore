@@ -4,6 +4,7 @@
 // não funcionou (ver comentário em auth-frontend/next.config.js).
 declare module 'authFrontend/Header' {
   import type { ComponentType } from 'react'
+
   const Header: ComponentType
   export default Header
 }

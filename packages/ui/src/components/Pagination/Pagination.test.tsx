@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { renderWithUser } from '../../test-utils'
 import { Pagination } from './Pagination'
 

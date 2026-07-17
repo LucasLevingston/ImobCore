@@ -1,5 +1,5 @@
-import { toastStore } from './toast-store'
 import type { ToastData, ToastInput } from './toast.types'
+import { toastStore } from './toast-store'
 
 let toastCount = 0
 function generateId(): string {

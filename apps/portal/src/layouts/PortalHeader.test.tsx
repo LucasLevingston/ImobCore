@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
-import { render, screen } from '@testing-library/react'
 import { ThemeProvider } from '@microfrontends/ui'
+import { render, screen } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
 import { SessionContext } from '../contexts/SessionContext'
 import type { SessionContextValue } from '../contexts/SessionContext.types'
 import { PortalHeader } from './PortalHeader'

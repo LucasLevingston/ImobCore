@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest'
 import { screen } from '@testing-library/react'
-import { renderWithUser } from '../test-utils/renderWithUser'
+import { describe, expect, it } from 'vitest'
 import { SessionContext } from '../contexts/SessionContext'
 import type { SessionContextValue } from '../contexts/SessionContext.types'
+import { renderWithUser } from '../test-utils/renderWithUser'
 import { PortalGreeting } from './PortalGreeting'
 
 function renderGreeting(value: SessionContextValue) {

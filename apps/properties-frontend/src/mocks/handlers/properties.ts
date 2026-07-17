@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
 import type { DashboardMetrics, PaginatedResult, Property } from '../../types/property'
 
 const BASE = process.env.NEXT_PUBLIC_API_GATEWAY_URL ?? 'http://localhost:3004'

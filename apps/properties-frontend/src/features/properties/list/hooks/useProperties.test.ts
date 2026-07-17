@@ -1,7 +1,7 @@
 import { waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { renderHookWithProviders } from '../../../../test-utils/renderHookWithProviders'
 import { MOCK_PROPERTY } from '../../../../mocks/handlers/properties'
+import { renderHookWithProviders } from '../../../../test-utils/renderHookWithProviders'
 import { useProperties } from './useProperties'
 
 describe('useProperties', () => {

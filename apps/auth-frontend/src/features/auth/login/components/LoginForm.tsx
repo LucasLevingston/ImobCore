@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Input } from '@microfrontends/ui'
 import { useForm } from 'react-hook-form'
 import { useLogin } from '../hooks/useLogin'
-import { loginSchema, type LoginFormValues } from '../schemas/login.schema'
+import { type LoginFormValues, loginSchema } from '../schemas/login.schema'
 import type { LoginFormProps } from './LoginForm.types'
 
 export function LoginForm({ onSuccess = () => {} }: LoginFormProps) {

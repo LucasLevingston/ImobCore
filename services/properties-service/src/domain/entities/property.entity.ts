@@ -1,5 +1,11 @@
 export type PropertyType =
-  'Apartment' | 'House' | 'Land' | 'Commercial' | 'Farm' | 'Studio' | 'Penthouse'
+  | 'Apartment'
+  | 'House'
+  | 'Land'
+  | 'Commercial'
+  | 'Farm'
+  | 'Studio'
+  | 'Penthouse'
 
 export type PropertyStatus = 'Available' | 'Reserved' | 'Sold' | 'Rented' | 'Inactive'
 

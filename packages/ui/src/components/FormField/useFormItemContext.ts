@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { FormItemContext } from './form-item-context'
 import type { FormItemContextValue } from './form-context.types'
+import { FormItemContext } from './form-item-context'
 
 export function useFormItemContext(): FormItemContextValue {
   const context = React.useContext(FormItemContext)

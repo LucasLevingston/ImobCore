@@ -1,5 +1,5 @@
 export { ThemeProvider } from './ThemeProvider'
-export { useTheme } from './useTheme'
-export type { Theme, ThemeContextValue, ThemeProviderProps } from './theme.types'
 export { ThemeToggle } from './ThemeToggle'
 export type { ThemeToggleProps } from './ThemeToggle.types'
+export type { Theme, ThemeContextValue, ThemeProviderProps } from './theme.types'
+export { useTheme } from './useTheme'

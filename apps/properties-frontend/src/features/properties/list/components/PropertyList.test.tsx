@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { renderWithProviders } from '../../../../test-utils/renderWithProviders'
 import { MOCK_PROPERTY } from '../../../../mocks/handlers/properties'
+import { renderWithProviders } from '../../../../test-utils/renderWithProviders'
 import { PropertyList } from './PropertyList'
 
 describe('PropertyList', () => {

@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query'
+import { type UseQueryResult, useQuery } from '@tanstack/react-query'
 import { sessionService } from '../services/session.service'
 import type { SessionUser } from '../services/session.service.types'
 import { SESSION_QUERY_KEY } from './useSession.constants'

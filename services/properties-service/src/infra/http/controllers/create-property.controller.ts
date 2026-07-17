@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { CreatePropertyInput } from '../../../application/dto/create-property.dto'
-import type { CreatePropertyUseCase } from '../../../application/usecases/create-property/create-property.usecase'
 import { UnauthorizedError } from '../../../application/errors/unauthorized-error'
+import type { CreatePropertyUseCase } from '../../../application/usecases/create-property/create-property.usecase'
 import { toPropertyResponse } from '../mappers/property-response.mapper'
 
 // Body já validado pelo schema Zod registrado na rota (property.routes.ts) —

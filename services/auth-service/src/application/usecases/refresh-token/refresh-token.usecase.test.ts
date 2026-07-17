@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { InMemoryRefreshTokenRepository } from '../../../test-utils/fakes/in-memory-refresh-token-repository'
-import { InMemoryUserRepository } from '../../../test-utils/fakes/in-memory-user-repository'
 import { makeRefreshToken } from '../../../test-utils/factories/make-refresh-token'
 import { makeUser } from '../../../test-utils/factories/make-user'
+import { InMemoryRefreshTokenRepository } from '../../../test-utils/fakes/in-memory-refresh-token-repository'
+import { InMemoryUserRepository } from '../../../test-utils/fakes/in-memory-user-repository'
 import { UnauthorizedError } from '../../errors/unauthorized-error'
 import { RefreshTokenUseCase } from './refresh-token.usecase'
 

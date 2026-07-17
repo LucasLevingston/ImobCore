@@ -9,7 +9,6 @@ describe('createPropertySchema', () => {
   })
 
   it('should default status to Available when omitted', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { status, ...rest } = makeCreatePropertyInput()
     const result = createPropertySchema.safeParse(rest)
     expect(result.success).toBe(true)

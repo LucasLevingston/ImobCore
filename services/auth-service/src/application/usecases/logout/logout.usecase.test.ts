@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { InMemoryRefreshTokenRepository } from '../../../test-utils/fakes/in-memory-refresh-token-repository'
 import { makeRefreshToken } from '../../../test-utils/factories/make-refresh-token'
+import { InMemoryRefreshTokenRepository } from '../../../test-utils/fakes/in-memory-refresh-token-repository'
 import { LogoutUseCase } from './logout.usecase'
 
 function makeSut() {

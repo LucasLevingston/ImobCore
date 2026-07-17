@@ -13,10 +13,10 @@ import { LoginUseCase } from '../../application/usecases/login/login.usecase'
 import { LogoutUseCase } from '../../application/usecases/logout/logout.usecase'
 import { RefreshTokenUseCase } from '../../application/usecases/refresh-token/refresh-token.usecase'
 import { RegisterUserUseCase } from '../../application/usecases/register-user/register-user.usecase'
+import type { AppDependencies } from './app.types'
 import { makeAuthenticate } from './middlewares/authenticate'
 import { errorHandler } from './middlewares/error-handler'
 import { registerAuthRoutes } from './routes/auth.routes'
-import type { AppDependencies } from './app.types'
 
 // Nunca logar senha, Authorization ou cookie — mesmo em erro (docs seção 26).
 // Corpo de /register e /login carrega "password" em texto puro na requisição.

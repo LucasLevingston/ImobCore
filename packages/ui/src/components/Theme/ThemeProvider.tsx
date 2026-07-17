@@ -1,8 +1,8 @@
 'use client'
 
 import * as React from 'react'
-import { ThemeContext } from './theme-context'
 import type { Theme, ThemeContextValue, ThemeProviderProps } from './theme.types'
+import { ThemeContext } from './theme-context'
 
 function getSystemPreference(): Theme {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {

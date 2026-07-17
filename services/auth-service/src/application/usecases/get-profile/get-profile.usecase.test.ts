@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { InMemoryUserRepository } from '../../../test-utils/fakes/in-memory-user-repository'
 import { makeUser } from '../../../test-utils/factories/make-user'
+import { InMemoryUserRepository } from '../../../test-utils/fakes/in-memory-user-repository'
 import { NotFoundError } from '../../errors/not-found-error'
 import { GetProfileUseCase } from './get-profile.usecase'
 

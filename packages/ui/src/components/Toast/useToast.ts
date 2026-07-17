@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { toast } from './trigger-toast'
-import { toastStore } from './toast-store'
 import type { ToastState } from './toast.types'
+import { toastStore } from './toast-store'
+import { toast } from './trigger-toast'
 
 export function useToast() {
   const [state, setState] = React.useState<ToastState>(toastStore.getState())

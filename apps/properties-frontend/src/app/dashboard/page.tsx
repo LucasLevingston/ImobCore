@@ -1,7 +1,7 @@
 'use client'
 
-import { MetricsCards, useDashboardMetrics } from '@/features/dashboard'
 import { ErrorState, Loading } from '@microfrontends/ui'
+import { MetricsCards, useDashboardMetrics } from '@/features/dashboard'
 
 export default function DashboardPage() {
   const { data, isLoading, isError, refetch } = useDashboardMetrics()
