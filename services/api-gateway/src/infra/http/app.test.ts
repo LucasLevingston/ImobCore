@@ -1,7 +1,8 @@
 import type { FastifyInstance } from 'fastify'
 import request from 'supertest'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
-import { startFakeUpstream, type FakeUpstream } from '../../test-utils/fake-upstream'
+import { startFakeUpstream } from '../../test-utils/fake-upstream'
+import type { FakeUpstream } from '../../test-utils/fake-upstream.types'
 import { buildApp } from './app'
 
 describe('api-gateway', () => {

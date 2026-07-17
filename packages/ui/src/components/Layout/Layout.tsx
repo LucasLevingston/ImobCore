@@ -1,11 +1,5 @@
-import * as React from 'react'
 import { cn } from '../../lib/utils'
-
-export interface LayoutProps {
-  children: React.ReactNode
-  fullWidth?: boolean
-  className?: string
-}
+import type { LayoutProps } from './Layout.types'
 
 export function Layout({ children, fullWidth = false, className }: LayoutProps) {
   return (

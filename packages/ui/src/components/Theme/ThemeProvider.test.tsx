@@ -1,7 +1,8 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { renderWithUser } from '../../test-utils'
-import { ThemeProvider, useTheme } from './ThemeProvider'
+import { ThemeProvider } from './ThemeProvider'
+import { useTheme } from './useTheme'
 
 function Consumer() {
   const { theme, setTheme, toggleTheme } = useTheme()

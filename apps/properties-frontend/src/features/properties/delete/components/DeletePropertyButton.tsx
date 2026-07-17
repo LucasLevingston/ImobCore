@@ -12,11 +12,7 @@ import {
 } from '@microfrontends/ui'
 import { useState } from 'react'
 import { useDeleteProperty } from '../hooks/useDeleteProperty'
-
-export interface DeletePropertyButtonProps {
-  propertyId: string
-  onDeleted?: () => void
-}
+import type { DeletePropertyButtonProps } from './DeletePropertyButton.types'
 
 export function DeletePropertyButton({
   propertyId,

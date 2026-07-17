@@ -1,9 +1,5 @@
-import type { Property } from '../../../../types/property'
 import { PropertyCard } from './PropertyCard'
-
-export interface PropertyListProps {
-  properties: Property[]
-}
+import type { PropertyListProps } from './PropertyList.types'
 
 export function PropertyList({ properties }: PropertyListProps) {
   if (properties.length === 0) {

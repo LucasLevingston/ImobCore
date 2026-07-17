@@ -1,6 +1,6 @@
 import type { Property } from '../../../domain/entities/property.entity'
 import type { PropertyRepository } from '../../../domain/repositories/property-repository'
-import type { UpdatePropertyInput } from '../../dto/update-property.dto'
+import type { UpdatePropertyInput } from '../../dto/update-property.types'
 import { NotFoundError } from '../../errors/not-found-error'
 
 export class UpdatePropertyUseCase {

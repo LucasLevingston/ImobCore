@@ -8,12 +8,7 @@ import {
   type PropertyStatus,
   type PropertyType,
 } from '../../../../types/property'
-import type { PropertyFilterValues } from '../types'
-
-export interface PropertyFiltersProps {
-  initialValues?: PropertyFilterValues | undefined
-  onApply: (filters: PropertyFilterValues) => void
-}
+import type { PropertyFiltersProps } from './PropertyFilters.types'
 
 export function PropertyFilters({ initialValues, onApply }: PropertyFiltersProps) {
   const [q, setQ] = useState(initialValues?.q ?? '')

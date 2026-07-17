@@ -1,9 +1,7 @@
-export {
-  Modal,
-  ModalContent,
-  ModalDescription,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  ModalTrigger,
-} from './Modal'
+export { Modal } from './Modal'
+export { ModalContent } from './ModalContent'
+export { ModalDescription } from './ModalDescription'
+export { ModalFooter } from './ModalFooter'
+export { ModalHeader } from './ModalHeader'
+export { ModalTitle } from './ModalTitle'
+export { ModalTrigger } from './ModalTrigger'

@@ -5,10 +5,7 @@ import { Button, Input } from '@microfrontends/ui'
 import { useForm } from 'react-hook-form'
 import { useLogin } from '../hooks/useLogin'
 import { loginSchema, type LoginFormValues } from '../schemas/login.schema'
-
-export interface LoginFormProps {
-  onSuccess?: () => void
-}
+import type { LoginFormProps } from './LoginForm.types'
 
 export function LoginForm({ onSuccess = () => {} }: LoginFormProps) {
   const {

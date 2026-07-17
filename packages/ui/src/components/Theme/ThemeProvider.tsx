@@ -1,20 +1,9 @@
 'use client'
 
 import * as React from 'react'
+import { ThemeContext } from './theme-context'
+import type { Theme, ThemeContextValue, ThemeProviderProps } from './theme.types'
 
-export type Theme = 'light' | 'dark'
-
-export interface ThemeContextValue {
-  theme: Theme
-  setTheme: (theme: Theme) => void
-  toggleTheme: () => void
-}
-
-const ThemeContext = React.createContext<ThemeContextValue | undefined>(undefined)
-
-// Mecanismo de tema vive aqui (não no app consumidor) — mesmo racional do
-// Toast: o design system é dono do CSS (.dark em globals.css, darkMode:['class']
-// no preset Tailwind), então o toggle da classe também é responsabilidade dele.
 function getSystemPreference(): Theme {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
     return 'light'
@@ -31,12 +20,6 @@ function getInitialTheme(storageKey: string, defaultTheme?: Theme): Theme {
     return stored
   }
   return defaultTheme ?? getSystemPreference()
-}
-
-export interface ThemeProviderProps {
-  children: React.ReactNode
-  storageKey?: string
-  defaultTheme?: Theme
 }
 
 export function ThemeProvider({
@@ -67,12 +50,4 @@ export function ThemeProvider({
   )
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
-}
-
-export function useTheme(): ThemeContextValue {
-  const context = React.useContext(ThemeContext)
-  if (!context) {
-    throw new Error('useTheme deve ser usado dentro de um ThemeProvider')
-  }
-  return context
 }

@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { LogoutUseCase } from '../../../application/usecases/logout/logout.usecase'
-import { REFRESH_TOKEN_COOKIE_NAME } from '../cookies/refresh-token-cookie'
+import { REFRESH_TOKEN_COOKIE_NAME } from '../cookies/refresh-token-cookie.constants'
 
 export function makeLogoutController(useCase: LogoutUseCase) {
   return async function logoutController(request: FastifyRequest, reply: FastifyReply) {

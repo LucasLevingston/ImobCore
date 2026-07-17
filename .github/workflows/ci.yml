@@ -20,18 +20,11 @@ env:
   NEXT_PUBLIC_API_GATEWAY_URL: http://localhost:3004
   NEXT_PUBLIC_AUTH_FRONTEND_URL: http://localhost:3000
 
+# Ordem intencionalmente sequencial (needs: em cadeia, não paralelo): falha
+# rápido na etapa mais barata primeiro — typecheck é o mais rápido de rodar
+# e o mais comum de quebrar; build (compila 3 apps Next.js) é o mais caro,
+# só roda depois de tudo mais já ter passado.
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: npm
-      - run: npm ci
-      - run: npm run lint --workspaces --if-present
-
   typecheck:
     runs-on: ubuntu-latest
     steps:
@@ -43,8 +36,24 @@ jobs:
       - run: npm ci
       - run: npm run typecheck --workspaces --if-present
 
+  lint:
+    runs-on: ubuntu-latest
+    needs: typecheck
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      # inclui as regras de arquitetura em .eslintrc.base.json (max-lines,
+      # 1 função por arquivo, sem misturar function/type/const exportados,
+      # import/no-cycle) — não é só estilo, é a "porta" de SOLID/desacoplamento
+      - run: npm run lint --workspaces --if-present
+
   test:
     runs-on: ubuntu-latest
+    needs: lint
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -57,9 +66,68 @@ jobs:
       # cobertura" já é o próprio job de test, não precisa de um job separado
       - run: npm run test:coverage --workspaces --if-present
 
+  orval:
+    runs-on: ubuntu-latest
+    needs: test
+    # Sobe auth-service/properties-service de verdade (não fakes) contra um
+    # Postgres real, e roda `orval` contra a spec OpenAPI que eles expõem —
+    # falha rápido se uma mudança de rota/schema quebrar a geração do client
+    # TS (ex: um tipo Zod que zod-to-json-schema não sabe converter), antes
+    # de chegar no job de build (mais caro) ou pior, em produção.
+    services:
+      postgres-auth:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: auth_db
+        ports: ['5433:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      postgres-properties:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: properties_db
+        ports: ['5434:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run prisma:deploy --workspace=auth-service
+      - run: npm run prisma:deploy --workspace=properties-service
+      - name: Start auth-service in background
+        run: npx tsx --import ./services/auth-service/src/main/tracing.ts services/auth-service/src/main/server.ts &
+        env:
+          NODE_ENV: development
+      - name: Start properties-service in background
+        run: npx tsx --import ./services/properties-service/src/main/tracing.ts services/properties-service/src/main/server.ts &
+        env:
+          NODE_ENV: development
+      - name: Wait for services to be ready
+        run: npx wait-on http://localhost:3001/health http://localhost:3002/health --timeout 30000
+      - run: npm run generate:api --workspace=auth-frontend
+        env:
+          AUTH_SERVICE_OPENAPI_URL: http://localhost:3001/docs/json
+      - run: npm run generate:api --workspace=properties-frontend
+        env:
+          PROPERTIES_SERVICE_OPENAPI_URL: http://localhost:3002/docs/json
+
   build:
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, test]
+    needs: orval
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

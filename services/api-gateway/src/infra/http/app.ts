@@ -5,7 +5,9 @@ import rateLimit from '@fastify/rate-limit'
 import Fastify, { type FastifyInstance } from 'fastify'
 import { pingUpstream } from './ping-upstream'
 import { resolveRequestId } from './plugins/request-id'
-import { isOriginAllowed, isMutatingMethod } from './plugins/origin-guard'
+import { isOriginAllowed } from './plugins/origin-guard'
+import { isMutatingMethod } from './plugins/is-mutating-method'
+import type { AppDependencies } from './app.types'
 
 // Nunca logar Authorization ou cookie (refresh token), mesmo em erro (docs
 // seção 26) — o gateway só transporta esses headers, nunca os inspeciona
@@ -14,15 +16,6 @@ const REDACT_PATHS = [
   'req.headers.cookie',
   'res.headers["set-cookie"]',
 ]
-
-export interface AppDependencies {
-  authServiceUrl: string
-  propertiesServiceUrl: string
-  corsOrigin: string | string[]
-  logger?: boolean
-  rateLimitMax?: number
-  rateLimitTimeWindow?: string
-}
 
 // Composition root do gateway: só proxy + cross-cutting (CORS, rate-limit,
 // request-id, health agregado) — nunca regra de negócio (docs seção 04a).

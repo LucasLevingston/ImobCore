@@ -1,10 +1,5 @@
 import { Button } from '@microfrontends/ui'
-
-export interface PaginationProps {
-  page: number
-  totalPages: number
-  onPageChange: (page: number) => void
-}
+import type { PaginationProps } from './Pagination.types'
 
 export function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
   if (totalPages <= 1) {

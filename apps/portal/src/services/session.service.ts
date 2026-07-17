@@ -1,11 +1,5 @@
 import { apiClient } from '../lib/api-client'
-
-export interface SessionUser {
-  id: string
-  name: string
-  email: string
-  createdAt: string
-}
+import type { SessionUser } from './session.service.types'
 
 export const sessionService = {
   getMe: () => apiClient.get<SessionUser>('/api/auth/me'),

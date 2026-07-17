@@ -1,7 +1,5 @@
 import type { CookieSerializeOptions } from '@fastify/cookie'
 
-export const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken'
-
 // Centraliza as opções do cookie — evita duplicar httpOnly/secure/sameSite
 // em login/refresh/logout (DRY) e mantém a política de segurança num único lugar.
 export function refreshTokenCookieOptions(maxAgeMs: number): CookieSerializeOptions {

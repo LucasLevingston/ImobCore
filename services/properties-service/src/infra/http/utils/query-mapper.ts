@@ -2,7 +2,7 @@ import type { ListPropertiesQuery } from '../../../application/dto/list-properti
 import type {
   PaginationParams,
   PropertyFilters,
-} from '../../../domain/repositories/property-repository'
+} from '../../../domain/repositories/property-query.types'
 
 export function toFiltersAndPagination(query: ListPropertiesQuery): {
   filters: PropertyFilters

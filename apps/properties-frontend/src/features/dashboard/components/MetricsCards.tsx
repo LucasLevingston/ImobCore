@@ -1,11 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@microfrontends/ui'
-import type { DashboardMetrics } from '../../../types/property'
+import type { MetricsCardsProps } from './MetricsCards.types'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-
-export interface MetricsCardsProps {
-  metrics: DashboardMetrics
-}
 
 export function MetricsCards({ metrics }: MetricsCardsProps) {
   return (

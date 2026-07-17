@@ -1,13 +1,6 @@
 import { apiClient } from '../../../../lib/api-client'
 import type { PaginatedResult, Property } from '../../../../types/property'
-import type { PropertyFilterValues } from '../types'
-
-export interface ListPropertiesParams extends PropertyFilterValues {
-  page?: number
-  limit?: number
-  sortBy?: 'price' | 'area' | 'bedrooms' | 'createdAt'
-  sortOrder?: 'asc' | 'desc'
-}
+import type { ListPropertiesParams } from './list-properties.service.types'
 
 function toQueryString(params: ListPropertiesParams): string {
   const query = new URLSearchParams()

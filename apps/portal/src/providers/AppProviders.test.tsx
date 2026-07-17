@@ -3,7 +3,7 @@ import { screen, waitFor } from '@testing-library/react'
 import { render } from '@testing-library/react'
 import { useTheme } from '@microfrontends/ui'
 import { MOCK_USER } from '../mocks/handlers/auth'
-import { useSessionContext } from '../contexts/SessionContext'
+import { useSessionContext } from '../contexts/useSessionContext'
 import { AppProviders } from './AppProviders'
 
 function Consumer() {

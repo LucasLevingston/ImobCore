@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { SessionContext, useSessionContext } from './SessionContext'
+import { SessionContext } from './SessionContext'
+import { useSessionContext } from './useSessionContext'
 
 function Consumer() {
   const { user, isAuthenticated, isLoading } = useSessionContext()

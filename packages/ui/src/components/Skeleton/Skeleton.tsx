@@ -1,10 +1,6 @@
 import * as React from 'react'
 import { cn } from '../../lib/utils'
-
-// SRP: só é a forma pulsante — não sabe nada sobre o layout de nenhuma
-// entidade de domínio. Composições específicas (skeleton de card de imóvel,
-// por exemplo) ficam no app consumidor, empilhando vários Skeleton via className.
-export type SkeletonProps = React.HTMLAttributes<HTMLDivElement>
+import type { SkeletonProps } from './Skeleton.types'
 
 export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
   ({ className, ...props }, ref) => {

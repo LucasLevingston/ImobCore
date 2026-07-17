@@ -1,9 +1,5 @@
 import type { Property } from '../../../domain/entities/property.entity'
-
-export type PropertyResponse = Omit<Property, 'createdAt' | 'updatedAt'> & {
-  createdAt: string
-  updatedAt: string
-}
+import type { PropertyResponse } from './property-response.mapper.types'
 
 export function toPropertyResponse(property: Property): PropertyResponse {
   return {

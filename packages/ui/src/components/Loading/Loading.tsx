@@ -1,17 +1,7 @@
 import { Loader2 } from 'lucide-react'
 import { cn } from '../../lib/utils'
-
-const sizeClasses = {
-  sm: 'h-4 w-4',
-  md: 'h-5 w-5',
-  lg: 'h-8 w-8',
-} as const
-
-export interface LoadingProps {
-  label?: string
-  size?: keyof typeof sizeClasses
-  className?: string
-}
+import { sizeClasses } from './Loading.constants'
+import type { LoadingProps } from './Loading.types'
 
 export function Loading({ label = 'Carregando...', size = 'md', className }: LoadingProps) {
   return (

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { Sidebar, type SidebarItem } from './Sidebar'
+import { Sidebar } from './Sidebar'
+import type { SidebarItem } from './Sidebar.types'
 
 const items: SidebarItem[] = [
   { label: 'Produtos', href: '/products' },

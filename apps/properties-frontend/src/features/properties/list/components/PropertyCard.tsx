@@ -1,13 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@microfrontends/ui'
 import Link from 'next/link'
 import { memo } from 'react'
-import type { Property } from '../../../../types/property'
+import type { PropertyCardProps } from './PropertyCard.types'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-
-export interface PropertyCardProps {
-  property: Property
-}
 
 // memo: PropertyList re-renderiza a cada mudança de página/filtro — sem
 // isso, todo card já renderizado re-executaria mesmo com a mesma `property`

@@ -1,11 +1,5 @@
 import type { User } from '../../../domain/entities/user.entity'
-
-export interface UserResponse {
-  id: string
-  name: string
-  email: string
-  createdAt: string
-}
+import type { UserResponse } from './user-response.mapper.types'
 
 // Nunca inclui passwordHash — fronteira explícita entre entidade de domínio e resposta HTTP
 export function toUserResponse(user: User): UserResponse {

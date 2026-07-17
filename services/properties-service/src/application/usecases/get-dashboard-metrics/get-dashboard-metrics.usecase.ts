@@ -1,7 +1,5 @@
-import type {
-  DashboardMetrics,
-  PropertyRepository,
-} from '../../../domain/repositories/property-repository'
+import type { PropertyRepository } from '../../../domain/repositories/property-repository'
+import type { DashboardMetrics } from '../../../domain/repositories/property-repository-result.types'
 
 export class GetDashboardMetricsUseCase {
   constructor(private readonly propertyRepository: PropertyRepository) {}

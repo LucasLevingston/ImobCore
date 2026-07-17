@@ -1,0 +1,28 @@
+import type { PropertyFormValues } from '../schemas/property-form.schema'
+
+export const EMPTY_DEFAULTS: PropertyFormValues = {
+  title: '',
+  description: '',
+  type: 'Apartment',
+  status: 'Available',
+  price: 0,
+  condominiumFee: null,
+  iptu: null,
+  bedrooms: 0,
+  bathrooms: 0,
+  garageSpaces: 0,
+  area: 0,
+  lotArea: null,
+  floor: null,
+  furnished: false,
+  acceptsFinancing: false,
+  acceptsPets: false,
+  address: '',
+  number: '',
+  district: '',
+  city: '',
+  state: '',
+  zipCode: '',
+  latitude: null,
+  longitude: null,
+}

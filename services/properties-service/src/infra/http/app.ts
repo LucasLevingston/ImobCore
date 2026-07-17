@@ -14,11 +14,10 @@ import { GetPropertyUseCase } from '../../application/usecases/get-property/get-
 import { ListPropertiesUseCase } from '../../application/usecases/list-properties/list-properties.usecase'
 import { SearchPropertiesUseCase } from '../../application/usecases/search-properties/search-properties.usecase'
 import { UpdatePropertyUseCase } from '../../application/usecases/update-property/update-property.usecase'
-import type { TokenProvider } from '../../domain/cryptography/token-provider'
-import type { PropertyRepository } from '../../domain/repositories/property-repository'
 import { makeAuthenticate } from './middlewares/authenticate'
 import { errorHandler } from './middlewares/error-handler'
 import { registerPropertyRoutes } from './routes/property.routes'
+import type { AppDependencies } from './app.types'
 
 // Nunca logar Authorization ou cookie, mesmo em erro (docs seção 26) — este
 // service não tem body sensível (sem senha/token), só headers de sessão
@@ -27,13 +26,6 @@ const REDACT_PATHS = [
   'req.headers.cookie',
   'res.headers["set-cookie"]',
 ]
-
-export interface AppDependencies {
-  propertyRepository: PropertyRepository
-  tokenProvider: TokenProvider
-  checkReadiness?: () => Promise<boolean>
-  logger?: boolean
-}
 
 // Composition root: monta plugins, use cases e rotas a partir de dependências
 // injetadas — testes passam fakes, main/server.ts passa implementações Prisma reais.
