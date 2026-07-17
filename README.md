@@ -1,6 +1,6 @@
 # Plataforma SaaS para Imobiliárias — Micro Frontends + Microservices
 
-Monorepo (npm workspaces) com 2 Micro Frontends e 2 Microservices independentes, seguindo Clean Architecture, SOLID e TDD (cobertura mínima 95%). Domínio: gestão de imóveis para imobiliárias, com arquitetura preparada para IA (recomendação de imóveis, geração de descrição).
+Monorepo (npm workspaces) com um App Shell, 2 Micro Frontends e 2 Microservices independentes, seguindo Clean Architecture, SOLID e TDD (cobertura mínima 95%, ~680 testes na árvore toda). Domínio: gestão de imóveis para imobiliárias, com arquitetura preparada para IA (recomendação de imóveis, geração de descrição) e um pipeline de validação de commit/PR que impõe as mesmas regras de arquitetura via lint customizado.
 
 📖 **Documentação completa de arquitetura:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — objetivo, requisitos, todas as decisões técnicas (Module Federation, Clean Architecture, segurança, observabilidade, CI/CD, critérios de aceite, regras de desenvolvimento).
 
@@ -92,7 +92,9 @@ services/
   properties-service/    Microservice de imóveis (CRUD, busca, filtros, regras de negócio, contratos de IA)
   api-gateway/           Proxy único pros services (CORS, rate-limit, request-id) — sem regra de negócio
 packages/
-  ui/                    Design system compartilhado (shadcn/ui)
+  ui/                      Design system compartilhado (shadcn/ui) — fonte Inter, animações de overlay via tw-animate-css
+  validation-schemas/      Schemas Zod compartilhados (contrato único entre DTO de backend, form de frontend e OpenAPI)
+  module-federation-utils/ Helper de shared deps do Module Federation (getSharedDependencies)
 ```
 
 ## Roadmap de fases
@@ -108,10 +110,12 @@ packages/
 - [x] **Fase 7** — Observabilidade real (OpenTelemetry tracing HTTP+Prisma, correlação `x-request-id` ponta-a-ponta), segurança (CSRF Origin/Referer guard no `api-gateway`, Pino `redact`, `connection_limit` no Prisma), `error.tsx`/`React.memo` nos frontends, e documentação final consolidada (diagrama do pipeline de requisição no `api-gateway`) — `api-gateway` com 33 testes, cobertura ≥95%
 - [x] **Fase 8** — `apps/portal` (App Shell, TDD — layout global, navegação, providers, `SessionContext`/guard de sessão, contratos de Module Federation) + 6 novos primitivos em `packages/ui` (`Footer`, `Breadcrumb`, `Avatar`, `DropdownMenu`, `ThemeProvider`/`ThemeToggle`, `Sidebar` recolhível) — `portal` com 92 testes, `packages/ui` com 97 testes, cobertura ≥95% em ambos
 - [x] **Fase 9** — Atualização de dependências nos 7 workspaces: React 18→19, Next.js 15→16 (`--webpack` nos 2 apps com Module Federation, Turbopack padrão no `portal`), Prisma 5→7 (driver adapter + `prisma.config.ts`, seção 12), Tailwind v3→v4 (CSS-first, seção 08), + 10 outras majors (fastify plugins, `bcryptjs`, `@hookform/resolvers`+`react-hook-form`, `lucide-react`, `tailwind-merge`, `jsdom`, `vitest`+`@vitest/coverage-v8`+`@vitejs/plugin-react`/Vite 8) — `@testcontainers/postgresql` v12 **não** atualizado (exige Node ≥22.19, nosso runtime é Node 20 — bloqueio de versão documentado, não escolha). 561 testes existentes (nenhum novo nesta fase) validados contra toda a árvore de dependências nova + smoke test manual de MF (dev server) + build completo do `docker compose` com os 7 containers de pé
+- [x] **Fase 10** — `packages/validation-schemas` (schemas Zod compartilhados entre DTO de backend, form de frontend e contrato de API — elimina a validação duplicada) + spec OpenAPI real nos 2 domain services via `fastify-type-provider-zod` (`@fastify/swagger`+`@fastify/swagger-ui`, `/docs` só fora de produção) + Orval gerando clients TanStack Query tipados a partir do spec (`apps/*/src/generated/`, gitignored, `npm run generate:api`)
+- [x] **Fase 11** — Pipeline de validação de commit/PR: regras de ESLint próprias (`eslint-local-rules.js`) impondo SOLID no nível de arquivo — 1 função exportada por arquivo, sem misturar `function`/`type`/`const` não relacionados no mesmo arquivo (exceto schema Zod + seu `z.infer`), máximo 100 linhas por arquivo, `import/no-cycle` — rodando em `error` (bloqueante) via Husky `pre-push` (`typecheck → lint → test → build`) e CI sequencial (`typecheck → lint → test → orval → build → docker-build`). ~90 arquivos refatorados nos 9 workspaces pra conformidade (extração de tipos/constantes/variants pra arquivos-irmãos, split de componentes com múltiplos exports). `packages/ui` também ganhou polish visual: fonte Inter (antes nenhuma era declarada), animações de entrada/saída em `Modal`/`Toast`/`DropdownMenu` via `tw-animate-css`, `focus-visible` em links que não tinham
 
 > **Nota de domínio:** o projeto nasceu como demo genérica de "produtos" e foi redirecionado para o domínio de imobiliárias antes da Fase 4/5 começarem — não há dado ou código de "Product" implementado para migrar, só o rename do planejamento. Ver `docs/ARCHITECTURE.md` para o histórico da decisão.
 
-## Como rodar (estado atual — Fases 0–6 concluídas)
+## Como rodar (estado atual — Fases 0–11 concluídas)
 
 ```bash
 npm install                 # instala deps de todos os workspaces
@@ -147,7 +151,44 @@ Cada app/service tem seu próprio `Dockerfile` e é build/deployado de forma ind
 
 ## CI/CD
 
-`.github/workflows/ci.yml` — lint, typecheck, test (com gate de cobertura 95% embutido nos thresholds do Vitest) e build rodam em todo PR/push pra `develop`/`main`; build das 5 imagens Docker roda em push pra `main`. Detalhes: `docs/ARCHITECTURE.md` seção 21.
+`.github/workflows/ci.yml` roda sequencial em todo PR/push pra `develop`/`main`: **typecheck → lint → test** (gate de cobertura 95% embutido nos thresholds do Vitest) **→ orval** (sobe Postgres real + os 2 domain services, valida que a geração de client contra o spec `/docs/json` ao vivo não quebra) **→ build**; build das 5 imagens Docker roda em push pra `main`. Localmente, o mesmo gate (exceto `orval`, pesado demais pra hook local) roda no `pre-push` do Husky via `npm run validate`. Detalhes: `docs/ARCHITECTURE.md` seção 21.
+
+## Funcionalidades futuras (roadmap de produto)
+
+Hoje a plataforma cobre só CRUD de imóveis + autenticação. Mapeamento completo (o que é, por que importa, onde entra na arquitetura, complexidade, dependências) em [`docs/FEATURE-ROADMAP.md`](docs/FEATURE-ROADMAP.md) — nada abaixo está implementado, é planejamento.
+
+**Fundação (decide cedo, fica caro adiar depois):**
+
+- Multi-tenancy — várias imobiliárias na mesma plataforma (o "S" de SaaS no título ainda não existe de fato)
+- Corretores/Equipe — `role`/hierarquia em `User`, pré-requisito de quase tudo que depende de "quem pode ver o quê"
+
+**Núcleo operacional (o que a imobiliária mais sente falta hoje):**
+
+- CRM — clientes/leads, funil lead→visita→proposta→fechamento
+- Agendamento de visitas
+- Propostas e negociação
+- Notificações (email/push/SMS) — primeira mensageria assíncrona do projeto
+
+**Fecha o ciclo comercial:**
+
+- Contratos e documentos (assinatura eletrônica, upload, checklist)
+- Financeiro — comissões e cobranças
+
+**Alto valor / baixo acoplamento (contrato já existe, pode começar já):**
+
+- Busca avançada + recomendação via IA — `AIProvider`/`PropertyRecommendationProvider`/`DescriptionGeneratorProvider` já definidos em `properties-service/src/domain/ai/`, só falta plugar um provider real
+- Favoritos / comparador de imóveis
+
+**Expansão:**
+
+- Portal do cliente (área logada pro comprador/locatário)
+- Match de leads (busca salva + notificação)
+- Mídia — tour virtual e plantas
+- Avaliação automática de imóvel (AVM)
+- Analytics avançado (funil de conversão, ranking de corretor)
+- Integração com portais externos (OLX, ZAP, Viva Real)
+- Auditoria / histórico de alterações
+- Billing da plataforma (assinatura das imobiliárias-cliente)
 
 ## Git — fluxo
 
