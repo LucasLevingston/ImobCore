@@ -21,7 +21,10 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
                   {item.label}
                 </span>
               ) : (
-                <a href={item.href} className="text-muted-foreground hover:text-foreground">
+                <a
+                  href={item.href}
+                  className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
                   {item.label}
                 </a>
               )}

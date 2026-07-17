@@ -46,7 +46,13 @@ export function Logo({ variant = 'full', size = 'md', href, className }: LogoPro
 
   if (href) {
     return (
-      <a href={href} className={sharedClassName}>
+      <a
+        href={href}
+        className={cn(
+          sharedClassName,
+          'rounded-sm transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        )}
+      >
         {content}
       </a>
     )
