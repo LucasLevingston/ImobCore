@@ -22,7 +22,7 @@ export function Sidebar({ items, header, footer, className, collapsed = false }:
                   href={item.href}
                   aria-current={item.active ? 'page' : undefined}
                   className={cn(
-                    'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground',
+                    'flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     item.active && 'bg-accent text-accent-foreground',
                   )}
                 >
