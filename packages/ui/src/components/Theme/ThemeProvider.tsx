@@ -1,26 +1,9 @@
 'use client'
 
 import * as React from 'react'
+import { getInitialTheme } from './get-initial-theme'
 import type { Theme, ThemeContextValue, ThemeProviderProps } from './theme.types'
 import { ThemeContext } from './theme-context'
-
-function getSystemPreference(): Theme {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return 'light'
-  }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-function getInitialTheme(storageKey: string, defaultTheme?: Theme): Theme {
-  if (typeof window === 'undefined') {
-    return defaultTheme ?? 'light'
-  }
-  const stored = window.localStorage.getItem(storageKey)
-  if (stored === 'light' || stored === 'dark') {
-    return stored
-  }
-  return defaultTheme ?? getSystemPreference()
-}
 
 export function ThemeProvider({
   children,

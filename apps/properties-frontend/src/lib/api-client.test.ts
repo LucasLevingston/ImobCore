@@ -95,6 +95,17 @@ describe('apiClient', () => {
     await expect(apiClient.post('/api/properties', {})).rejects.toBeInstanceOf(ApiError)
   })
 
+  it('should fall back to a default message when the error response body is not valid JSON', async () => {
+    server.use(
+      http.post(`${BASE}/api/properties`, () => new HttpResponse('not json', { status: 500 })),
+    )
+
+    await expect(apiClient.post('/api/properties', {})).rejects.toMatchObject({
+      status: 500,
+      message: 'Erro desconhecido.',
+    })
+  })
+
   it('should retry once with a new token after a successful silent refresh on 401', async () => {
     useAuthStore.getState().setSession('expired-token', null)
     let callCount = 0

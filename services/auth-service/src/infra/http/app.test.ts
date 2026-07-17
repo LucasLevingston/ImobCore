@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import request from 'supertest'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { InMemoryRefreshTokenRepository } from '../../test-utils/fakes/in-memory-refresh-token-repository'
 import { InMemoryUserRepository } from '../../test-utils/fakes/in-memory-user-repository'
 import { BcryptHasher } from '../cryptography/bcrypt-hasher'
@@ -123,6 +123,33 @@ describe('auth-service HTTP routes', () => {
 
       expect(appWithDefaultLogger.log).toBeDefined()
       await appWithDefaultLogger.close()
+    })
+  })
+
+  describe('buildApp in production', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs()
+    })
+
+    it('should not register the /docs swagger UI route', async () => {
+      vi.stubEnv('NODE_ENV', 'production')
+      const prodApp = await buildApp({
+        userRepository: new InMemoryUserRepository(),
+        refreshTokenRepository: new InMemoryRefreshTokenRepository(),
+        passwordHasher: new BcryptHasher(),
+        tokenProvider: new JwtTokenProvider(),
+        tokenHasher: new Sha256TokenHasher(),
+        refreshTokenTtlMs: REFRESH_TOKEN_TTL_MS,
+        logger: false,
+      })
+      await prodApp.ready()
+
+      try {
+        const response = await request(prodApp.server).get('/docs')
+        expect(response.status).toBe(404)
+      } finally {
+        await prodApp.close()
+      }
     })
   })
 
