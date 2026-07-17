@@ -1,1 +1,6 @@
-export { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from './FormField'
+export { Form } from './Form'
+export { FormField } from './FormField'
+export { FormItem } from './FormItem'
+export { FormLabel } from './FormLabel'
+export { FormControl } from './FormControl'
+export { FormMessage } from './FormMessage'

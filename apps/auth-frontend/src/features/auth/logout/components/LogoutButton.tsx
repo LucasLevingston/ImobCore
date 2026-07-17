@@ -2,10 +2,7 @@
 
 import { Button } from '@microfrontends/ui'
 import { useLogout } from '../hooks/useLogout'
-
-export interface LogoutButtonProps {
-  onLoggedOut?: () => void
-}
+import type { LogoutButtonProps } from './LogoutButton.types'
 
 export function LogoutButton({ onLoggedOut = () => {} }: LogoutButtonProps) {
   const { mutate, isPending } = useLogout()

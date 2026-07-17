@@ -1,3 +1,4 @@
 export { useDashboardMetrics } from './hooks/useDashboardMetrics'
 export { getDashboardMetrics } from './services/get-dashboard-metrics.service'
-export { MetricsCards, type MetricsCardsProps } from './components/MetricsCards'
+export { MetricsCards } from './components/MetricsCards'
+export type { MetricsCardsProps } from './components/MetricsCards.types'

@@ -9,7 +9,7 @@ import {
   ModalHeader,
   ModalTitle,
   ModalTrigger,
-} from './Modal'
+} from '.'
 
 describe('Modal', () => {
   it('should not render content when closed', () => {

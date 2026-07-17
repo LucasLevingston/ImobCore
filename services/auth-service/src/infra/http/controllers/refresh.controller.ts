@@ -1,10 +1,8 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { UnauthorizedError } from '../../../application/errors/unauthorized-error'
 import type { RefreshTokenUseCase } from '../../../application/usecases/refresh-token/refresh-token.usecase'
-import {
-  REFRESH_TOKEN_COOKIE_NAME,
-  refreshTokenCookieOptions,
-} from '../cookies/refresh-token-cookie'
+import { refreshTokenCookieOptions } from '../cookies/refresh-token-cookie'
+import { REFRESH_TOKEN_COOKIE_NAME } from '../cookies/refresh-token-cookie.constants'
 
 export function makeRefreshController(useCase: RefreshTokenUseCase, refreshTokenTtlMs: number) {
   return async function refreshController(request: FastifyRequest, reply: FastifyReply) {

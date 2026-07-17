@@ -1,19 +1,5 @@
 import { z } from 'zod'
-
-export const PROPERTY_TYPES = [
-  'Apartment',
-  'House',
-  'Land',
-  'Commercial',
-  'Farm',
-  'Studio',
-  'Penthouse',
-] as const
-
-export const PROPERTY_STATUSES = ['Available', 'Reserved', 'Sold', 'Rented', 'Inactive'] as const
-
-export type PropertyType = (typeof PROPERTY_TYPES)[number]
-export type PropertyStatus = (typeof PROPERTY_STATUSES)[number]
+import { PROPERTY_STATUSES, PROPERTY_TYPES } from './property.constants'
 
 export const propertyTypeSchema = z.enum(PROPERTY_TYPES)
 export const propertyStatusSchema = z.enum(PROPERTY_STATUSES)

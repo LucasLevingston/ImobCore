@@ -1,9 +1,6 @@
 import { apiClient } from '../../../../lib/api-client'
 import type { LoginFormValues } from '../schemas/login.schema'
-
-export interface LoginResponse {
-  accessToken: string
-}
+import type { LoginResponse } from './login.service.types'
 
 export const loginService = {
   // skipAuth: 401 aqui é credencial errada, não sessão expirada — nunca deve

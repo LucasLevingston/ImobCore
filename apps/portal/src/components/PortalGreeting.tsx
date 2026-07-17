@@ -1,7 +1,7 @@
 'use client'
 
 import { Loading } from '@microfrontends/ui'
-import { useSessionContext } from '../contexts/SessionContext'
+import { useSessionContext } from '../contexts/useSessionContext'
 import { firstName } from '../utils/first-name'
 
 export function PortalGreeting() {

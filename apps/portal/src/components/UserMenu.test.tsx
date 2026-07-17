@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import { renderWithUser } from '../test-utils/renderWithUser'
-import { SessionContext, type SessionContextValue } from '../contexts/SessionContext'
+import { SessionContext } from '../contexts/SessionContext'
+import type { SessionContextValue } from '../contexts/SessionContext.types'
 import { logoutService } from '../services/logout.service'
 import { UserMenu } from './UserMenu'
 

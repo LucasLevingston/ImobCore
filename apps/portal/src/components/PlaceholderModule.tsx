@@ -1,9 +1,5 @@
 import { Card, CardDescription, CardHeader, CardTitle } from '@microfrontends/ui'
-
-export interface PlaceholderModuleProps {
-  title: string
-  description?: string
-}
+import type { PlaceholderModuleProps } from './PlaceholderModule.types'
 
 // Reaproveitado pelas 6 rotas de módulo ainda não federado (docs/ARCHITECTURE.md
 // seção 05a) — troca por conteúdo real quando o respectivo MFE existir.

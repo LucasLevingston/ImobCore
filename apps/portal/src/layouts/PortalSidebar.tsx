@@ -6,11 +6,7 @@ import { usePathname } from 'next/navigation'
 import { iconMap } from '../lib/icon-map'
 import { logoutService } from '../services/logout.service'
 import { MODULES } from '../routes/modules'
-
-export interface PortalSidebarProps {
-  collapsed: boolean
-  onLogout?: () => void
-}
+import type { PortalSidebarProps } from './PortalSidebar.types'
 
 async function defaultLogout() {
   await logoutService.logout()

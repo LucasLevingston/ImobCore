@@ -5,11 +5,7 @@ import { Button, Input } from '@microfrontends/ui'
 import { useForm } from 'react-hook-form'
 import { useRegister } from '../hooks/useRegister'
 import { registerSchema, type RegisterFormValues } from '../schemas/register.schema'
-
-// ISP: interface mínima — só o que o form precisa
-export interface RegisterFormProps {
-  onSuccess?: () => void
-}
+import type { RegisterFormProps } from './RegisterForm.types'
 
 export function RegisterForm({ onSuccess = () => {} }: RegisterFormProps) {
   const {

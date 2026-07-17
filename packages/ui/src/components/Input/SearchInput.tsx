@@ -1,11 +1,8 @@
 import * as React from 'react'
 import { Search, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
-import { Input, type InputProps } from './Input'
-
-export interface SearchInputProps extends Omit<InputProps, 'type'> {
-  onClear?: () => void
-}
+import { Input } from './Input'
+import type { SearchInputProps } from './SearchInput.types'
 
 export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   ({ value, onClear, className, ...props }, ref) => {

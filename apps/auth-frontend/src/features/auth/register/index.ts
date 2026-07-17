@@ -1,4 +1,5 @@
-export { RegisterForm, type RegisterFormProps } from './components/RegisterForm'
+export { RegisterForm } from './components/RegisterForm'
+export type { RegisterFormProps } from './components/RegisterForm.types'
 export { useRegister } from './hooks/useRegister'
 export { registerSchema, type RegisterFormValues } from './schemas/register.schema'
-export type { RegisterResponse } from './services/register.service'
+export type { RegisterResponse } from './services/register.service.types'

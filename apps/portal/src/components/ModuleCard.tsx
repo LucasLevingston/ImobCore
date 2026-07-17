@@ -2,11 +2,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@microfrontends/ui'
 import { iconMap } from '../lib/icon-map'
-import type { ModuleDescriptor } from '../routes/modules'
-
-export interface ModuleCardProps {
-  module: ModuleDescriptor
-}
+import type { ModuleCardProps } from './ModuleCard.types'
 
 const LINK_CLASSNAME =
   'group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'

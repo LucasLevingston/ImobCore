@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { ELLIPSIS, getPaginationRange } from './getPaginationRange'
+import { getPaginationRange } from './getPaginationRange'
+import { ELLIPSIS } from './pagination.constants'
 
 describe('getPaginationRange', () => {
   it('should return every page when totalPages fits within the visible window', () => {

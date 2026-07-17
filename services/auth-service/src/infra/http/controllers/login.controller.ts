@@ -1,10 +1,8 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { LoginInput } from '../../../application/dto/login.dto'
 import type { LoginUseCase } from '../../../application/usecases/login/login.usecase'
-import {
-  REFRESH_TOKEN_COOKIE_NAME,
-  refreshTokenCookieOptions,
-} from '../cookies/refresh-token-cookie'
+import { refreshTokenCookieOptions } from '../cookies/refresh-token-cookie'
+import { REFRESH_TOKEN_COOKIE_NAME } from '../cookies/refresh-token-cookie.constants'
 
 // Body já validado pelo schema Zod registrado na rota (auth.routes.ts)
 export function makeLoginController(useCase: LoginUseCase, refreshTokenTtlMs: number) {

@@ -1,1 +1,2 @@
-export { QueryBoundary, type QueryBoundaryProps } from './QueryBoundary'
+export { QueryBoundary } from './QueryBoundary'
+export type { QueryBoundaryProps } from './QueryBoundary.types'

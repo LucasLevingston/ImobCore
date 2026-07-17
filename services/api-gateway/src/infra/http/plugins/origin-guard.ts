@@ -1,9 +1,3 @@
-const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
-
-export function isMutatingMethod(method: string): boolean {
-  return MUTATING_METHODS.has(method.toUpperCase())
-}
-
 function firstValue(header: string | string[] | undefined): string | undefined {
   return Array.isArray(header) ? header[0] : header
 }

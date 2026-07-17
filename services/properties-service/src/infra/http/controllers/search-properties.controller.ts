@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { SearchPropertiesQuery } from '../../../application/dto/search-properties-query.dto'
+import type { SearchPropertiesQuery } from '../../../application/dto/search-properties-query.types'
 import type { SearchPropertiesUseCase } from '../../../application/usecases/search-properties/search-properties.usecase'
 import { toPropertyResponse } from '../mappers/property-response.mapper'
 import { toFiltersAndPagination } from '../utils/query-mapper'

@@ -1,11 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@microfrontends/ui'
-import type { Property } from '../../../../types/property'
+import type { PropertyDetailProps } from './PropertyDetail.types'
 
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-
-export interface PropertyDetailProps {
-  property: Property
-}
 
 export function PropertyDetail({ property }: PropertyDetailProps) {
   return (

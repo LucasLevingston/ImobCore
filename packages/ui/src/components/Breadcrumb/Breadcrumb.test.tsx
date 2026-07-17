@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { Breadcrumb, type BreadcrumbItem } from './Breadcrumb'
+import { Breadcrumb } from './Breadcrumb'
+import type { BreadcrumbItem } from './Breadcrumb.types'
 
 const items: BreadcrumbItem[] = [
   { label: 'Início', href: '/' },

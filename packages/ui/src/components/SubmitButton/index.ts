@@ -1,1 +1,2 @@
-export { SubmitButton, type SubmitButtonProps } from './SubmitButton'
+export { SubmitButton } from './SubmitButton'
+export type { SubmitButtonProps } from './SubmitButton.types'

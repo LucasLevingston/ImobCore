@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import {
-  createPropertySchema,
-  propertyResponseSchema,
-  PROPERTY_STATUSES,
-  PROPERTY_TYPES,
-} from './property.schema'
+import { createPropertySchema, propertyResponseSchema } from './property.schema'
+import { PROPERTY_STATUSES, PROPERTY_TYPES } from './property.constants'
 
 const validInput = {
   title: 'Apartamento reformado',

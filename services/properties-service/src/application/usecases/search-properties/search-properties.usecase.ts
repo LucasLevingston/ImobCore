@@ -1,10 +1,10 @@
 import type { Property } from '../../../domain/entities/property.entity'
+import type { PropertyRepository } from '../../../domain/repositories/property-repository'
 import type {
-  PaginatedResult,
   PaginationParams,
   PropertyFilters,
-  PropertyRepository,
-} from '../../../domain/repositories/property-repository'
+} from '../../../domain/repositories/property-query.types'
+import type { PaginatedResult } from '../../../domain/repositories/property-repository-result.types'
 
 export class SearchPropertiesUseCase {
   constructor(private readonly propertyRepository: PropertyRepository) {}

@@ -9,7 +9,7 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react'
-import type { ModuleIconName } from '../routes/modules'
+import type { ModuleIconName } from '../routes/modules.types'
 
 // Nome (dado puro em routes/modules.ts) -> componente de ícone real —
 // compartilhado por ModuleCard e PortalSidebar, nunca duplicado entre os dois

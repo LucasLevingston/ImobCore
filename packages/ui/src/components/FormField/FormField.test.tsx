@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { renderWithUser } from '../../test-utils'
 import { Input } from '../Input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './FormField'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '.'
 
 const schema = z.object({
   email: z.string().min(1, 'Email é obrigatório').email('Email inválido'),

@@ -1,14 +1,8 @@
 import * as React from 'react'
-import { ErrorBoundary, getErrorMessage, type FallbackProps } from 'react-error-boundary'
+import { ErrorBoundary, getErrorMessage } from 'react-error-boundary'
 import { Loading } from '../Loading'
 import { ErrorState } from '../Error'
-
-export interface QueryBoundaryProps {
-  children: React.ReactNode
-  loadingFallback?: React.ReactNode
-  errorFallback?: (props: FallbackProps) => React.ReactNode
-  onReset?: () => void
-}
+import type { QueryBoundaryProps } from './QueryBoundary.types'
 
 // SRP: só orquestra loading/erro de uma árvore que usa useSuspenseQuery —
 // não sabe nada sobre a query em si (isso fica no hook do consumidor).

@@ -1,23 +1,21 @@
 export {
+  type AccessTokenResponse,
+  accessTokenResponseSchema,
+  type LoginInput,
+  loginSchema,
+  type RegisterUserInput,
+  registerUserSchema,
+  type UserResponse,
+  userResponseSchema,
+} from './auth/auth.schema'
+
+export { PROPERTY_STATUSES, PROPERTY_TYPES } from './property/property.constants'
+export {
+  type CreatePropertyInput,
   createPropertySchema,
+  type PropertyResponse,
   propertyResponseSchema,
   propertyStatusSchema,
   propertyTypeSchema,
-  PROPERTY_STATUSES,
-  PROPERTY_TYPES,
-  type CreatePropertyInput,
-  type PropertyResponse,
-  type PropertyStatus,
-  type PropertyType,
 } from './property/property.schema'
-
-export {
-  accessTokenResponseSchema,
-  loginSchema,
-  registerUserSchema,
-  userResponseSchema,
-  type AccessTokenResponse,
-  type LoginInput,
-  type RegisterUserInput,
-  type UserResponse,
-} from './auth/auth.schema'
+export type { PropertyStatus, PropertyType } from './property/property.types'

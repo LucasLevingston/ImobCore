@@ -1,13 +1,7 @@
 import { AlertTriangle } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { Button } from '../Button'
-
-export interface ErrorStateProps {
-  title?: string
-  message?: string
-  onRetry?: () => void
-  className?: string
-}
+import type { ErrorStateProps } from './Error.types'
 
 export function ErrorState({
   title = 'Algo deu errado',

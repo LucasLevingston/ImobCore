@@ -1,11 +1,5 @@
 import { create } from 'zustand'
-
-export interface AuthUser {
-  id: string
-  name: string
-  email: string
-  createdAt: string
-}
+import type { AuthUser } from './auth-store.types'
 
 interface AuthState {
   accessToken: string | null

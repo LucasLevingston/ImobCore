@@ -1,3 +1,4 @@
 export { ProfileCard } from './components/ProfileCard'
-export { PROFILE_QUERY_KEY, useProfile } from './hooks/useProfile'
-export type { ProfileResponse } from './services/profile.service'
+export { useProfile } from './hooks/useProfile'
+export { PROFILE_QUERY_KEY } from './hooks/useProfile.constants'
+export type { ProfileResponse } from './services/profile.service.types'

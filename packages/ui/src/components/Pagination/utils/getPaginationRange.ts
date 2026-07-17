@@ -1,6 +1,5 @@
-export const ELLIPSIS = 'ellipsis' as const
-
-export type PaginationItem = number | typeof ELLIPSIS
+import { ELLIPSIS } from './pagination.constants'
+import type { PaginationItem } from './pagination.types'
 
 function range(start: number, end: number): number[] {
   const length = end - start + 1

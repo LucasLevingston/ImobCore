@@ -1,10 +1,5 @@
-import Fastify, { type FastifyInstance } from 'fastify'
-
-export interface FakeUpstream {
-  app: FastifyInstance
-  url: string
-  close: () => Promise<void>
-}
+import Fastify from 'fastify'
+import type { FakeUpstream } from './fake-upstream.types'
 
 // Simula um service real (auth-service/properties-service) só com o que o
 // gateway precisa: /health + uma rota que ecoa path/headers recebidos —

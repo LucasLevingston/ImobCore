@@ -1,14 +1,5 @@
-import * as React from 'react'
 import { cn } from '../../lib/utils'
-
-// ISP: 3 slots opcionais — logo, nav, actions. Sem estado de auth aqui;
-// quem injeta AuthStatus/UserMenu (via Module Federation) é o app consumidor.
-export interface HeaderProps {
-  logo?: React.ReactNode
-  nav?: React.ReactNode
-  actions?: React.ReactNode
-  className?: string
-}
+import type { HeaderProps } from './Header.types'
 
 export function Header({ logo, nav, actions, className }: HeaderProps) {
   return (

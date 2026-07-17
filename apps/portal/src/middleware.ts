@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { env } from './lib/env'
-import { buildLoginRedirectUrl, hasSessionCookie } from './lib/session-guard'
+import { hasSessionCookie } from './lib/session-guard'
+import { buildLoginRedirectUrl } from './lib/build-login-redirect-url'
 
 const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken'
 

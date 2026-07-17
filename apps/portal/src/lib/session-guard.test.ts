@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { buildLoginRedirectUrl, hasSessionCookie } from './session-guard'
+import { hasSessionCookie } from './session-guard'
+import { buildLoginRedirectUrl } from './build-login-redirect-url'
 
 describe('hasSessionCookie', () => {
   it('should return false when the cookie value is undefined', () => {

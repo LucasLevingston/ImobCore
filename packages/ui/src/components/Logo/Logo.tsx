@@ -1,17 +1,6 @@
 import { cn } from '../../lib/utils'
-
-const sizeConfig = {
-  sm: { icon: 'h-5 w-5', text: 'text-sm' },
-  md: { icon: 'h-6 w-6', text: 'text-lg' },
-  lg: { icon: 'h-8 w-8', text: 'text-2xl' },
-} as const
-
-export interface LogoProps {
-  variant?: 'full' | 'icon'
-  size?: keyof typeof sizeConfig
-  href?: string
-  className?: string
-}
+import { sizeConfig } from './Logo.constants'
+import type { LogoProps } from './Logo.types'
 
 function LogoMark({ className }: { className: string }) {
   return (

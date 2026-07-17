@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import type { ModuleDescriptor } from '../routes/modules'
+import type { ModuleDescriptor } from '../routes/modules.types'
 import { ModuleCard } from './ModuleCard'
 
 const internalModule: ModuleDescriptor = {

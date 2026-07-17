@@ -2,8 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useAuthStore } from '../../../../stores/auth-store'
 import { profileService } from '../services/profile.service'
-
-export const PROFILE_QUERY_KEY = ['auth', 'me'] as const
+import { PROFILE_QUERY_KEY } from './useProfile.constants'
 
 export function useProfile() {
   const accessToken = useAuthStore((state) => state.accessToken)

@@ -13,14 +13,10 @@ import { LoginUseCase } from '../../application/usecases/login/login.usecase'
 import { LogoutUseCase } from '../../application/usecases/logout/logout.usecase'
 import { RefreshTokenUseCase } from '../../application/usecases/refresh-token/refresh-token.usecase'
 import { RegisterUserUseCase } from '../../application/usecases/register-user/register-user.usecase'
-import type { PasswordHasher } from '../../domain/cryptography/password-hasher'
-import type { TokenHasher } from '../../domain/cryptography/token-hasher'
-import type { TokenProvider } from '../../domain/cryptography/token-provider'
-import type { RefreshTokenRepository } from '../../domain/repositories/refresh-token-repository'
-import type { UserRepository } from '../../domain/repositories/user-repository'
 import { makeAuthenticate } from './middlewares/authenticate'
 import { errorHandler } from './middlewares/error-handler'
 import { registerAuthRoutes } from './routes/auth.routes'
+import type { AppDependencies } from './app.types'
 
 // Nunca logar senha, Authorization ou cookie — mesmo em erro (docs seção 26).
 // Corpo de /register e /login carrega "password" em texto puro na requisição.
@@ -30,17 +26,6 @@ const REDACT_PATHS = [
   'res.headers["set-cookie"]',
   'req.body.password',
 ]
-
-export interface AppDependencies {
-  userRepository: UserRepository
-  refreshTokenRepository: RefreshTokenRepository
-  passwordHasher: PasswordHasher
-  tokenProvider: TokenProvider
-  tokenHasher: TokenHasher
-  refreshTokenTtlMs: number
-  checkReadiness?: () => Promise<boolean>
-  logger?: boolean
-}
 
 // Composition root: monta plugins, use cases e rotas a partir de dependências
 // injetadas — testes passam fakes, main/server.ts passa implementações Prisma reais.

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '../test-utils/renderWithProviders'
 import { MOCK_USER } from '../mocks/handlers/auth'
-import { useSessionContext } from '../contexts/SessionContext'
+import { useSessionContext } from '../contexts/useSessionContext'
 import { SessionProvider } from './SessionProvider'
 
 function Consumer() {

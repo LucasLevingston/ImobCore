@@ -1,0 +1,1 @@
+export const PROFILE_QUERY_KEY = ['auth', 'me'] as const

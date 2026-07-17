@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@microfrontends/ui'
 import { LogOut, User as UserIcon } from 'lucide-react'
-import { useSessionContext } from '../contexts/SessionContext'
+import { useSessionContext } from '../contexts/useSessionContext'
 import { logoutService } from '../services/logout.service'
 
 function initials(name: string): string {

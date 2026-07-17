@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ThemeProvider } from '@microfrontends/ui'
-import { SessionContext, type SessionContextValue } from '../contexts/SessionContext'
+import { SessionContext } from '../contexts/SessionContext'
+import type { SessionContextValue } from '../contexts/SessionContext.types'
 import { AppShell } from './AppShell'
 
 vi.mock('next/navigation', () => ({

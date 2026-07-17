@@ -1,7 +1,7 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
-import { sessionService, type SessionUser } from '../services/session.service'
-
-export const SESSION_QUERY_KEY = ['session'] as const
+import { sessionService } from '../services/session.service'
+import type { SessionUser } from '../services/session.service.types'
+import { SESSION_QUERY_KEY } from './useSession.constants'
 
 // staleTime alto: identidade do usuário logado raramente muda durante a
 // sessão — evita refetch a cada navegação entre módulos do Portal
