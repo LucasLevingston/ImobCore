@@ -1,8 +1,8 @@
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { env } from '../../../../lib/env'
-import { server } from '../../../../mocks/server'
 import { MOCK_PROPERTY } from '../../../../mocks/handlers/properties'
+import { server } from '../../../../mocks/server'
 import { getProperty } from './get-property.service'
 
 const BASE = env.NEXT_PUBLIC_API_GATEWAY_URL

@@ -2,7 +2,7 @@
 
 import { ErrorState } from '@microfrontends/ui'
 
-export default function Error({
+export default function RouteError({
   error,
   reset,
 }: {

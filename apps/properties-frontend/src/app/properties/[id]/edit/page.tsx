@@ -1,11 +1,11 @@
 'use client'
 
-import { PropertyForm } from '@/features/properties/create'
-import { useProperty } from '@/features/properties/detail'
-import { useUpdateProperty } from '@/features/properties/update'
 import { ErrorState, Loading } from '@microfrontends/ui'
 import { useRouter } from 'next/navigation'
 import { use } from 'react'
+import { PropertyForm } from '@/features/properties/create'
+import { useProperty } from '@/features/properties/detail'
+import { useUpdateProperty } from '@/features/properties/update'
 
 export default function EditPropertyPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()

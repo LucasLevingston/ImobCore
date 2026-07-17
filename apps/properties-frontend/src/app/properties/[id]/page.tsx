@@ -1,11 +1,11 @@
 'use client'
 
-import { DeletePropertyButton } from '@/features/properties/delete'
-import { PropertyDetail, useProperty } from '@/features/properties/detail'
 import { ErrorState, Loading } from '@microfrontends/ui'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { use } from 'react'
+import { DeletePropertyButton } from '@/features/properties/delete'
+import { PropertyDetail, useProperty } from '@/features/properties/detail'
 
 export default function PropertyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()

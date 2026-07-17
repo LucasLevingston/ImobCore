@@ -1,9 +1,9 @@
-import { http, HttpResponse } from 'msw'
-import { describe, expect, it } from 'vitest'
 import { waitFor } from '@testing-library/react'
-import { server } from '../mocks/server'
-import { MOCK_USER } from '../mocks/handlers/auth'
+import { HttpResponse, http } from 'msw'
+import { describe, expect, it } from 'vitest'
 import { env } from '../lib/env'
+import { MOCK_USER } from '../mocks/handlers/auth'
+import { server } from '../mocks/server'
 import { renderHookWithProviders } from '../test-utils/renderHookWithProviders'
 import { useSession } from './useSession'
 

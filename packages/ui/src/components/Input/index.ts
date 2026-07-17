@@ -1,6 +1,6 @@
-export { Input } from './Input'
-export type { InputProps } from './Input.types'
 export { CurrencyInput } from './CurrencyInput'
 export type { CurrencyInputProps } from './CurrencyInput.types'
+export { Input } from './Input'
+export type { InputProps } from './Input.types'
 export { SearchInput } from './SearchInput'
 export type { SearchInputProps } from './SearchInput.types'

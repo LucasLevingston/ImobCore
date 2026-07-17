@@ -3,11 +3,11 @@ import helmet from '@fastify/helmet'
 import httpProxy from '@fastify/http-proxy'
 import rateLimit from '@fastify/rate-limit'
 import Fastify, { type FastifyInstance } from 'fastify'
-import { pingUpstream } from './ping-upstream'
-import { resolveRequestId } from './plugins/request-id'
-import { isOriginAllowed } from './plugins/origin-guard'
-import { isMutatingMethod } from './plugins/is-mutating-method'
 import type { AppDependencies } from './app.types'
+import { pingUpstream } from './ping-upstream'
+import { isMutatingMethod } from './plugins/is-mutating-method'
+import { isOriginAllowed } from './plugins/origin-guard'
+import { resolveRequestId } from './plugins/request-id'
 
 // Nunca logar Authorization ou cookie (refresh token), mesmo em erro (docs
 // seção 26) — o gateway só transporta esses headers, nunca os inspeciona

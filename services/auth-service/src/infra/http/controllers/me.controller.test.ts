@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { UnauthorizedError } from '../../../application/errors/unauthorized-error'
-import { InMemoryUserRepository } from '../../../test-utils/fakes/in-memory-user-repository'
-import { makeUser } from '../../../test-utils/factories/make-user'
 import { GetProfileUseCase } from '../../../application/usecases/get-profile/get-profile.usecase'
+import { makeUser } from '../../../test-utils/factories/make-user'
+import { InMemoryUserRepository } from '../../../test-utils/fakes/in-memory-user-repository'
 import { makeMeController } from './me.controller'
 
 function makeReply() {

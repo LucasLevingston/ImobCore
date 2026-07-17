@@ -14,6 +14,7 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
         {items.map((item, index) => {
           const isLast = index === lastIndex
           return (
+            // biome-ignore lint/suspicious/noArrayIndexKey: label pode repetir entre itens; index é o desempate estável (a trilha não reordena)
             <li key={`${item.label}-${index}`} className="flex items-center gap-2">
               {index > 0 && <span aria-hidden="true">/</span>}
               {isLast ? (

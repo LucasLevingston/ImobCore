@@ -1,5 +1,5 @@
 export { LoginForm } from './components/LoginForm'
 export type { LoginFormProps } from './components/LoginForm.types'
 export { useLogin } from './hooks/useLogin'
-export { loginSchema, type LoginFormValues } from './schemas/login.schema'
+export { type LoginFormValues, loginSchema } from './schemas/login.schema'
 export type { LoginResponse } from './services/login.service.types'

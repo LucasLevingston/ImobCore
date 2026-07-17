@@ -1,8 +1,8 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { LogoutButton } from '@/features/auth/logout'
 import { ProfileCard } from '@/features/auth/profile'
-import { useRouter } from 'next/navigation'
 
 export default function ProfilePage() {
   const router = useRouter()

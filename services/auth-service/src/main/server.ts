@@ -1,10 +1,10 @@
-import { buildApp } from '../infra/http/app'
 import { BcryptHasher } from '../infra/cryptography/bcrypt-hasher'
 import { JwtTokenProvider } from '../infra/cryptography/jwt-token-provider'
 import { Sha256TokenHasher } from '../infra/cryptography/sha256-token-hasher'
 import { prisma } from '../infra/database/prisma/client'
 import { PrismaRefreshTokenRepository } from '../infra/database/prisma/prisma-refresh-token-repository'
 import { PrismaUserRepository } from '../infra/database/prisma/prisma-user-repository'
+import { buildApp } from '../infra/http/app'
 import { parseDurationToMs } from '../infra/utils/parse-duration'
 import { env } from './env'
 

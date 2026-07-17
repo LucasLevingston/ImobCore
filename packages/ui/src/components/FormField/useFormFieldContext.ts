@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { FormFieldContext } from './form-field-context'
 import type { FormFieldContextValue } from './form-context.types'
+import { FormFieldContext } from './form-field-context'
 
 export function useFormFieldContext(): FormFieldContextValue {
   const context = React.useContext(FormFieldContext)

@@ -1,7 +1,7 @@
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
-import { server } from '../mocks/server'
 import { env } from '../lib/env'
+import { server } from '../mocks/server'
 import { sessionService } from './session.service'
 
 const BASE = env.NEXT_PUBLIC_API_GATEWAY_URL

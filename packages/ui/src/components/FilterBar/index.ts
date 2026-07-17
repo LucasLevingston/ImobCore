@@ -1,2 +1,2 @@
 export { FilterBar } from './FilterBar'
-export type { FilterBarProps, FilterBarFieldProps, FilterBarActionsProps } from './FilterBar.types'
+export type { FilterBarActionsProps, FilterBarFieldProps, FilterBarProps } from './FilterBar.types'

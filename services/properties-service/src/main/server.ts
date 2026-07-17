@@ -1,7 +1,7 @@
-import { buildApp } from '../infra/http/app'
 import { JwtTokenProvider } from '../infra/cryptography/jwt-token-provider'
 import { prisma } from '../infra/database/prisma/client'
 import { PrismaPropertyRepository } from '../infra/database/prisma/prisma-property-repository'
+import { buildApp } from '../infra/http/app'
 import { env } from './env'
 
 async function main() {

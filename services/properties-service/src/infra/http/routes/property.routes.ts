@@ -1,6 +1,6 @@
+import { propertyResponseSchema } from '@microfrontends/validation-schemas'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { propertyResponseSchema } from '@microfrontends/validation-schemas'
 import { createPropertySchema } from '../../../application/dto/create-property.dto'
 import { listPropertiesQuerySchema } from '../../../application/dto/list-properties-query.dto'
 import { searchPropertiesQuerySchema } from '../../../application/dto/search-properties-query.dto'

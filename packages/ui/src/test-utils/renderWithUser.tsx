@@ -11,7 +11,8 @@ interface RenderWithUserResult extends RenderResult {
 // aqui é o fix oficial do codemod do próprio React pra bater com a assinatura
 // genérica do render() do RTL.
 export function renderWithUser(
-  ui: ReactElement<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: fix oficial do codemod do React 19 pra bater com a assinatura genérica do render() do RTL
+  ui: ReactElement<any>,
   options?: RenderOptions,
 ): RenderWithUserResult {
   const user = userEvent.setup()

@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderWithUser } from '../../test-utils'
 import { ThemeProvider } from './ThemeProvider'
 import { useTheme } from './useTheme'

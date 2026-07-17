@@ -13,8 +13,6 @@ import type MatchersStandalone from '@testing-library/jest-dom/matchers'
 
 declare module '@vitest/expect' {
   interface Assertion<T = unknown> extends MatchersStandalone.TestingLibraryMatchers<unknown, T> {}
-  interface AsymmetricMatchersContaining extends MatchersStandalone.TestingLibraryMatchers<
-    unknown,
-    unknown
-  > {}
+  interface AsymmetricMatchersContaining
+    extends MatchersStandalone.TestingLibraryMatchers<unknown, unknown> {}
 }

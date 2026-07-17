@@ -2,7 +2,7 @@
 
 import { Button, Layout } from '@microfrontends/ui'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { PortalBreadcrumb } from './PortalBreadcrumb'
 import { PortalFooter } from './PortalFooter'
 import { PortalHeader } from './PortalHeader'

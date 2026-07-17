@@ -1,26 +1,9 @@
 // Contrato público do design system — apps consumidores importam só daqui.
 // Nada em src/**/internal ou src/test-utils é exportado.
 
-export { cn } from './lib/utils'
-
+export { Avatar, AvatarFallback, AvatarImage } from './components/Avatar'
+export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from './components/Breadcrumb'
 export { Button, type ButtonProps } from './components/Button'
-export { SubmitButton, type SubmitButtonProps } from './components/SubmitButton'
-export {
-  Input,
-  type InputProps,
-  CurrencyInput,
-  type CurrencyInputProps,
-  SearchInput,
-  type SearchInputProps,
-} from './components/Input'
-export {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from './components/FormField'
 export {
   Card,
   CardContent,
@@ -29,10 +12,42 @@ export {
   CardHeader,
   CardTitle,
 } from './components/Card'
-export { Loading, type LoadingProps } from './components/Loading'
-export { Skeleton, type SkeletonProps } from './components/Skeleton'
+export {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './components/DropdownMenu'
 export { ErrorState, type ErrorStateProps } from './components/Error'
-export { QueryBoundary, type QueryBoundaryProps } from './components/QueryBoundary'
+export {
+  FilterBar,
+  type FilterBarActionsProps,
+  type FilterBarFieldProps,
+  type FilterBarProps,
+} from './components/FilterBar'
+export { Footer, type FooterProps } from './components/Footer'
+export {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from './components/FormField'
+export { Header, type HeaderProps } from './components/Header'
+export {
+  CurrencyInput,
+  type CurrencyInputProps,
+  Input,
+  type InputProps,
+  SearchInput,
+  type SearchInputProps,
+} from './components/Input'
+export { Layout, type LayoutProps } from './components/Layout'
+export { Loading, type LoadingProps } from './components/Loading'
+export { Logo, type LogoProps } from './components/Logo'
 export {
   Modal,
   ModalContent,
@@ -42,46 +57,30 @@ export {
   ModalTitle,
   ModalTrigger,
 } from './components/Modal'
+export { Pagination, type PaginationProps } from './components/Pagination'
+export { QueryBoundary, type QueryBoundaryProps } from './components/QueryBoundary'
+export { Sidebar, type SidebarItem, type SidebarProps } from './components/Sidebar'
+export { Skeleton, type SkeletonProps } from './components/Skeleton'
+export { SubmitButton, type SubmitButtonProps } from './components/SubmitButton'
+export {
+  type Theme,
+  type ThemeContextValue,
+  ThemeProvider,
+  type ThemeProviderProps,
+  ThemeToggle,
+  type ThemeToggleProps,
+  useTheme,
+} from './components/Theme'
 export {
   Toast,
   ToastClose,
+  type ToastData,
   ToastDescription,
-  ToastProvider,
   Toaster,
+  ToastProvider,
   ToastTitle,
   ToastViewport,
   toast,
   useToast,
-  type ToastData,
 } from './components/Toast'
-export { Layout, type LayoutProps } from './components/Layout'
-export { Pagination, type PaginationProps } from './components/Pagination'
-export { Header, type HeaderProps } from './components/Header'
-export { Logo, type LogoProps } from './components/Logo'
-export {
-  FilterBar,
-  type FilterBarProps,
-  type FilterBarFieldProps,
-  type FilterBarActionsProps,
-} from './components/FilterBar'
-export { Sidebar, type SidebarItem, type SidebarProps } from './components/Sidebar'
-export { Footer, type FooterProps } from './components/Footer'
-export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from './components/Breadcrumb'
-export { Avatar, AvatarFallback, AvatarImage } from './components/Avatar'
-export {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from './components/DropdownMenu'
-export {
-  ThemeProvider,
-  useTheme,
-  ThemeToggle,
-  type Theme,
-  type ThemeContextValue,
-  type ThemeProviderProps,
-  type ThemeToggleProps,
-} from './components/Theme'
+export { cn } from './lib/utils'

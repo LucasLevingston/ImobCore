@@ -1,9 +1,9 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { Button } from '../Button'
-import { ELLIPSIS } from './utils/pagination.constants'
-import { getPaginationRange } from './utils/getPaginationRange'
 import type { PaginationProps } from './Pagination.types'
+import { getPaginationRange } from './utils/getPaginationRange'
+import { ELLIPSIS } from './utils/pagination.constants'
 
 export function Pagination({
   currentPage,
@@ -39,7 +39,7 @@ export function Pagination({
 
       {items.map((item, index) =>
         item === ELLIPSIS ? (
-          // eslint-disable-next-line react/no-array-index-key -- elipse não tem identidade própria; posição é estável dentro do range calculado
+          // biome-ignore lint/suspicious/noArrayIndexKey: elipse não tem identidade própria; posição é estável dentro do range calculado
           <span key={`ellipsis-${index}`} aria-hidden="true" className="px-2 text-muted-foreground">
             …
           </span>

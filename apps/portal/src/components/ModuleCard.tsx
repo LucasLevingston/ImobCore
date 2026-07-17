@@ -1,6 +1,6 @@
-import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@microfrontends/ui'
+import { ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import { iconMap } from '../lib/icon-map'
 import type { ModuleCardProps } from './ModuleCard.types'
 

@@ -9,7 +9,9 @@ const removeTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 function dispatch(action: ToastAction) {
   memoryState = reducer(memoryState, action)
-  listeners.forEach((listener) => listener(memoryState))
+  listeners.forEach((listener) => {
+    listener(memoryState)
+  })
 }
 
 function scheduleRemoval(toastId: string) {

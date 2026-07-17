@@ -1,6 +1,6 @@
 import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 import type { z } from 'zod'
-import type { propertyFormSchema, PropertyFormValues } from '../schemas/property-form.schema'
+import type { PropertyFormValues, propertyFormSchema } from '../schemas/property-form.schema'
 
 // propertyFormSchema usa z.preprocess (nullableNumber) pra campos numéricos
 // nullable — o tipo de entrada (antes do parse) diverge do tipo de saída

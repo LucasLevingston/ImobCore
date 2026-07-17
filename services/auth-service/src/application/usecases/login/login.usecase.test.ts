@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
+import { makeUser } from '../../../test-utils/factories/make-user'
 import { InMemoryRefreshTokenRepository } from '../../../test-utils/fakes/in-memory-refresh-token-repository'
 import { InMemoryUserRepository } from '../../../test-utils/fakes/in-memory-user-repository'
-import { makeUser } from '../../../test-utils/factories/make-user'
 import { UnauthorizedError } from '../../errors/unauthorized-error'
 import { LoginUseCase } from './login.usecase'
 

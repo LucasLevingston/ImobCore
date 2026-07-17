@@ -11,14 +11,12 @@ describe('LogoutButton', () => {
   })
 
   it('should clear the auth store and call onLoggedOut when clicked', async () => {
-    useAuthStore
-      .getState()
-      .setSession('token', {
-        id: 'user-1',
-        name: 'Lucas',
-        email: 'lucas@email.com',
-        createdAt: '2026-01-01T00:00:00.000Z',
-      })
+    useAuthStore.getState().setSession('token', {
+      id: 'user-1',
+      name: 'Lucas',
+      email: 'lucas@email.com',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
     const onLoggedOut = vi.fn()
     const { user } = renderWithProviders(<LogoutButton onLoggedOut={onLoggedOut} />)
 

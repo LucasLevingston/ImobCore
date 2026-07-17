@@ -4,8 +4,8 @@ import { Button, Sidebar, type SidebarItem } from '@microfrontends/ui'
 import { LogOut } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { iconMap } from '../lib/icon-map'
-import { logoutService } from '../services/logout.service'
 import { MODULES } from '../routes/modules'
+import { logoutService } from '../services/logout.service'
 import type { PortalSidebarProps } from './PortalSidebar.types'
 
 async function defaultLogout() {

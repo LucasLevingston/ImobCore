@@ -46,10 +46,12 @@ jobs:
           node-version: '20'
           cache: npm
       - run: npm ci
-      # inclui as regras de arquitetura em .eslintrc.base.json (max-lines,
-      # 1 função por arquivo, sem misturar function/type/const exportados,
-      # import/no-cycle) — não é só estilo, é a "porta" de SOLID/desacoplamento
-      - run: npm run lint --workspaces --if-present
+      # Biome (biome.json) cobre formatação + lint geral do monorepo inteiro
+      # num passo só; ESLint (.eslintrc.js) roda por cima só das 5 regras de
+      # arquitetura que o Biome não tem (max-lines, 1 função por arquivo, sem
+      # misturar function/type/const exportados, import/no-cycle) — não é só
+      # estilo, é a "porta" de SOLID/desacoplamento
+      - run: npm run lint
 
   test:
     runs-on: ubuntu-latest

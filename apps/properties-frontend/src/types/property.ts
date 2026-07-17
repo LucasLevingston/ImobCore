@@ -6,6 +6,7 @@ export {
   type PropertyStatus,
   type PropertyType,
 } from '@microfrontends/validation-schemas'
+
 import type { PropertyStatus, PropertyType } from '@microfrontends/validation-schemas'
 
 export interface Property {

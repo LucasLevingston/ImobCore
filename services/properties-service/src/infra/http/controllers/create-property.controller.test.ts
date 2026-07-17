@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { CreatePropertyUseCase } from '../../../application/usecases/create-property/create-property.usecase'
 import { UnauthorizedError } from '../../../application/errors/unauthorized-error'
-import { InMemoryPropertyRepository } from '../../../test-utils/fakes/in-memory-property-repository'
+import { CreatePropertyUseCase } from '../../../application/usecases/create-property/create-property.usecase'
 import { makeCreatePropertyInput } from '../../../test-utils/factories/make-create-property-input'
+import { InMemoryPropertyRepository } from '../../../test-utils/fakes/in-memory-property-repository'
 import { makeCreatePropertyController } from './create-property.controller'
 
 function makeReply() {

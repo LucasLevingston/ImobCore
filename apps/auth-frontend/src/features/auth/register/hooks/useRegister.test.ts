@@ -1,5 +1,5 @@
 import { waitFor } from '@testing-library/react'
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { env } from '../../../../lib/env'
 import { server } from '../../../../mocks/server'

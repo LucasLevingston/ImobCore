@@ -7,17 +7,17 @@ import type {
   PaginationParams,
   PropertyFilters,
 } from '../../../domain/repositories/property-query.types'
-import type {
-  PaginatedResult,
-  DashboardMetrics,
-} from '../../../domain/repositories/property-repository-result.types'
 import type { PropertyRepository } from '../../../domain/repositories/property-repository'
+import type {
+  DashboardMetrics,
+  PaginatedResult,
+} from '../../../domain/repositories/property-repository-result.types'
 import type { Prisma, PrismaClient } from '../../../generated/prisma/client'
-import { toDomain } from './prisma-property.mapper'
-import { buildWhere } from './prisma-property-where.builder'
-import { buildUpdateData } from './prisma-property-update.builder'
 import { runPaginatedPropertyQuery } from './prisma-paginated-property-query'
+import { toDomain } from './prisma-property.mapper'
 import { computePropertyDashboardMetrics } from './prisma-property-dashboard-metrics'
+import { buildUpdateData } from './prisma-property-update.builder'
+import { buildWhere } from './prisma-property-where.builder'
 
 export class PrismaPropertyRepository implements PropertyRepository {
   constructor(private readonly prisma: PrismaClient) {}

@@ -14,10 +14,10 @@ import { GetPropertyUseCase } from '../../application/usecases/get-property/get-
 import { ListPropertiesUseCase } from '../../application/usecases/list-properties/list-properties.usecase'
 import { SearchPropertiesUseCase } from '../../application/usecases/search-properties/search-properties.usecase'
 import { UpdatePropertyUseCase } from '../../application/usecases/update-property/update-property.usecase'
+import type { AppDependencies } from './app.types'
 import { makeAuthenticate } from './middlewares/authenticate'
 import { errorHandler } from './middlewares/error-handler'
 import { registerPropertyRoutes } from './routes/property.routes'
-import type { AppDependencies } from './app.types'
 
 // Nunca logar Authorization ou cookie, mesmo em erro (docs seção 26) — este
 // service não tem body sensível (sem senha/token), só headers de sessão

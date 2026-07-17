@@ -2,8 +2,8 @@
 // validation-schemas — compartilhadas com o form schema de properties-frontend,
 // pra não dessincronizar as duas validações da mesma entidade.
 export {
+  type CreatePropertyInput,
   createPropertySchema,
   propertyStatusSchema,
   propertyTypeSchema,
-  type CreatePropertyInput,
 } from '@microfrontends/validation-schemas'

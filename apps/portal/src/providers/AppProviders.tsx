@@ -1,8 +1,8 @@
 'use client'
 
+import { ThemeProvider, Toaster } from '@microfrontends/ui'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Toaster, ThemeProvider } from '@microfrontends/ui'
-import { useState, type ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { SessionProvider } from './SessionProvider'
 
 // Composição raiz do Portal (docs/ARCHITECTURE.md seção 05a). Tratamento de

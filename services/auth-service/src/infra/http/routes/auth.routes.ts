@@ -1,11 +1,11 @@
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import {
   accessTokenResponseSchema,
   loginSchema,
   registerUserSchema,
   userResponseSchema,
 } from '@microfrontends/validation-schemas'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import type { GetProfileUseCase } from '../../../application/usecases/get-profile/get-profile.usecase'
 import type { LoginUseCase } from '../../../application/usecases/login/login.usecase'
 import type { LogoutUseCase } from '../../../application/usecases/logout/logout.usecase'

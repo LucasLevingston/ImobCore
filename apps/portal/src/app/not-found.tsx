@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import { ErrorState } from '@microfrontends/ui'
+import Link from 'next/link'
 
 export default function NotFound() {
   return (

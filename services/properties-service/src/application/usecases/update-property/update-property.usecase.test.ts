@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { InMemoryPropertyRepository } from '../../../test-utils/fakes/in-memory-property-repository'
 import { makeProperty } from '../../../test-utils/factories/make-property'
+import { InMemoryPropertyRepository } from '../../../test-utils/fakes/in-memory-property-repository'
 import { NotFoundError } from '../../errors/not-found-error'
 import { UpdatePropertyUseCase } from './update-property.usecase'
 

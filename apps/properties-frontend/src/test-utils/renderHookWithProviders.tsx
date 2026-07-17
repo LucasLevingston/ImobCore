@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { renderHook, type RenderHookOptions, type RenderHookResult } from '@testing-library/react'
+import { type RenderHookOptions, type RenderHookResult, renderHook } from '@testing-library/react'
 
 function createTestQueryClient(): QueryClient {
   return new QueryClient({

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { InMemoryUserRepository } from '../../../test-utils/fakes/in-memory-user-repository'
 import { makeUser } from '../../../test-utils/factories/make-user'
+import { InMemoryUserRepository } from '../../../test-utils/fakes/in-memory-user-repository'
 import { ConflictError } from '../../errors/conflict-error'
 import { RegisterUserUseCase } from './register-user.usecase'
 

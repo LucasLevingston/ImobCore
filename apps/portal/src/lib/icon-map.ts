@@ -4,10 +4,10 @@ import {
   Building2,
   CalendarCheck,
   LayoutDashboard,
+  type LucideIcon,
   Settings,
   ShieldCheck,
   Users,
-  type LucideIcon,
 } from 'lucide-react'
 import type { ModuleIconName } from '../routes/modules.types'
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { InMemoryRemoteRegistry } from './remote-registry'
 import type { RemoteManifest } from './remote-manifest'
+import { InMemoryRemoteRegistry } from './remote-registry'
 
 const authManifest: RemoteManifest = {
   key: 'authFrontend',

@@ -6,6 +6,8 @@ import { useToast } from '../components/Toast/use-toast'
 export function resetToasts(): void {
   const { result } = renderHook(() => useToast())
   act(() => {
-    result.current.toasts.forEach((t) => result.current.dismiss(t.id))
+    result.current.toasts.forEach((t) => {
+      result.current.dismiss(t.id)
+    })
   })
 }
