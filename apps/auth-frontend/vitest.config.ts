@@ -24,6 +24,7 @@ export default defineConfig({
         'src/app/**',
         'src/mocks/**',
         'src/test-utils/**',
+        'src/generated/**',
       ],
       thresholds: {
         lines: 95,

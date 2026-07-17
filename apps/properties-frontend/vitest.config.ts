@@ -25,6 +25,7 @@ export default defineConfig({
         'src/mocks/**',
         'src/test-utils/**',
         'src/types/**',
+        'src/generated/**',
         // importa um módulo virtual do webpack Module Federation (authFrontend/Header)
         // — não resolvível pelo Vite/Vitest, só testável via dev server real
         'src/components/federation/RemoteHeader.tsx',

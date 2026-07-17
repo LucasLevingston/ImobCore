@@ -54,4 +54,13 @@ describe('pingUpstream', () => {
 
     await expect(pingUpstream(started.url, 5000)).resolves.toBe(true)
   })
+
+  it('should resolve false when the upstream does not respond within the timeout', async () => {
+    const started = await startServer(() => {
+      // nunca chama res.end() — força o AbortController a disparar antes de qualquer resposta
+    })
+    server = started.server
+
+    await expect(pingUpstream(started.url, 50)).resolves.toBe(false)
+  })
 })
