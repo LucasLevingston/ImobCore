@@ -93,6 +93,17 @@ describe('apiClient', () => {
     await expect(apiClient.post('/api/auth/register', {})).rejects.toBeInstanceOf(ApiError)
   })
 
+  it('should fall back to a default message when the error response body is not valid JSON', async () => {
+    server.use(
+      http.post(`${BASE}/api/auth/register`, () => new HttpResponse('not json', { status: 500 })),
+    )
+
+    await expect(apiClient.post('/api/auth/register', {})).rejects.toMatchObject({
+      status: 500,
+      message: 'Erro desconhecido.',
+    })
+  })
+
   it('should retry once with a new token after a successful silent refresh on 401', async () => {
     useAuthStore.getState().setSession('expired-token', null)
     let meCallCount = 0

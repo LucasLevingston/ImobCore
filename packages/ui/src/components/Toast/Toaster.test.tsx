@@ -25,6 +25,16 @@ describe('Toaster', () => {
     expect(screen.getByText('Salvo com sucesso.')).toBeInTheDocument()
   })
 
+  it('should render a toast without a title', () => {
+    render(<Toaster />)
+
+    act(() => {
+      toast({ description: 'Só a descrição.' })
+    })
+
+    expect(screen.getByText('Só a descrição.')).toBeInTheDocument()
+  })
+
   it('should dismiss the toast when its close button is clicked', async () => {
     const { user } = renderWithUser(<Toaster />)
 

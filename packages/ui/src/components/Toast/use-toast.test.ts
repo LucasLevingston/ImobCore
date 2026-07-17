@@ -35,6 +35,18 @@ describe('toast reducer', () => {
     expect(dismissed.toasts[0]?.open).toBe(false)
   })
 
+  it('should leave other toasts untouched on DISMISS_TOAST', () => {
+    const state: Parameters<typeof reducer>[0] = {
+      toasts: [
+        { id: '1', open: true, title: 'Um' },
+        { id: '2', open: true, title: 'Dois' },
+      ],
+    }
+    const dismissed = reducer(state, { type: 'DISMISS_TOAST', toastId: '1' })
+    expect(dismissed.toasts.find((t) => t.id === '1')?.open).toBe(false)
+    expect(dismissed.toasts.find((t) => t.id === '2')?.open).toBe(true)
+  })
+
   it('should remove a toast on REMOVE_TOAST', () => {
     const withOne = reducer(
       { toasts: [] },

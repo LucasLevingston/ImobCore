@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import jwt from 'jsonwebtoken'
 import request from 'supertest'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeCreatePropertyInput } from '../../test-utils/factories/make-create-property-input'
 import { makeProperty } from '../../test-utils/factories/make-property'
 import { InMemoryPropertyRepository } from '../../test-utils/fakes/in-memory-property-repository'
@@ -77,6 +77,29 @@ describe('properties-service HTTP routes', () => {
 
       expect(appWithDefaultLogger.log).toBeDefined()
       await appWithDefaultLogger.close()
+    })
+  })
+
+  describe('buildApp in production', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs()
+    })
+
+    it('should not register the /docs swagger UI route', async () => {
+      vi.stubEnv('NODE_ENV', 'production')
+      const prodApp = await buildApp({
+        propertyRepository: new InMemoryPropertyRepository(),
+        tokenProvider: new JwtTokenProvider(JWT_SECRET),
+        logger: false,
+      })
+      await prodApp.ready()
+
+      try {
+        const response = await request(prodApp.server).get('/docs')
+        expect(response.status).toBe(404)
+      } finally {
+        await prodApp.close()
+      }
     })
   })
 
