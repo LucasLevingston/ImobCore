@@ -2,6 +2,7 @@
 // Nada em src/**/internal ou src/test-utils é exportado.
 
 export { Avatar, AvatarFallback, AvatarImage } from './components/Avatar'
+export { Badge, type BadgeProps } from './components/Badge'
 export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from './components/Breadcrumb'
 export { Button, type ButtonProps } from './components/Button'
 export {
@@ -28,6 +29,7 @@ export {
   type FilterBarProps,
 } from './components/FilterBar'
 export { Footer, type FooterProps } from './components/Footer'
+export { FormError, type FormErrorProps } from './components/FormError'
 export {
   Form,
   FormControl,
@@ -83,4 +85,10 @@ export {
   toast,
   useToast,
 } from './components/Toast'
+export {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './components/Tooltip'
 export { cn } from './lib/utils'

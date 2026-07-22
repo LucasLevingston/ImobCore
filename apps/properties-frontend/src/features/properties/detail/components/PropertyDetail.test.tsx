@@ -14,6 +14,12 @@ describe('PropertyDetail', () => {
     expect(screen.getByText('R$ 350.000,00')).toBeInTheDocument()
   })
 
+  it('should render the status badge in pt-BR', () => {
+    renderWithProviders(<PropertyDetail property={MOCK_PROPERTY} />)
+
+    expect(screen.getByText('Disponível')).toBeInTheDocument()
+  })
+
   it('should render boolean specs as Sim/Não', () => {
     renderWithProviders(<PropertyDetail property={{ ...MOCK_PROPERTY, acceptsPets: false }} />)
 

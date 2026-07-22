@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@microfrontends/ui'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { SessionContext } from '../contexts/SessionContext'
@@ -12,12 +13,15 @@ const authenticatedValue: SessionContextValue = {
 }
 
 function renderHeader(value: SessionContextValue = authenticatedValue) {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
-    <ThemeProvider>
-      <SessionContext.Provider value={value}>
-        <PortalHeader />
-      </SessionContext.Provider>
-    </ThemeProvider>,
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <SessionContext.Provider value={value}>
+          <PortalHeader />
+        </SessionContext.Provider>
+      </ThemeProvider>
+    </QueryClientProvider>,
   )
 }
 

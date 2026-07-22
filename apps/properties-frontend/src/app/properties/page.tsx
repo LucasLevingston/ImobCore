@@ -1,6 +1,7 @@
 'use client'
 
-import { ErrorState, Loading } from '@microfrontends/ui'
+import { Button, ErrorState } from '@microfrontends/ui'
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import {
@@ -8,6 +9,7 @@ import {
   PropertyFilters,
   type PropertyFilterValues,
   PropertyList,
+  PropertyListSkeleton,
   useProperties,
 } from '@/features/properties/list'
 
@@ -27,18 +29,21 @@ export default function PropertiesPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Imóveis</h1>
-        <Link
-          href="/properties/new"
-          className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-        >
-          Novo imóvel
-        </Link>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Imóveis</h1>
+          <p className="text-sm text-muted-foreground">Gerencie o seu portfólio de imóveis.</p>
+        </div>
+        <Button asChild>
+          <Link href="/properties/new">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Novo imóvel
+          </Link>
+        </Button>
       </div>
 
       <PropertyFilters initialValues={filters} onApply={handleApply} />
 
-      {isLoading && <Loading label="Carregando imóveis..." />}
+      {isLoading && <PropertyListSkeleton />}
       {isError && (
         <ErrorState title="Não foi possível carregar os imóveis" onRetry={() => void refetch()} />
       )}

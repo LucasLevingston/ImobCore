@@ -65,4 +65,15 @@ describe('PropertyFilters', () => {
 
     expect(onApply).toHaveBeenCalledWith({})
   })
+
+  it('should clear the search field when the clear button is clicked', async () => {
+    const onApply = vi.fn()
+    const { user } = renderWithProviders(<PropertyFilters onApply={onApply} />)
+
+    await user.type(screen.getByLabelText('Buscar'), 'cobertura')
+    await user.click(screen.getByRole('button', { name: 'Limpar busca' }))
+    await user.click(screen.getByRole('button', { name: 'Filtrar' }))
+
+    expect(onApply).toHaveBeenCalledWith({})
+  })
 })

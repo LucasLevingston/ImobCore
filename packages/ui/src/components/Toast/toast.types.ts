@@ -10,7 +10,7 @@ export interface ToastData {
   id: string
   title?: RenderableNode
   description?: RenderableNode
-  variant?: 'default' | 'destructive'
+  variant?: 'default' | 'destructive' | 'success'
   open: boolean
 }
 

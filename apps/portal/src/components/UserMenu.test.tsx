@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SessionContext } from '../contexts/SessionContext'
 import type { SessionContextValue } from '../contexts/SessionContext.types'
 import { logoutService } from '../services/logout.service'
-import { renderWithUser } from '../test-utils/renderWithUser'
+import { renderWithProviders } from '../test-utils/renderWithProviders'
 import { UserMenu } from './UserMenu'
 
 const authenticatedValue: SessionContextValue = {
@@ -13,7 +13,7 @@ const authenticatedValue: SessionContextValue = {
 }
 
 function renderMenu(value: SessionContextValue = authenticatedValue) {
-  return renderWithUser(
+  return renderWithProviders(
     <SessionContext.Provider value={value}>
       <UserMenu />
     </SessionContext.Provider>,
@@ -53,6 +53,20 @@ describe('UserMenu', () => {
     await user.click(await screen.findByText('Sair'))
 
     await waitFor(() => expect(logoutSpy).toHaveBeenCalled())
+    await waitFor(() => expect(reloadSpy).toHaveBeenCalled())
+    vi.unstubAllGlobals()
+  })
+
+  it('should still reload and clear local state when the logout request fails', async () => {
+    vi.spyOn(logoutService, 'logout').mockRejectedValue(new Error('network error'))
+    const reloadSpy = vi.fn()
+    vi.stubGlobal('location', { ...window.location, reload: reloadSpy })
+
+    const { user } = renderMenu()
+    await user.click(screen.getByRole('button', { name: /Lucas Levingston/ }))
+    await user.click(await screen.findByText('Sair'))
+
+    await waitFor(() => expect(reloadSpy).toHaveBeenCalled())
     vi.unstubAllGlobals()
   })
 })

@@ -1,4 +1,5 @@
 import { PROPERTY_STATUSES, PROPERTY_TYPES } from '../../../../types/property'
+import { PROPERTY_STATUS_LABELS } from '../../property-status'
 import type { PropertyFormFieldsProps } from './PropertyForm.types'
 
 export function PropertyFormClassificationFields({ register }: PropertyFormFieldsProps) {
@@ -11,7 +12,7 @@ export function PropertyFormClassificationFields({ register }: PropertyFormField
         <select
           id="type"
           {...register('type')}
-          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm shadow-xs transition-colors duration-150"
         >
           {PROPERTY_TYPES.map((option) => (
             <option key={option} value={option}>
@@ -28,11 +29,11 @@ export function PropertyFormClassificationFields({ register }: PropertyFormField
         <select
           id="status"
           {...register('status')}
-          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm shadow-xs transition-colors duration-150"
         >
           {PROPERTY_STATUSES.map((option) => (
             <option key={option} value={option}>
-              {option}
+              {PROPERTY_STATUS_LABELS[option]}
             </option>
           ))}
         </select>
