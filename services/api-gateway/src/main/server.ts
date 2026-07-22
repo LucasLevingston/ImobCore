@@ -3,8 +3,15 @@ import { env } from './env'
 
 async function main() {
   const app = await buildApp({
-    authServiceUrl: env.AUTH_SERVICE_URL,
-    propertiesServiceUrl: env.PROPERTIES_SERVICE_URL,
+    services: [
+      { name: 'auth', url: env.AUTH_SERVICE_URL, prefix: '/api/auth', rewritePrefix: '' },
+      {
+        name: 'properties',
+        url: env.PROPERTIES_SERVICE_URL,
+        prefix: '/api/properties',
+        rewritePrefix: '/properties',
+      },
+    ],
     corsOrigin: env.CORS_ORIGIN.split(','),
     rateLimitMax: env.RATE_LIMIT_MAX,
     rateLimitTimeWindow: env.RATE_LIMIT_TIME_WINDOW,

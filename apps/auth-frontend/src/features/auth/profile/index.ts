@@ -1,4 +1,5 @@
 export { ProfileCard } from './components/ProfileCard'
+export { useAuthSession } from './hooks/useAuthSession'
 export { useProfile } from './hooks/useProfile'
 export { PROFILE_QUERY_KEY } from './hooks/useProfile.constants'
 export type { ProfileResponse } from './services/profile.service.types'

@@ -55,28 +55,28 @@ export async function buildApp(deps: AppDependencies): Promise<FastifyInstance> 
 
   app.get('/health', () => ({ status: 'ok' }))
   app.get('/health/ready', async (_request, reply) => {
-    const [auth, properties] = await Promise.all([
-      pingUpstream(deps.authServiceUrl),
-      pingUpstream(deps.propertiesServiceUrl),
-    ])
-    const ready = auth && properties
+    const results = await Promise.all(
+      deps.services.map(
+        async (service) => [service.name, await pingUpstream(service.url)] as const,
+      ),
+    )
+    const ready = results.every(([, ok]) => ok)
     return reply.status(ready ? 200 : 503).send({
       status: ready ? 'ready' : 'not-ready',
-      services: { auth, properties },
+      services: Object.fromEntries(results),
     })
   })
 
-  await app.register(httpProxy, {
-    upstream: deps.authServiceUrl,
-    prefix: '/api/auth',
-    rewritePrefix: '',
-  })
-
-  await app.register(httpProxy, {
-    upstream: deps.propertiesServiceUrl,
-    prefix: '/api/properties',
-    rewritePrefix: '/properties',
-  })
+  // Loop sobre deps.services em vez de um app.register(httpProxy, ...) por
+  // serviço — um novo downstream (docs seção 04a) vira uma entrada na lista
+  // que server.ts monta, não uma nova chamada aqui.
+  for (const service of deps.services) {
+    await app.register(httpProxy, {
+      upstream: service.url,
+      prefix: service.prefix,
+      rewritePrefix: service.rewritePrefix,
+    })
+  }
 
   return app
 }
