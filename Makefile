@@ -26,10 +26,10 @@ test-integration: ## Testes de integração Prisma (precisa Docker rodando)
 	npm run test:integration --workspace=auth-service --if-present
 	npm run test:integration --workspace=properties-service --if-present
 
-lint: ## Lint de todos os workspaces
-	npm run lint --workspaces --if-present
+lint: ## Lint do repo inteiro (Biome + ESLint, comando único na raiz — não por workspace)
+	npm run lint
 
-format: ## Formata todo o repo com Prettier
+format: ## Formata todo o repo com Biome
 	npm run format
 
 format-check: ## Confere formatação sem alterar arquivos
