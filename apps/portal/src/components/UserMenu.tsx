@@ -12,7 +12,7 @@ import {
 } from '@microfrontends/ui'
 import { LogOut, User as UserIcon } from 'lucide-react'
 import { useSessionContext } from '../contexts/useSessionContext'
-import { logoutService } from '../services/logout.service'
+import { useLogout } from '../hooks/useLogout'
 
 function initials(name: string): string {
   return name
@@ -25,14 +25,17 @@ function initials(name: string): string {
 
 export function UserMenu() {
   const { user, isLoading } = useSessionContext()
+  const { mutate: logout } = useLogout()
 
   if (isLoading || !user) {
     return null
   }
 
-  async function handleLogout() {
-    await logoutService.logout()
-    window.location.reload()
+  // mutate (não await direto): useLogout já limpa store/queryClient em
+  // onSettled mesmo se a chamada ao servidor falhar — sem isso, uma falha de
+  // rede aqui virava uma promise rejeitada sem tratamento (usuário "preso")
+  function handleLogout() {
+    logout(undefined, { onSettled: () => window.location.reload() })
   }
 
   return (
@@ -55,7 +58,7 @@ export function UserMenu() {
           <UserIcon className="mr-2 h-4 w-4" aria-hidden="true" />
           Perfil
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => void handleLogout()}>
+        <DropdownMenuItem onSelect={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
           Sair
         </DropdownMenuItem>

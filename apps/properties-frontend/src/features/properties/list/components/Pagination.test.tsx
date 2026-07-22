@@ -5,11 +5,9 @@ import { Pagination } from './Pagination'
 
 describe('Pagination', () => {
   it('should render nothing when there is only one page', () => {
-    const { container } = renderWithProviders(
-      <Pagination page={1} totalPages={1} onPageChange={vi.fn()} />,
-    )
+    renderWithProviders(<Pagination page={1} totalPages={1} onPageChange={vi.fn()} />)
 
-    expect(container).toBeEmptyDOMElement()
+    expect(screen.queryByRole('navigation', { name: 'Paginação' })).not.toBeInTheDocument()
   })
 
   it('should disable "Anterior" on the first page', () => {

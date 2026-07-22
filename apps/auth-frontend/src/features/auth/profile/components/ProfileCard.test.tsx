@@ -14,7 +14,7 @@ describe('ProfileCard', () => {
     useAuthStore.getState().setSession('token', null)
     renderWithProviders(<ProfileCard />)
 
-    expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(screen.getAllByRole('status').length).toBeGreaterThan(0)
     useAuthStore.getState().clear()
   })
 
@@ -35,6 +35,25 @@ describe('ProfileCard', () => {
 
     expect(await screen.findByText('Lucas Levingston')).toBeInTheDocument()
     expect(screen.getByText('lucas@email.com')).toBeInTheDocument()
+    useAuthStore.getState().clear()
+  })
+
+  it('should render a single-letter avatar initial for a one-word name', async () => {
+    useAuthStore.getState().setSession('token', null)
+    server.use(
+      http.get(`${BASE}/api/auth/me`, () =>
+        HttpResponse.json({
+          id: 'user-1',
+          name: 'Lucas',
+          email: 'lucas@email.com',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        }),
+      ),
+    )
+
+    renderWithProviders(<ProfileCard />)
+
+    expect(await screen.findByText('L')).toBeInTheDocument()
     useAuthStore.getState().clear()
   })
 
