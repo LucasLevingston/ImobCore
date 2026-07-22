@@ -1,5 +1,6 @@
 'use client'
 
+import { FormError } from '@microfrontends/ui'
 import { useRouter } from 'next/navigation'
 import { PropertyForm, useCreateProperty } from '@/features/properties/create'
 
@@ -9,7 +10,8 @@ export default function NewPropertyPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Novo imóvel</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Novo imóvel</h1>
+      <FormError message={error?.message} />
       <PropertyForm
         submitLabel="Cadastrar"
         isSubmitting={isPending}
@@ -19,11 +21,6 @@ export default function NewPropertyPage() {
           })
         }
       />
-      {error && (
-        <p role="alert" className="text-sm text-destructive">
-          {error.message}
-        </p>
-      )}
     </div>
   )
 }

@@ -16,47 +16,69 @@
 
 :root {
   --background: hsl(0 0% 100%);
-  --foreground: hsl(240 10% 3.9%);
+  --foreground: hsl(222 47% 11%);
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(240 10% 3.9%);
+  --card-foreground: hsl(222 47% 11%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(240 10% 3.9%);
-  --primary: hsl(240 5.9% 10%);
-  --primary-foreground: hsl(0 0% 98%);
-  --secondary: hsl(240 4.8% 95.9%);
-  --secondary-foreground: hsl(240 5.9% 10%);
-  --muted: hsl(240 4.8% 95.9%);
-  --muted-foreground: hsl(240 3.8% 46.1%);
-  --accent: hsl(240 4.8% 95.9%);
-  --accent-foreground: hsl(240 5.9% 10%);
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 5.9% 90%);
-  --input: hsl(240 5.9% 90%);
-  --ring: hsl(240 5.9% 10%);
-  --radius: 0.5rem;
+  --popover-foreground: hsl(222 47% 11%);
+  --primary: hsl(222 47% 11%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(220 20% 96%);
+  --secondary-foreground: hsl(222 47% 11%);
+  --muted: hsl(220 20% 96%);
+  --muted-foreground: hsl(220 9% 46%);
+  --accent: hsl(220 20% 96%);
+  --accent-foreground: hsl(222 47% 11%);
+  --destructive: hsl(0 72% 51%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(220 13% 91%);
+  --input: hsl(220 13% 91%);
+  --ring: hsl(224 76% 48%);
+  --radius: 0.625rem;
+
+  /* Cor de marca — único acento saturado do sistema (docs seção 32.x, regra
+     "1 acento máximo"). Nunca usada em botão primário (esse continua
+     monocromático, ver --primary): fica reservada pra link, foco, estado
+     ativo de navegação, badges e indicadores — onde precisa se destacar do
+     preto/branco/cinza do resto da UI. */
+  --brand: hsl(224 76% 48%);
+  --brand-foreground: hsl(0 0% 100%);
+
+  /* Cores semânticas de status — badges de propriedade (Disponível/Vendido),
+     alertas de sucesso/aviso. Não existiam antes (só --destructive). */
+  --success: hsl(142 71% 35%);
+  --success-foreground: hsl(0 0% 100%);
+  --warning: hsl(38 92% 42%);
+  --warning-foreground: hsl(0 0% 100%);
 }
 
 .dark {
-  --background: hsl(240 10% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(240 10% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(240 10% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 98%);
-  --primary-foreground: hsl(240 5.9% 10%);
-  --secondary: hsl(240 3.7% 15.9%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(240 3.7% 15.9%);
-  --muted-foreground: hsl(240 5% 64.9%);
-  --accent: hsl(240 3.7% 15.9%);
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 3.7% 15.9%);
-  --input: hsl(240 3.7% 15.9%);
-  --ring: hsl(240 4.9% 83.9%);
+  --background: hsl(222 47% 6%);
+  --foreground: hsl(210 20% 96%);
+  --card: hsl(222 40% 9%);
+  --card-foreground: hsl(210 20% 96%);
+  --popover: hsl(222 40% 9%);
+  --popover-foreground: hsl(210 20% 96%);
+  --primary: hsl(210 20% 96%);
+  --primary-foreground: hsl(222 47% 11%);
+  --secondary: hsl(222 30% 15%);
+  --secondary-foreground: hsl(210 20% 96%);
+  --muted: hsl(222 30% 15%);
+  --muted-foreground: hsl(217 15% 65%);
+  --accent: hsl(222 30% 15%);
+  --accent-foreground: hsl(210 20% 96%);
+  --destructive: hsl(0 63% 42%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(222 25% 18%);
+  --input: hsl(222 25% 18%);
+  --ring: hsl(217 91% 60%);
+
+  --brand: hsl(217 91% 60%);
+  --brand-foreground: hsl(222 47% 11%);
+  --success: hsl(142 65% 45%);
+  --success-foreground: hsl(222 47% 11%);
+  --warning: hsl(38 92% 55%);
+  --warning-foreground: hsl(222 47% 11%);
 }
 
 /* Mapeia as custom properties acima pros tokens de tema do v4 (`inline` =
@@ -83,14 +105,30 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
 
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
 
   --font-sans:
     "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji";
+
+  /* Sombras tingidas na cor do texto (não preto puro) — regra "shadow tinted
+     to background hue" (docs seção 32.x). Tailwind v4 mapeia --shadow-* do
+     @theme direto nas classes utilitárias shadow-xs/sm/md/lg. */
+  --shadow-xs: 0 1px 2px 0 hsl(222 47% 11% / 0.04);
+  --shadow-sm: 0 1px 3px 0 hsl(222 47% 11% / 0.06), 0 1px 2px -1px hsl(222 47% 11% / 0.06);
+  --shadow-md: 0 4px 6px -1px hsl(222 47% 11% / 0.06), 0 2px 4px -2px hsl(222 47% 11% / 0.06);
+  --shadow-lg: 0 10px 15px -3px hsl(222 47% 11% / 0.06), 0 4px 6px -4px hsl(222 47% 11% / 0.06);
 }
 
 @layer base {

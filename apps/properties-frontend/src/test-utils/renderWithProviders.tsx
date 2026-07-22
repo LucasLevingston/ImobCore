@@ -1,3 +1,4 @@
+import { Toaster } from '@microfrontends/ui'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { type RenderOptions, type RenderResult, render } from '@testing-library/react'
 import userEvent, { type UserEvent } from '@testing-library/user-event'
@@ -17,7 +18,7 @@ interface RenderWithProvidersResult extends RenderResult {
   queryClient: QueryClient
 }
 
-// Providers reais da app (só QueryClient por ora — Zustand não precisa de
+// Providers reais da app (QueryClient + Toaster — Zustand não precisa de
 // provider) — evita repetir wrapper em todo teste de componente
 export function renderWithProviders(
   ui: ReactElement,
@@ -28,7 +29,10 @@ export function renderWithProviders(
 
   const result = render(ui, {
     wrapper: ({ children }) => (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <Toaster />
+      </QueryClientProvider>
     ),
     ...options,
   })

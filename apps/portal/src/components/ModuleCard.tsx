@@ -11,9 +11,9 @@ export function ModuleCard({ module }: ModuleCardProps) {
   const Icon = iconMap[module.iconName]
 
   const content = (
-    <Card className="h-full cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-md">
+    <Card className="h-full cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md">
       <CardHeader className="flex-row items-center gap-3 space-y-0">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand">
           <Icon className="h-4.5 w-4.5" aria-hidden="true" />
         </span>
         <CardTitle className="flex-1 text-base">{module.label}</CardTitle>

@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input } from '@microfrontends/ui'
+import { Button, FormError, Input } from '@microfrontends/ui'
 import { useForm } from 'react-hook-form'
 import { useRegister } from '../hooks/useRegister'
 import { type RegisterFormValues, registerSchema } from '../schemas/register.schema'
@@ -62,11 +62,7 @@ export function RegisterForm({ onSuccess = () => {} }: RegisterFormProps) {
         />
       </div>
 
-      {error && (
-        <p role="alert" className="text-sm text-destructive">
-          {error.message}
-        </p>
-      )}
+      <FormError message={error?.message} />
 
       <Button type="submit" isLoading={isPending} className="w-full">
         Criar conta

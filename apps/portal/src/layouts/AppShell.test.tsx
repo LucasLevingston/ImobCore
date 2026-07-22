@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@microfrontends/ui'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
@@ -17,14 +18,17 @@ const authenticatedValue: SessionContextValue = {
 }
 
 function renderShell() {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
-    <ThemeProvider>
-      <SessionContext.Provider value={authenticatedValue}>
-        <AppShell>
-          <p>conteúdo da página</p>
-        </AppShell>
-      </SessionContext.Provider>
-    </ThemeProvider>,
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <SessionContext.Provider value={authenticatedValue}>
+          <AppShell>
+            <p>conteúdo da página</p>
+          </AppShell>
+        </SessionContext.Provider>
+      </ThemeProvider>
+    </QueryClientProvider>,
   )
 }
 

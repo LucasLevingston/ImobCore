@@ -14,6 +14,12 @@ describe('PropertyCard', () => {
     expect(screen.getByText(/2 qts/)).toBeInTheDocument()
   })
 
+  it('should render the status badge in pt-BR', () => {
+    renderWithProviders(<PropertyCard property={MOCK_PROPERTY} />)
+
+    expect(screen.getByText('Disponível')).toBeInTheDocument()
+  })
+
   it('should link to the property detail page', () => {
     renderWithProviders(<PropertyCard property={MOCK_PROPERTY} />)
 

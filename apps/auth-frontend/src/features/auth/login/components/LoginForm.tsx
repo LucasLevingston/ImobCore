@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input } from '@microfrontends/ui'
+import { Button, FormError, Input } from '@microfrontends/ui'
 import { useForm } from 'react-hook-form'
 import { useLogin } from '../hooks/useLogin'
 import { type LoginFormValues, loginSchema } from '../schemas/login.schema'
@@ -50,11 +50,7 @@ export function LoginForm({ onSuccess = () => {} }: LoginFormProps) {
         />
       </div>
 
-      {error && (
-        <p role="alert" className="text-sm text-destructive">
-          {error.message}
-        </p>
-      )}
+      <FormError message={error?.message} />
 
       <Button type="submit" isLoading={isPending} className="w-full">
         Entrar

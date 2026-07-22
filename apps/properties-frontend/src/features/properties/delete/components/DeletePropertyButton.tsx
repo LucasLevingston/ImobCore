@@ -9,8 +9,10 @@ import {
   ModalHeader,
   ModalTitle,
   ModalTrigger,
+  toast,
 } from '@microfrontends/ui'
 import { useState } from 'react'
+import { ApiError } from '../../../../lib/api-client'
 import { useDeleteProperty } from '../hooks/useDeleteProperty'
 import type { DeletePropertyButtonProps } from './DeletePropertyButton.types'
 
@@ -26,6 +28,15 @@ export function DeletePropertyButton({
       onSuccess: () => {
         setOpen(false)
         onDeleted()
+      },
+      onError: (error) => {
+        // Modal fica aberto pra usuário poder tentar de novo — só um toast
+        // avisando o motivo, sem fechar o fluxo de confirmação
+        toast({
+          variant: 'destructive',
+          title: 'Não foi possível excluir o imóvel',
+          description: error instanceof ApiError ? error.message : 'Tente novamente em instantes.',
+        })
       },
     })
   }

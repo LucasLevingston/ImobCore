@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { renderWithUser } from '../../test-utils'
 import { Sidebar } from './Sidebar'
 import type { SidebarItem } from './Sidebar.types'
 
@@ -64,5 +65,18 @@ describe('Sidebar', () => {
     expect(screen.getByText('Produtos')).toHaveClass('sr-only')
     // sr-only não remove do nome acessível — o link continua navegável por leitor de tela
     expect(screen.getByRole('link', { name: 'Produtos' })).toHaveAttribute('href', '/products')
+  })
+
+  it('should show the item label in a tooltip on hover when collapsed', async () => {
+    const { user } = renderWithUser(<Sidebar items={items} collapsed />)
+
+    await user.hover(screen.getByRole('link', { name: 'Produtos' }))
+
+    expect(await screen.findByText('Produtos', { selector: 'div' })).toBeInTheDocument()
+  })
+
+  it('should not wrap items in a tooltip when not collapsed', () => {
+    render(<Sidebar items={items} />)
+    expect(screen.queryByText('Produtos', { selector: 'div' })).not.toBeInTheDocument()
   })
 })
