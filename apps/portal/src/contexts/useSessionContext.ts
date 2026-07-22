@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react'
 import { SessionContext } from './SessionContext'
 import type { SessionContextValue } from './SessionContext.types'

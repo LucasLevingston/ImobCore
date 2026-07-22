@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react'
 import type { FormItemContextValue } from './form-context.types'
 import { FormItemContext } from './form-item-context'

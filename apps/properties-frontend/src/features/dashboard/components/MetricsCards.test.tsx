@@ -26,4 +26,10 @@ describe('MetricsCards', () => {
     expect(screen.getByText('São Paulo')).toBeInTheDocument()
     expect(screen.getByText('Centro')).toBeInTheDocument()
   })
+
+  it('should render a fallback message when there is no city/district data', () => {
+    renderWithProviders(<MetricsCards metrics={{ ...metrics, byCity: [], byDistrict: [] }} />)
+
+    expect(screen.getAllByText('Sem dados disponíveis.')).toHaveLength(2)
+  })
 })
