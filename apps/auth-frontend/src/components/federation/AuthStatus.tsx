@@ -1,17 +1,15 @@
 'use client'
 
-import { useProfile } from '../../features/auth/profile'
-import { useAuthStore } from '../../stores/auth-store'
+import { useAuthSession } from '../../features/auth/profile'
 
 // Exposto via Module Federation — dono do estado vivo de sessão (docs seção 06/07).
 // properties-frontend consome pra saber "quem está logado" sem reimplementar auth.
 export function AuthStatus() {
-  const accessToken = useAuthStore((state) => state.accessToken)
-  const { data } = useProfile()
+  const { isAuthenticated, user } = useAuthSession()
 
-  if (!accessToken || !data) {
+  if (!isAuthenticated || !user) {
     return null
   }
 
-  return <span className="text-sm font-medium">{data.name}</span>
+  return <span className="text-sm font-medium">{user.name}</span>
 }
