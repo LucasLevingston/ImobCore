@@ -24,13 +24,35 @@ describe('api-gateway', () => {
     await app.close()
   })
 
-  async function makeApp(overrides: Partial<Parameters<typeof buildApp>[0]> = {}) {
+  interface MakeAppOverrides {
+    authUrl?: string
+    propertiesUrl?: string
+    corsOrigin?: string[]
+    logger?: boolean
+    rateLimitMax?: number
+    rateLimitTimeWindow?: string
+  }
+
+  async function makeApp(overrides: MakeAppOverrides = {}) {
     app = await buildApp({
-      authServiceUrl: authUpstream.url,
-      propertiesServiceUrl: propertiesUpstream.url,
-      corsOrigin: ['http://localhost:3000'],
-      logger: false,
-      ...overrides,
+      services: [
+        {
+          name: 'auth',
+          url: overrides.authUrl ?? authUpstream.url,
+          prefix: '/api/auth',
+          rewritePrefix: '',
+        },
+        {
+          name: 'properties',
+          url: overrides.propertiesUrl ?? propertiesUpstream.url,
+          prefix: '/api/properties',
+          rewritePrefix: '/properties',
+        },
+      ],
+      corsOrigin: overrides.corsOrigin ?? ['http://localhost:3000'],
+      logger: overrides.logger ?? false,
+      rateLimitMax: overrides.rateLimitMax,
+      rateLimitTimeWindow: overrides.rateLimitTimeWindow,
     })
     await app.ready()
     return app
@@ -57,7 +79,7 @@ describe('api-gateway', () => {
     })
 
     it('should return 503 when an upstream is unreachable', async () => {
-      await makeApp({ propertiesServiceUrl: 'http://127.0.0.1:1' })
+      await makeApp({ propertiesUrl: 'http://127.0.0.1:1' })
       const response = await request(app.server).get('/health/ready')
       expect(response.status).toBe(503)
       expect(response.body).toEqual({
@@ -157,8 +179,15 @@ describe('api-gateway', () => {
   describe('buildApp defaults', () => {
     it('should build successfully using default logger and rate-limit settings', async () => {
       app = await buildApp({
-        authServiceUrl: authUpstream.url,
-        propertiesServiceUrl: propertiesUpstream.url,
+        services: [
+          { name: 'auth', url: authUpstream.url, prefix: '/api/auth', rewritePrefix: '' },
+          {
+            name: 'properties',
+            url: propertiesUpstream.url,
+            prefix: '/api/properties',
+            rewritePrefix: '/properties',
+          },
+        ],
         corsOrigin: ['http://localhost:3000'],
       })
       await app.ready()
