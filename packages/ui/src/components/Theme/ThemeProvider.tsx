@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { applyTheme } from './apply-theme'
 import { getInitialTheme } from './get-initial-theme'
 import type { Theme, ThemeContextValue, ThemeProviderProps } from './theme.types'
 import { ThemeContext } from './theme-context'
@@ -15,8 +16,7 @@ export function ThemeProvider({
   )
 
   React.useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-    window.localStorage.setItem(storageKey, theme)
+    applyTheme(storageKey, theme)
   }, [theme, storageKey])
 
   const setTheme = React.useCallback((next: Theme) => {

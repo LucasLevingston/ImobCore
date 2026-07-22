@@ -10,6 +10,7 @@ import {
 } from '../../../../types/property'
 import { PROPERTY_STATUS_LABELS } from '../../property-status'
 import type { PropertyFiltersProps } from './PropertyFilters.types'
+import { buildFilterValues } from './PropertyFilters.utils'
 
 const SELECT_CLASSNAME =
   'h-10 rounded-lg border border-input bg-background px-3 text-sm shadow-xs transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
@@ -24,14 +25,7 @@ export function PropertyFilters({ initialValues, onApply }: PropertyFiltersProps
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    onApply({
-      ...(q ? { q } : {}),
-      ...(city ? { city } : {}),
-      ...(type ? { type } : {}),
-      ...(status ? { status } : {}),
-      ...(minPrice ? { minPrice: Number(minPrice) } : {}),
-      ...(maxPrice ? { maxPrice: Number(maxPrice) } : {}),
-    })
+    onApply(buildFilterValues({ q, city, type, status, minPrice, maxPrice }))
   }
 
   return (

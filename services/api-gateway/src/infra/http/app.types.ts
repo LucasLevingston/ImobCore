@@ -1,8 +1,14 @@
+export interface ServiceConfig {
+  name: string
+  url: string
+  prefix: string
+  rewritePrefix: string
+}
+
 export interface AppDependencies {
-  authServiceUrl: string
-  propertiesServiceUrl: string
+  services: ServiceConfig[]
   corsOrigin: string | string[]
-  logger?: boolean
-  rateLimitMax?: number
-  rateLimitTimeWindow?: string
+  logger?: boolean | undefined
+  rateLimitMax?: number | undefined
+  rateLimitTimeWindow?: string | undefined
 }
