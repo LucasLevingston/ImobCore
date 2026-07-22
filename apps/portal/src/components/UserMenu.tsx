@@ -13,6 +13,7 @@ import {
 import { LogOut, User as UserIcon } from 'lucide-react'
 import { useSessionContext } from '../contexts/useSessionContext'
 import { useLogout } from '../hooks/useLogout'
+import { reloadAfterLogout } from '../lib/reload-after-logout'
 
 function initials(name: string): string {
   return name
@@ -35,7 +36,7 @@ export function UserMenu() {
   // onSettled mesmo se a chamada ao servidor falhar — sem isso, uma falha de
   // rede aqui virava uma promise rejeitada sem tratamento (usuário "preso")
   function handleLogout() {
-    logout(undefined, { onSettled: () => window.location.reload() })
+    logout(undefined, { onSettled: reloadAfterLogout })
   }
 
   return (
